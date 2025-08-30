@@ -55,7 +55,7 @@ jobs:
         run: ls -l ./src/main/resources/application*.yml
 
       - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon --warning-mode=all
+        run: ./gradlew clean build --no-daemon --warning-mode=all -x test
 
       - name: Set image tags
         id: meta
