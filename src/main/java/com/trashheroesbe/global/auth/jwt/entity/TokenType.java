@@ -1,0 +1,14 @@
+package com.trashheroesbe.global.auth.jwt.entity;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum TokenType {
+    ACCESS_TOKEN("access_token", 1_800_000L), // 30분
+    REFRESH_TOKEN("refresh_token", 1_209_600_000L); // 2주
+
+    private final String name;
+    private final Long validTime;
+}
