@@ -1,0 +1,125 @@
+name: AWS EC2에 Docker로 배포
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_IMAGE_NAME: ${{ secrets.DEV_DOCKER_IMAGE_NAME }}   # e.g. dockerhub-username/repo
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_SSH_USER: ec2-user
+  PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+  CONTAINER_NAME: ${{ secrets.DEV_CONTAINER_NAME }}
+  APP_PORT: "8080"
+  TZ_REGION: "Asia/Seoul"
+
+jobs:
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Set up JDK 21 (Amazon Corretto) with Gradle cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Set up configuration files
+        run: |
+          mkdir -p ./src/main/resources
+
+          # application.yml
+          cat > ./src/main/resources/application.yml <<'EOF'
+          ${{ secrets.APPLICATION_YML }}
+          EOF
+
+          # application-local.yml
+          cat > ./src/main/resources/application-local.yml <<'EOF'
+          ${{ secrets.APPLICATION_LOCAL_YML }}
+          EOF
+
+          # application-prod.yml
+          cat > ./src/main/resources/application-prod.yml <<'EOF'
+          ${{ secrets.APPLICATION_PROD_YML }}
+          EOF
+
+      - name: Verify config files exist
+        run: ls -l ./src/main/resources/application*.yml
+
+      - name: Build with Gradle
+        run: ./gradlew clean build --no-daemon --warning-mode=all
+
+      - name: Set image tags
+        id: meta
+        run: |
+          SHA_TAG=${GITHUB_SHA::7}
+          echo "sha_tag=$SHA_TAG" >> $GITHUB_OUTPUT
+          echo "latest_tag=latest" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push (latest & sha)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.latest_tag }}
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.sha_tag }}
+
+  deploy-to-ec2:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_SSH_USER }}
+          key: ${{ env.PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+
+            IMAGE="${{ env.DOCKER_IMAGE_NAME }}:latest"
+            NAME="${{ env.CONTAINER_NAME }}"
+            PORT="${{ env.APP_PORT }}"
+            TZ="${{ env.TZ_REGION }}"
+
+            echo "[1/4] Pull latest image"
+            sudo docker pull "$IMAGE"
+
+            echo "[2/4] Stop & remove existing container by name (if exists)"
+            if sudo docker ps -a --format '{{.Names}}' | grep -wq "$NAME"; then
+              sudo docker stop "$NAME" || true
+              sudo docker rm "$NAME" || true
+            fi
+
+            echo "[3/4] Run new container on port ${PORT}"
+            sudo docker run -d \
+              --name "$NAME" \
+              -p ${PORT}:${PORT} \
+              -e TZ="$TZ" \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              --restart unless-stopped \
+              "$IMAGE"
+
+            echo "[4/4] Cleanup dangling images"
+            sudo docker image prune -f
+
+            echo "Deployment complete: $NAME running on port $PORT"
