@@ -6,7 +6,6 @@ import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TOKEN;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trashheroesbe.global.auth.jwt.entity.TokenType;
 import com.trashheroesbe.global.auth.jwt.service.JwtTokenProvider;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.auth.security.CustomerDetailsService;
