@@ -1,6 +1,10 @@
 package com.trashheroesbe.feature.user.domain.entity;
 
+import com.trashheroesbe.feature.trash.domain.Trash;
+import com.trashheroesbe.feature.user.domain.type.AuthProvider;
+import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

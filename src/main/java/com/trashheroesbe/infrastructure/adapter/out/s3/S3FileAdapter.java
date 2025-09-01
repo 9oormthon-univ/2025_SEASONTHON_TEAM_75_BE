@@ -1,6 +1,6 @@
-package com.trashheroesbe.global.s3.infrastructure;
+package com.trashheroesbe.infrastructure.adapter.out.s3;
 
-import com.trashheroesbe.global.s3.application.FileStorageService;
+import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class S3FileStorageService implements FileStorageService {
+public class S3FileAdapter implements FileStoragePort {
 
     private final S3Client s3Client;
 

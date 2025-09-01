@@ -1,6 +1,6 @@
-package com.trashheroesbe.global.s3.application;
+package com.trashheroesbe.infrastructure.port.s3;
 
-public interface FileStorageService {
+public interface FileStoragePort {
 
     /**
      * 파일을 저장소에 업로드합니다.

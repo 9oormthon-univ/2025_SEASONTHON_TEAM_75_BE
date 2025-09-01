@@ -1,13 +1,13 @@
 package com.trashheroesbe.feature.trash.application;
 
-import com.trashheroesbe.feature.trash.dto.request.TrashCreateRequest;
+import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
 import com.trashheroesbe.feature.trash.dto.response.TrashResult;
 import com.trashheroesbe.feature.trash.domain.Trash;
 import com.trashheroesbe.feature.trash.infrastructure.TrashRepository;
-import com.trashheroesbe.feature.user.domain.User;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
-import com.trashheroesbe.global.s3.application.FileStorageService;
+import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 public class TrashService implements TrashCreateUseCase {
 
     private final TrashRepository trashRepository;
-    private final FileStorageService fileStorageService;
+    private final FileStoragePort fileStoragePort;
 
     @Override
     @Transactional
-    public TrashResult createTrash(TrashCreateRequest request, User user) {
+    public TrashResult createTrash(CreateTrashRequest request, User user) {
         log.info("쓰레기 생성 시작: userId={}", user.getId());
 
         request.validate();
@@ -39,7 +39,7 @@ public class TrashService implements TrashCreateUseCase {
         try {
             String storedFileName = generateStoredFileName(
                     Objects.requireNonNull(request.imageFile().getOriginalFilename()));
-            String imageUrl = fileStorageService.uploadFile(
+            String imageUrl = fileStoragePort.uploadFile(
                     storedFileName,
                     request.imageFile().getContentType(),
                     request.imageFile().getBytes()
