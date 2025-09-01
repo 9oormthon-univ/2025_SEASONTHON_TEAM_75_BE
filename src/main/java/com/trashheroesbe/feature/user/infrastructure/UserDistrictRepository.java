@@ -1,0 +1,10 @@
+package com.trashheroesbe.feature.user.infrastructure;
+
+import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserDistrictRepository extends JpaRepository<UserDistrict, Long> {
+    Boolean existsByUserIdAndDistrictId(Long userId, String districtId);
+}

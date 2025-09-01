@@ -38,4 +38,12 @@ public class UserDistrict {
 
     @Column
     private Boolean isDefault = false;
+
+    public static UserDistrict createUserDistrict(User user, District district) {
+        return UserDistrict.builder()
+            .user(user)
+            .district(district)
+            .isDefault(false)
+            .build();
+    }
 }

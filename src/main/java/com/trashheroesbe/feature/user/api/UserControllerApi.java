@@ -21,4 +21,7 @@ public interface UserControllerApi {
 
         Long userId
     );
+
+    @Operation(summary = "유저 자치구 추가하기", description = "유저의 자치구를 추가합니다.")
+    ApiResponse<Void> createUserDistrict(Long userId, String districtId);
 }
