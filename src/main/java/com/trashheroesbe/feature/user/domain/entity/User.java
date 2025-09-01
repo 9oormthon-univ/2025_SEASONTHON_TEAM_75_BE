@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.user.domain;
+package com.trashheroesbe.feature.user.domain.entity;
 
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -53,4 +53,16 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDistrict> userDistricts = new ArrayList<>();
+
+    public void updateNickname(String nickname) {
+        if (nickname != null && !nickname.isEmpty()) {
+            this.nickname = nickname;
+        }
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrl = profileImageUrl;
+        }
+    }
 }

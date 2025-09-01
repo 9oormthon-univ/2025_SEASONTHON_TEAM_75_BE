@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.user.domain;
+package com.trashheroesbe.feature.user.domain.entity;
 
 import com.trashheroesbe.feature.district.domain.District;
 import jakarta.persistence.Column;

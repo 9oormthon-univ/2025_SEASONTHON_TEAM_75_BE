@@ -2,7 +2,7 @@ package com.trashheroesbe.global.auth.service;
 
 import com.trashheroesbe.feature.user.domain.type.AuthProvider;
 import com.trashheroesbe.feature.user.domain.type.Role;
-import com.trashheroesbe.feature.user.domain.User;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
