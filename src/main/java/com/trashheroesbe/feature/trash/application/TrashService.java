@@ -7,6 +7,7 @@ import com.trashheroesbe.feature.trash.infrastructure.TrashRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
+import com.trashheroesbe.global.util.FileUtils;
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +38,12 @@ public class TrashService implements TrashCreateUseCase {
         request.validate();
 
         try {
-            String storedFileName = generateStoredFileName(
-                    Objects.requireNonNull(request.imageFile().getOriginalFilename()));
+            String storedFileName = FileUtils.generateStoredFileName(
+                Objects.requireNonNull(request.imageFile().getOriginalFilename()));
             String imageUrl = fileStoragePort.uploadFile(
-                    storedFileName,
-                    request.imageFile().getContentType(),
-                    request.imageFile().getBytes()
+                storedFileName,
+                request.imageFile().getContentType(),
+                request.imageFile().getBytes()
             );
 
             // Trash 엔티티 생성 및 저장
@@ -64,31 +65,14 @@ public class TrashService implements TrashCreateUseCase {
      */
     public List<TrashResult> getTrashByUser(User user) {
         log.info("사용자별 쓰레기 조회 시작: userId={}", user.getId());
-        
+
         List<Trash> trashes = trashRepository.findByUserOrderByCreatedAtDesc(user);
-        
+
         List<TrashResult> results = trashes.stream()
-                .map(TrashResult::from)
-                .collect(Collectors.toList());
-        
+            .map(TrashResult::from)
+            .collect(Collectors.toList());
+
         log.info("사용자별 쓰레기 조회 완료: userId={}, count={}", user.getId(), results.size());
         return results;
-    }
-
-    /**
-     * 저장될 파일명을 생성합니다.
-     * 형식: trash/YYYYMMDD_HHmmss_UUID_확장자
-     */
-    private String generateStoredFileName(String originalFileName) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
-
-        String extension = "";
-        int lastDotIndex = originalFileName.lastIndexOf(".");
-        if (lastDotIndex > 0) {
-            extension = originalFileName.substring(lastDotIndex);
-        }
-
-        return String.format("trash/%s_%s%s", timestamp, uuid, extension);
     }
 }
