@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.district.application;
 
-import com.trashheroesbe.feature.district.domain.District;
+import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.district.infrastructure.DistrictRepository;
 import java.util.List;

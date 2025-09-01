@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.district.dto.response;
 
-import com.trashheroesbe.feature.district.domain.District;
+import com.trashheroesbe.feature.district.domain.entity.District;
 import lombok.Builder;
 
 @Builder

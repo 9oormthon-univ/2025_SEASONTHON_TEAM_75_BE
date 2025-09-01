@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.user.domain.entity;
 
-import com.trashheroesbe.feature.district.domain.District;
+import com.trashheroesbe.feature.district.domain.entity.District;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

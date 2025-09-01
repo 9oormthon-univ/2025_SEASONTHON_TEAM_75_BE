@@ -2,6 +2,8 @@ package com.trashheroesbe.feature.user.application;
 
 import static com.trashheroesbe.global.response.type.ErrorCode.S3_UPLOAD_FAIL;
 
+import com.trashheroesbe.feature.district.domain.entity.District;
+import com.trashheroesbe.feature.district.domain.service.DistrictFinder;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
@@ -22,6 +24,7 @@ public class UserService {
 
     private static final String S3_USER_PREFIX = "user/";
 
+    private final DistrictFinder districtFinder;
     private final FileStoragePort fileStoragePort;
 
     private final UserFinder userFinder;
@@ -52,8 +55,5 @@ public class UserService {
             }
             user.updateProfileImageUrl(imageUrl);
         }
-
-
-
     }
 }
