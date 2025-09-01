@@ -1,13 +1,11 @@
 package com.trashheroesbe.global.auth.service;
 
-import com.trashheroesbe.feature.user.domain.AuthProvider;
-import com.trashheroesbe.feature.user.domain.Role;
+import com.trashheroesbe.feature.user.domain.type.AuthProvider;
+import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.feature.user.domain.User;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
-import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
