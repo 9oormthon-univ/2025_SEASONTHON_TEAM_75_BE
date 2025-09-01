@@ -23,20 +23,25 @@ public class S3FileAdapter implements FileStoragePort {
     private String region;
 
     @Override
-    public String uploadFile(String fileName, String contentType, byte[] fileData) {
+    public String uploadFile(
+        String fileName,
+        String pathPrefix,
+        String contentType,
+        byte[] fileData
+    ) {
         log.info("S3 파일 업로드 시작: bucket={}, fileName={}", bucketName, fileName);
 
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .contentType(contentType)
-                    .build();
+                .bucket(bucketName)
+                .key(fileName)
+                .contentType(contentType)
+                .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileData));
 
             String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                    bucketName, region, fileName);
+                bucketName, region, fileName);
 
             log.info("S3 파일 업로드 완료: {}", fileUrl);
             return fileUrl;

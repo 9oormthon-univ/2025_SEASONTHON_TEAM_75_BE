@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final String S3_USER_PREFIX = "user/";
+
     private final FileStoragePort fileStoragePort;
 
     private final UserFinder userFinder;
@@ -40,7 +42,11 @@ public class UserService {
 
             try {
                 imageUrl = fileStoragePort.uploadFile(
-                    fileName, image.getContentType(), image.getBytes());
+                    fileName,
+                    S3_USER_PREFIX,
+                    image.getContentType(),
+                    image.getBytes()
+                );
             } catch (Exception e) {
                 throw new BusinessException(S3_UPLOAD_FAIL);
             }

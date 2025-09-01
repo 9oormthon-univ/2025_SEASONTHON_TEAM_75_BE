@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class TrashService implements TrashCreateUseCase {
 
+    private static final String S3_TRASH_PREFIX = "trash/";
+
     private final TrashRepository trashRepository;
     private final FileStoragePort fileStoragePort;
 
@@ -42,6 +44,7 @@ public class TrashService implements TrashCreateUseCase {
                 Objects.requireNonNull(request.imageFile().getOriginalFilename()));
             String imageUrl = fileStoragePort.uploadFile(
                 storedFileName,
+                S3_TRASH_PREFIX,
                 request.imageFile().getContentType(),
                 request.imageFile().getBytes()
             );
