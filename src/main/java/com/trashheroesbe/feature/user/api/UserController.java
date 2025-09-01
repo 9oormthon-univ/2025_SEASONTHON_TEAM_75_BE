@@ -1,8 +1,7 @@
-package com.trashheroesbe.feature.user.controller;
+package com.trashheroesbe.feature.user.api;
 
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
-import com.trashheroesbe.feature.user.api.UserControllerApi;
 import com.trashheroesbe.feature.user.application.UserService;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
 import com.trashheroesbe.global.response.ApiResponse;

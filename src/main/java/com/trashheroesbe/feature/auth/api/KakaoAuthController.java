@@ -1,9 +1,8 @@
-package com.trashheroesbe.feature.auth.controller;
+package com.trashheroesbe.feature.auth.api;
 
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
-import com.trashheroesbe.feature.auth.api.AuthControllerApi;
-import com.trashheroesbe.feature.auth.service.KakaoAuthService;
+import com.trashheroesbe.feature.auth.application.KakaoAuthService;
 import com.trashheroesbe.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
