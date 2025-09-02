@@ -7,6 +7,7 @@ import static com.trashheroesbe.global.response.type.ErrorCode.S3_UPLOAD_FAIL;
 
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.domain.service.DistrictFinder;
+import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.domain.service.UserDistrictFinder;
@@ -19,6 +20,7 @@ import com.trashheroesbe.global.util.FileUtils;
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,5 +98,15 @@ public class UserService {
             throw new BusinessException(ENTITY_NOT_FOUND);
         }
         userDistrictRepository.deleteById(userDistrictId);
+    }
+
+    public List<DistrictListResponse> getUserDistrictsByUserId(Long userId) {
+        List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
+
+        return userDistricts.stream()
+            .map(UserDistrict::getDistrict)
+            .filter(Objects::nonNull)
+            .map(DistrictListResponse::from)
+            .toList();  // Jav
     }
 }

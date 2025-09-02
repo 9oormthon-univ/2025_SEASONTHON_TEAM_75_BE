@@ -2,15 +2,18 @@ package com.trashheroesbe.feature.user.api;
 
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
+import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.application.UserService;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,5 +59,15 @@ public class UserController implements UserControllerApi {
     ) {
         userService.deleteUserDistrict(userDistrictId);
         return ApiResponse.success(OK);
+    }
+
+    @Override
+    @GetMapping("/me/districts")
+    public ApiResponse<List<DistrictListResponse>> getMyDistricts(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        List<DistrictListResponse> response = userService.getUserDistrictsByUserId(
+            customerDetails.getUser().getId());
+        return ApiResponse.success(OK, response);
     }
 }

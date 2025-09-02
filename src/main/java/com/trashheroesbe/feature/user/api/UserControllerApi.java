@@ -1,11 +1,13 @@
 package com.trashheroesbe.feature.user.api;
 
+import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -28,4 +30,7 @@ public interface UserControllerApi {
 
     @Operation(summary = "유저 자치구 삭제하기", description = "유저의 자치구를 삭제합니다.")
     ApiResponse<Void> deleteUserDistrict(Long userDistrictId);
+
+    @Operation(summary = "내 자치구 조회하기", description = "나의 등록된 자치구를 조회합니다.")
+    ApiResponse<List<DistrictListResponse>> getMyDistricts(CustomerDetails customerDetails);
 }
