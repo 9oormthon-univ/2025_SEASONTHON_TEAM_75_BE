@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.user.domain.entity;
 
-import com.trashheroesbe.feature.trash.domain.Trash;
+import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.user.domain.type.AuthProvider;
 import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
@@ -52,8 +52,6 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Trash> trashList = new ArrayList<>();
-
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDistrict> userDistricts = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.trash.domain;
+package com.trashheroesbe.feature.trash.domain.entity;
 
 
 import com.trashheroesbe.feature.user.domain.entity.User;

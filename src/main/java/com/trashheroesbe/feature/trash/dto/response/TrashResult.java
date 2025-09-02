@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.trash.dto.response;
 
-import com.trashheroesbe.feature.trash.domain.Trash;
+import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import lombok.Builder;
 import java.time.LocalDateTime;
 

@@ -1,12 +1,13 @@
-package com.trashheroesbe.feature.trash.domain;
+package com.trashheroesbe.feature.trash.domain.entity;
 
+import com.trashheroesbe.feature.trash.domain.Type;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
 @Entity
 @Table(name = "trash_type", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_trash_type_type", columnNames = "trash_type")
+    @UniqueConstraint(name = "uk_trash_type_type", columnNames = "trash_type")
 })
 @Builder
 @AllArgsConstructor
@@ -23,6 +24,8 @@ public class TrashType {
     private Type type;
 
     public static TrashType of(Type type) {
-        return TrashType.builder().type(type).build();
+        return TrashType.builder()
+            .type(type)
+            .build();
     }
 }

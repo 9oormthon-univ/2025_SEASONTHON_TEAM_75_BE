@@ -9,6 +9,7 @@ import java.util.Map;
 @Getter
 @Schema(description = "쓰레기 카테고리")
 public enum Type {
+
     // Recyclable (R)
     PAPER("R01", "Paper", "종이류"),
     PLASTIC("R02", "Plastic", "플라스틱류"),
@@ -31,12 +32,12 @@ public enum Type {
 
     UNKNOWN("UNK", "Unknown", "미분류");
 
-    private final String typeId;
+    private final String typeCode;
     private final String nameEn;
     private final String nameKo;
 
-    Type(String typeId, String nameEn, String nameKo) {
-        this.typeId = typeId;
+    Type(String typeCode, String nameEn, String nameKo) {
+        this.typeCode = typeCode;
         this.nameEn = nameEn;
         this.nameKo = nameKo;
     }
@@ -47,29 +48,37 @@ public enum Type {
 
     static {
         for (Type t : values()) {
-            BY_ID.put(t.typeId, t);
+            BY_ID.put(t.typeCode, t);
             BY_EN.put(t.nameEn.toLowerCase(), t);
             BY_KO.put(t.nameKo, t);
         }
     }
 
-    public static Type fromId(String id) {
-        if (id == null) return UNKNOWN;
-        return BY_ID.getOrDefault(id.trim().toUpperCase(), UNKNOWN);
+    public static Type fromCode(String code) {
+        if (code == null) {
+            return UNKNOWN;
+        }
+        return BY_ID.getOrDefault(code.trim().toUpperCase(), UNKNOWN);
     }
 
     public static Type fromEn(String en) {
-        if (en == null) return UNKNOWN;
+        if (en == null) {
+            return UNKNOWN;
+        }
         return BY_EN.getOrDefault(en.trim().toLowerCase(), UNKNOWN);
     }
 
     public static Type fromKo(String ko) {
-        if (ko == null) return UNKNOWN;
+        if (ko == null) {
+            return UNKNOWN;
+        }
         return BY_KO.getOrDefault(ko.trim(), UNKNOWN);
     }
 
     public static Type safeValueOf(String name) {
-        if (name == null) return UNKNOWN;
+        if (name == null) {
+            return UNKNOWN;
+        }
         try {
             return Type.valueOf(name.trim().toUpperCase());
         } catch (Exception e) {
