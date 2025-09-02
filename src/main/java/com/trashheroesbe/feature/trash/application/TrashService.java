@@ -2,21 +2,20 @@ package com.trashheroesbe.feature.trash.application;
 
 import com.trashheroesbe.feature.gpt.application.ChatGPTClient;
 import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
-import com.trashheroesbe.feature.trash.domain.TrashItem;
-import com.trashheroesbe.feature.trash.domain.TrashType;
+import com.trashheroesbe.feature.trash.domain.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.entity.Trash;
+import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
+import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
 import com.trashheroesbe.feature.trash.dto.response.TrashResult;
-import com.trashheroesbe.feature.trash.domain.Trash;
+import com.trashheroesbe.feature.trash.infrastructure.TrashDescriptionRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
-import com.trashheroesbe.feature.user.domain.User;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
-
-import java.util.Objects;
-
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,6 +40,7 @@ public class TrashService implements TrashCreateUseCase {
     private final ChatGPTClient chatGPTClient;
     private final TrashTypeRepository trashTypeRepository;
     private final TrashItemRepository trashItemRepository;
+    private final TrashDescriptionRepository trashDescriptionRepository;
 
     @Override
     @Transactional
@@ -81,15 +82,24 @@ public class TrashService implements TrashCreateUseCase {
             if (itemName != null && !itemName.isBlank()) {
                 String key = itemName.trim();
                 var item = trashItemRepository.findByTrashTypeAndName(type, key)
-                        .orElseGet(() -> trashItemRepository.save(TrashItem.of(type, key)));
+                        .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
+                                .trashType(type)
+                                .name(key)
+                                .build()));
                 trash.applyItem(item);
             }
 
             Trash saved = trashRepository.save(trash);
+
+            // 가이드/주의사항 조회
+            var descOpt = trashDescriptionRepository.findByTrashType(type);
+            var steps = descOpt.map(TrashDescription::steps).orElse(java.util.List.of());
+            var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
+
             log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
                     saved.getId(), user.getId(), type.getType(), imageUrl);
 
-            return TrashResult.from(saved);
+            return TrashResult.of(saved, steps, caution);
 
         } catch (BusinessException be) {
             throw be;
@@ -101,7 +111,8 @@ public class TrashService implements TrashCreateUseCase {
 
     private boolean isRecyclable(Type t) {
         switch (t) {
-            case PAPER, PLASTIC, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE, HAZARDOUS_SMALL_WASTE:
+            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE,
+                 HAZARDOUS_SMALL_WASTE:
                 return true;
             default:
                 return false;
@@ -146,10 +157,10 @@ public class TrashService implements TrashCreateUseCase {
         log.info("쓰레기 삭제 시작: userId={}, trashId={}", user.getId(), trashId);
 
         Trash trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TRASH_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (!trash.getUser().getId().equals(user.getId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+            throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);
         }
 
         // 1) S3 삭제

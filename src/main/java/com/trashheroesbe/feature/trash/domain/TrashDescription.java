@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.trash.domain;
 
+import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,11 +22,11 @@ public class TrashDescription {
     private TrashType trashType;
 
     @Lob
-    @Column(name = "method_detail", nullable = false)
+    @Column(name = "method_detail", columnDefinition = "TEXT", nullable = false)
     private String methodDetail;
 
     @Lob
-    @Column(name = "caution_note")
+    @Column(name = "caution_note", columnDefinition = "TEXT")
     private String cautionNote;
 
     // 줄바꿈으로 STEP 리스트 변환

@@ -21,6 +21,7 @@ public enum ErrorCode {
 
     // s3
     S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드에 실패했습니다."),
+    S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"S3 파일 삭제에 실패했습니다."),
 
     // user
     DUPLICATE_USER_DISTRICT(HttpStatus.BAD_REQUEST, "중복된 자치구 입니다."),
@@ -28,8 +29,8 @@ public enum ErrorCode {
 
     // trash
     NOT_EXISTS_TRASH_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 타입이 존재하지 않습니다. 개발자에게 문의 주세요."),
-    NOT_EXISTS_TRASH_ITEM(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 품목이 존재하지 않습니다. 개발자에게 문의 주세요."),
-    ;
+    NOT_EXISTS_TRASH_ITEM(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 품목이 존재하지 않습니다. 개발자에게 문의 주세요.");
+
 
     private final HttpStatus status;
     private final String message;

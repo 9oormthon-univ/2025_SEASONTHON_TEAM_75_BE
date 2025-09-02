@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.gpt.dto.response;
 
-import com.trashheroesbe.feature.trash.domain.TrashType;
+
+import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 
 public record TrashAnalysisResponseDto(
         TrashType type,

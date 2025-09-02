@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.trash.infrastructure;
 
 import com.trashheroesbe.feature.trash.domain.TrashDescription;
-import com.trashheroesbe.feature.trash.domain.TrashType;
+import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
