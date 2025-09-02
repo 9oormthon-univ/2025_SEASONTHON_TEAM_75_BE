@@ -36,7 +36,8 @@ public class SecurityConfig {
         "/api/v1/auth/kakao/**",
         "/oauth2/**",
         "/login/**",
-        "/favicon.ico"
+        "/favicon.ico",
+            "/api/v1/**"
     };
 
     @Bean
