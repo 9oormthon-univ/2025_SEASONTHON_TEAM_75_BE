@@ -24,6 +24,7 @@ public enum ErrorCode {
 
     // user
     DUPLICATE_USER_DISTRICT(HttpStatus.BAD_REQUEST, "중복된 자치구 입니다."),
+    MAX_USER_DISTRICTS_EXCEEDED(HttpStatus.BAD_REQUEST, "자치구는 최대 2개만 가질 수 있습니다."),
     ;
 
     private final HttpStatus status;

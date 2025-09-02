@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.user.api;
 
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,9 +20,12 @@ public interface UserControllerApi {
         @Parameter(description = "업로드할 이미지 파일")
         MultipartFile image,
 
-        Long userId
+        CustomerDetails customerDetails
     );
 
     @Operation(summary = "유저 자치구 추가하기", description = "유저의 자치구를 추가합니다.")
-    ApiResponse<Void> createUserDistrict(Long userId, String districtId);
+    ApiResponse<Void> createUserDistrict(CustomerDetails customerDetails, String districtId);
+
+    @Operation(summary = "유저 자치구 삭제하기", description = "유저의 자치구를 삭제합니다.")
+    ApiResponse<Void> deleteUserDistrict(Long userDistrictId);
 }

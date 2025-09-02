@@ -10,7 +10,7 @@ import java.util.List;
 @Tag(name = "District", description = "자치구 관련 API")
 public interface DistrictControllerApi {
 
-    @Operation(summary = "자치구 정보 조회하기", description = "시도, 시군구를 통해 자치구 정보를 조회한다.")
+    @Operation(summary = "자치구 정보 검색하기", description = "시도, 시군구를 통해 자치구 정보를 검색한다.")
     ApiResponse<List<DistrictListResponse>> getDistrictList(
         @Parameter(description = "검색할 시도", example = "서울특별시")
         String sido,
