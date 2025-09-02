@@ -12,23 +12,22 @@ public enum Type {
 
     // Recyclable (R)
     PAPER("R01", "Paper", "종이류"),
-    PLASTIC("R02", "Plastic", "플라스틱류"),
-    VINYL_FILM("R03", "Vinyl/Film", "비닐류"),
-    STYROFOAM("R04", "Styrofoam (EPS)", "스티로폼류"),
-    GLASS("R05", "Glass", "유리병류"),
-    METAL("R06", "Metal", "캔류·고철류"),
-    TEXTILES("R07", "Textiles", "의류·섬유류"),
-    E_WASTE("R08", "E-Waste", "폐가전류"),
-    HAZARDOUS_SMALL_WASTE("R09", "Hazardous Small Waste", "기타(소형 유해 폐기물류)"),
+    PAPER_PACK("R02", "Paper Pack", "종이팩"),
+    PLASTIC("R03", "Plastic", "플라스틱류"),
+    PET("R04", "PET", "PET(투명 페트병)"),
+    VINYL_FILM("R05", "Vinyl/Film", "비닐류"),
+    STYROFOAM("R06", "Styrofoam (EPS)", "스티로폼류"),
+    GLASS("R07", "Glass", "유리병류"),
+    METAL("R08", "Metal", "캔류·고철류"),
+    TEXTILES("R09", "Textiles", "의류·섬유류"),
+    E_WASTE("R10", "E-Waste", "폐가전류"),
+    HAZARDOUS_SMALL_WASTE("R11", "Hazardous Small Waste", "소형 유해 폐기물"),
 
     // Food Waste (F)
     FOOD_WASTE("F01", "Food Waste", "음식물 쓰레기"),
 
     // Non-Recyclable (N)
-    CONTAMINATED_WASTE("N01", "Contaminated Waste", "오염된 폐기물"),
-    CERAMICS("N02", "Ceramics", "도자기·사기류"),
-    HYGIENE_PRODUCTS("N03", "Hygiene Products", "위생용품"),
-    OTHER_NON_RECYCLABLES("N04", "Other Non-Recyclables", "기타 재활용 불가품목"),
+    NON_RECYCLABLE("N01", "Non-Recyclable Waste", "일반 쓰레기"),
 
     UNKNOWN("UNK", "Unknown", "미분류");
 
