@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.trash.api;
 
 
-import com.trashheroesbe.feature.trash.dto.request.TrashCreateRequest;
+import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
 import com.trashheroesbe.feature.trash.dto.response.TrashResult;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
@@ -23,11 +23,11 @@ public interface TrashControllerApi {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = "multipart/form-data",
-                            schema = @Schema(implementation = TrashCreateRequest.class)
+                            schema = @Schema(implementation = CreateTrashRequest.class)
                     )
             )
     )
-    ApiResponse<TrashResult> createTrash(TrashCreateRequest request, @AuthenticationPrincipal CustomerDetails customerDetails);
+    ApiResponse<TrashResult> createTrash(CreateTrashRequest request, @AuthenticationPrincipal CustomerDetails customerDetails);
 
     @Operation(summary = "쓰레기 조회", description = "쓰레기 ID로 정보를 조회합니다.")
     ApiResponse<TrashResult> getTrash(@PathVariable Long trashId);

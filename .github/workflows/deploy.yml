@@ -51,6 +51,11 @@ jobs:
           ${{ secrets.APPLICATION_PROD_YML }}
           EOF
 
+          # application-cloud.yml
+          cat > ./src/main/resources/application-cloud.yml <<'EOF'
+          ${{ secrets.APPLICATION_CLOUD_YML }}
+          EOF
+
       - name: Verify config files exist
         run: ls -l ./src/main/resources/application*.yml
 
