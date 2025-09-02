@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.user.domain.entity;
 
 import com.trashheroesbe.feature.district.domain.entity.District;
+import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserDistrict {
+public class UserDistrict extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

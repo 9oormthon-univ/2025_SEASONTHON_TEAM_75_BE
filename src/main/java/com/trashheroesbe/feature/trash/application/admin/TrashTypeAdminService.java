@@ -17,7 +17,7 @@ public class TrashTypeAdminService {
     public void initializeTrashType() {
         List<TrashType> trashTypes = TrashType.initialize();
         if (!trashTypeRepository.isEmpty()) {
-            trashTypeRepository.deleteAll();
+            trashTypeRepository.deleteAllInBatch();
         }
         trashTypeRepository.saveAll(trashTypes);
     }
