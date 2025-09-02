@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.trash.api;
 
 import com.trashheroesbe.feature.trash.application.TrashService;
-import com.trashheroesbe.feature.trash.dto.request.TrashCreateRequest;
+import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
 import com.trashheroesbe.feature.trash.dto.response.TrashResult;
 import com.trashheroesbe.feature.trash.application.TrashCreateUseCase;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
@@ -26,7 +26,7 @@ public class TrashController implements TrashControllerApi {
     @Override
     @PostMapping
     public ApiResponse<TrashResult> createTrash(
-            @ModelAttribute TrashCreateRequest request,
+            @ModelAttribute CreateTrashRequest request,
             @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
         log.info("쓰레기 생성 요청: userId={}, fileName={}",
@@ -53,6 +53,17 @@ public class TrashController implements TrashControllerApi {
         List<TrashResult> myTrashList = trashService.getTrashByUser(customerDetails.getUser());
         
         return ApiResponse.success(SuccessCode.OK, myTrashList);
+    }
+
+    @Override
+    @DeleteMapping("/{trashId}")
+    public ApiResponse<Void> deleteTrash(
+            @PathVariable Long trashId,
+            @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        log.info("쓰레기 삭제 요청: userId={}, trashId={}", customerDetails.getUser().getId(), trashId);
+        trashService.deleteTrash(trashId, customerDetails.getUser());
+        return ApiResponse.success(SuccessCode.OK);
     }
 
 }

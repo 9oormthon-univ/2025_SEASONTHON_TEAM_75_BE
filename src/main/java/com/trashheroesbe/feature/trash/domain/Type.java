@@ -31,31 +31,31 @@ public enum Type {
 
     UNKNOWN("UNK", "Unknown", "미분류");
 
-    private final String typeId;
+    private final String typeCode;
     private final String nameEn;
     private final String nameKo;
 
-    Type(String typeId, String nameEn, String nameKo) {
-        this.typeId = typeId;
+    Type(String typeCode, String nameEn, String nameKo) {
+        this.typeCode = typeCode;
         this.nameEn = nameEn;
         this.nameKo = nameKo;
     }
 
-    private static final Map<String, Type> BY_ID = new HashMap<>();
+    private static final Map<String, Type> BY_CODE = new HashMap<>();
     private static final Map<String, Type> BY_EN = new HashMap<>();
     private static final Map<String, Type> BY_KO = new HashMap<>();
 
     static {
         for (Type t : values()) {
-            BY_ID.put(t.typeId, t);
+            BY_CODE.put(t.typeCode, t);
             BY_EN.put(t.nameEn.toLowerCase(), t);
             BY_KO.put(t.nameKo, t);
         }
     }
 
-    public static Type fromId(String id) {
+    public static Type fromCode(String id) {
         if (id == null) return UNKNOWN;
-        return BY_ID.getOrDefault(id.trim().toUpperCase(), UNKNOWN);
+        return BY_CODE.getOrDefault(id.trim().toUpperCase(), UNKNOWN);
     }
 
     public static Type fromEn(String en) {
