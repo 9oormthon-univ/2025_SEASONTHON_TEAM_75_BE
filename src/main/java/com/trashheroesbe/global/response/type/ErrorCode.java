@@ -19,7 +19,11 @@ public enum ErrorCode {
 
     // s3
     S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드에 실패했습니다."),
-    ;
+    S3_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 삭제에 실패했습니다."),
+
+    // trash
+    TRASH_NOT_FOUND(HttpStatus.NOT_FOUND, "쓰레기를 찾을 수 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다.");
 
     private final HttpStatus status;
     private final String message;
