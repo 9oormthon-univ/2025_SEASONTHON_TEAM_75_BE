@@ -2,6 +2,8 @@ package com.trashheroesbe.feature.trash.domain.entity;
 
 import com.trashheroesbe.feature.trash.domain.Type;
 import jakarta.persistence.*;
+import java.util.Arrays;
+import java.util.List;
 import lombok.*;
 
 @Getter
@@ -22,6 +24,13 @@ public class TrashType {
     @Enumerated(EnumType.STRING)
     @Column(name = "trash_type", length = 30, nullable = false)
     private Type type;
+
+    public static List<TrashType> initialize() {
+        Type[] types = Type.values();
+        return Arrays.stream(types)
+            .map(TrashType::of)
+            .toList();
+    }
 
     public static TrashType of(Type type) {
         return TrashType.builder()
