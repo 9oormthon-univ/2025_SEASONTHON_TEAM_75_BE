@@ -4,7 +4,7 @@ import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 @Builder
-public record TrashCreateRequest(
+public record CreateTrashRequest(
         MultipartFile imageFile
 ) {
     public void validate() {
