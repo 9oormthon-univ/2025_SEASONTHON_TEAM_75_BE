@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.user.domain;
+package com.trashheroesbe.feature.user.domain.type;
 
 import java.util.Collection;
 import java.util.Set;

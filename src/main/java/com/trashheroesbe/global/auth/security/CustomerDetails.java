@@ -1,6 +1,6 @@
 package com.trashheroesbe.global.auth.security;
 
-import com.trashheroesbe.feature.user.domain.User;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,7 @@
-package com.trashheroesbe.feature.trash.domain;
+package com.trashheroesbe.feature.trash.domain.entity;
 
-import com.trashheroesbe.feature.user.domain.User;
+
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

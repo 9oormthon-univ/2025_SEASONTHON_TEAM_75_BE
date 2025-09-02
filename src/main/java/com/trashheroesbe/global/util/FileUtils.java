@@ -11,7 +11,7 @@ public class FileUtils {
      */
     public static String generateStoredFileName(String originalFileName) {
         String timestamp = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String uuid = UUID.randomUUID().toString().substring(0, 8);
 
         String extension = "";

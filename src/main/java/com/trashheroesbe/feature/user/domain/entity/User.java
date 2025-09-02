@@ -1,6 +1,8 @@
-package com.trashheroesbe.feature.user.domain;
+package com.trashheroesbe.feature.user.domain.entity;
 
-import com.trashheroesbe.feature.trash.domain.Trash;
+import com.trashheroesbe.feature.trash.domain.entity.Trash;
+import com.trashheroesbe.feature.user.domain.type.AuthProvider;
+import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,5 +53,18 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     private List<Trash> trashList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserDistrict> userDistricts = new ArrayList<>();
 
+    public void updateNickname(String nickname) {
+        if (nickname != null && !nickname.isEmpty()) {
+            this.nickname = nickname;
+        }
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrl = profileImageUrl;
+        }
+    }
 }
