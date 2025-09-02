@@ -1,9 +1,8 @@
-package com.trashheroesbe.feature.auth.service;
+package com.trashheroesbe.feature.auth.application;
 
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.ACCESS_TOKEN;
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.REFRESH_TOKEN;
 
-import com.trashheroesbe.global.auth.jwt.entity.TokenType;
 import com.trashheroesbe.global.auth.jwt.service.CookieProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

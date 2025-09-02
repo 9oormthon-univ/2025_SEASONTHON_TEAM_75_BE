@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.auth.controller;
+package com.trashheroesbe.feature.auth.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
