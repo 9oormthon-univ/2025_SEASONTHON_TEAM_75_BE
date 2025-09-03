@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.trash.domain;
+package com.trashheroesbe.feature.trash.domain.entity;
 
 
 import com.trashheroesbe.feature.user.domain.entity.User;
@@ -38,6 +38,14 @@ public class Trash extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trash_type_id")
     private TrashType trashType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trash_item_id")
+    private TrashItem trashItem;
+
+    public void applyItem(TrashItem item) {
+        this.trashItem = item;
+    }
 
     public static Trash create(User user, String imageUrl, String name) {
         return Trash.builder()
