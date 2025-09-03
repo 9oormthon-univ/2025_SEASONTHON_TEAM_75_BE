@@ -9,7 +9,7 @@ public class FileUtils {
     /**
      * 저장될 파일명을 생성합니다. 형식: trash/YYYYMMDD_HHmmss_UUID_확장자
      */
-    public static String generateStoredFileName(String originalFileName) {
+    public static String generateStoredKey(String originalFileName, String pathPrefix) {
         String timestamp = LocalDateTime.now()
             .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String uuid = UUID.randomUUID().toString().substring(0, 8);
@@ -20,6 +20,7 @@ public class FileUtils {
             extension = originalFileName.substring(lastDotIndex);
         }
 
-        return String.format("trash/%s_%s%s", timestamp, uuid, extension);
+        return String.format(pathPrefix + "%s_%s%s", timestamp, uuid, extension);
     }
 }
+

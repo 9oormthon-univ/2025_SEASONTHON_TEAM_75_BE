@@ -15,9 +15,9 @@ public class TrashTypeAdminService {
     private final TrashTypeRepository trashTypeRepository;
 
     public void initializeTrashType() {
-        for (var t : Type.values()) {
-            trashTypeRepository.findByType(t)
-                    .orElseGet(() -> trashTypeRepository.save(TrashType.of(t)));
+        for (var type : Type.values()) {
+            trashTypeRepository.findByType(type)
+                .orElseGet(() -> trashTypeRepository.save(TrashType.of(type)));
         }
     }
 }

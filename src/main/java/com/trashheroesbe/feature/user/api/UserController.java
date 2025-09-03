@@ -33,7 +33,7 @@ public class UserController implements UserControllerApi {
     @Override
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Long> updateUser(
-        @RequestPart("metadata") UpdateUserRequest request,
+        @RequestPart(value = "metadata") UpdateUserRequest request,
         @RequestPart(value = "image", required = false) MultipartFile image,
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
@@ -62,7 +62,7 @@ public class UserController implements UserControllerApi {
     }
 
     @Override
-    @GetMapping("/me/districts")
+    @GetMapping("/my/districts")
     public ApiResponse<List<DistrictListResponse>> getMyDistricts(
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {

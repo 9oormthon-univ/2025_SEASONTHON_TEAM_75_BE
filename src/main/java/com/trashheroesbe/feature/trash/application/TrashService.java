@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.trash.application;
 
-import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
-import com.trashheroesbe.feature.trash.domain.TrashDescription;
+import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
+import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class TrashService implements TrashCreateUseCase {
 
+    private static final String S3_TRASH_PREFIX = "trash/";
+
     private final TrashRepository trashRepository;
     private final FileStoragePort fileStoragePort;
     private final ChatAIClientPort chatGPTClient;
@@ -48,7 +50,8 @@ public class TrashService implements TrashCreateUseCase {
 
         try {
             var file = request.imageFile();
-            String storedFileName = FileUtils.generateStoredFileName(Objects.requireNonNull(file.getOriginalFilename()));
+            String storedKey = FileUtils.generateStoredKey(
+                Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
             byte[] bytes = file.getBytes();
             String contentType = file.getContentType();
 
@@ -56,12 +59,13 @@ public class TrashService implements TrashCreateUseCase {
             TrashAnalysisResponseDto step1 = chatGPTClient.analyzeType(bytes, contentType);
 
             // 2) 타입 결정
-            Type analyzedType = (step1 != null && step1.type() != null && step1.type().getType() != null)
+            Type analyzedType =
+                (step1 != null && step1.type() != null && step1.type().getType() != null)
                     ? step1.type().getType() : Type.UNKNOWN;
 
             // 3) 타입 엔티티 조회/없으면 생성 → 여기서 'type' 정의
             TrashType type = trashTypeRepository.findByType(analyzedType)
-                    .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
+                .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
             // 4) 재활용군이면 세부 품목 분석
             String itemName = null;
@@ -70,7 +74,7 @@ public class TrashService implements TrashCreateUseCase {
             }
 
             // 5) 업로드
-            String imageUrl = fileStoragePort.uploadFile(storedFileName, null, contentType, bytes);
+            String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
 
             // 6) 저장(타입/요약 적용)
             Trash trash = Trash.create(user, imageUrl, "쓰레기");
@@ -80,10 +84,10 @@ public class TrashService implements TrashCreateUseCase {
             if (itemName != null && !itemName.isBlank()) {
                 String key = itemName.trim();
                 var item = trashItemRepository.findByTrashTypeAndName(type, key)
-                        .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
-                                .trashType(type)
-                                .name(key)
-                                .build()));
+                    .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
+                        .trashType(type)
+                        .name(key)
+                        .build()));
                 trash.applyItem(item);
             }
 
@@ -95,7 +99,7 @@ public class TrashService implements TrashCreateUseCase {
             var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
             log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
-                    saved.getId(), user.getId(), type.getType(), imageUrl);
+                saved.getId(), user.getId(), type.getType(), imageUrl);
 
             return TrashResultResponse.of(saved, steps, caution);
 
@@ -109,7 +113,8 @@ public class TrashService implements TrashCreateUseCase {
 
     private boolean isRecyclable(Type t) {
         switch (t) {
-            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE,
+            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES,
+                 E_WASTE,
                  HAZARDOUS_SMALL_WASTE:
                 return true;
             default:
@@ -126,8 +131,8 @@ public class TrashService implements TrashCreateUseCase {
         List<Trash> trashes = trashRepository.findByUserOrderByCreatedAtDesc(user);
 
         List<TrashResultResponse> results = trashes.stream()
-                .map(TrashResultResponse::from)
-                .collect(Collectors.toList());
+            .map(TrashResultResponse::from)
+            .collect(Collectors.toList());
 
         log.info("사용자별 쓰레기 조회 완료: userId={}, count={}", user.getId(), results.size());
         return results;
@@ -138,7 +143,7 @@ public class TrashService implements TrashCreateUseCase {
         log.info("쓰레기 삭제 시작: userId={}, trashId={}", user.getId(), trashId);
 
         Trash trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (!trash.getUser().getId().equals(user.getId())) {
             throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);

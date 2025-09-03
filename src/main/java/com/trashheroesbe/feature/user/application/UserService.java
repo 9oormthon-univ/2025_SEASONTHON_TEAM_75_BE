@@ -53,13 +53,12 @@ public class UserService {
 
         if (image != null && !image.isEmpty()) {
             String imageUrl;
-            String fileName = FileUtils.generateStoredFileName(
-                Objects.requireNonNull(image.getOriginalFilename()));
+            String storedKey = FileUtils.generateStoredKey(
+                Objects.requireNonNull(image.getOriginalFilename()), S3_USER_PREFIX);
 
             try {
                 imageUrl = fileStoragePort.uploadFile(
-                    fileName,
-                    S3_USER_PREFIX,
+                    storedKey,
                     image.getContentType(),
                     image.getBytes()
                 );

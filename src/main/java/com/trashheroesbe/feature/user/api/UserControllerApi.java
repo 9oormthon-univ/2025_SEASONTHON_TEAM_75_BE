@@ -6,22 +6,28 @@ import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Tag(name = "User", description = "유저 관련 API")
 public interface UserControllerApi {
 
-    @Operation(summary = "유저 수정하기(patch)", description = "유저의 정보를 수정합니다.(nickname, profileImg")
+    @Operation(summary = "유저 수정하기(patch)", description = "유저의 정보를 수정합니다.(nickname, profileImg)")
     ApiResponse<Long> updateUser(
-        @Parameter(description = "수정할 사용자 정보 JSON")
+
+        @RequestPart(value = "metadata")
         UpdateUserRequest request,
 
         @Parameter(description = "업로드할 이미지 파일")
+        @RequestPart(value = "image", required = false)
         MultipartFile image,
 
+        @Parameter(hidden = true)  //
         CustomerDetails customerDetails
     );
 

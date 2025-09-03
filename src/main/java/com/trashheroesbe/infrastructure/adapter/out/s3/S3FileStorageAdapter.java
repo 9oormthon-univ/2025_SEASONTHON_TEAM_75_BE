@@ -1,4 +1,4 @@
-package com.trashheroesbe.infrastructure.adaptor.out.s3;
+package com.trashheroesbe.infrastructure.adapter.out.s3;
 
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import lombok.RequiredArgsConstructor;
@@ -26,15 +26,14 @@ public class S3FileStorageAdapter implements FileStoragePort {
     private String region;
 
     @Override
-    public String uploadFile(String fileName, String pathPrefix, String contentType, byte[] fileData) {
-        String key = buildKey(fileName, pathPrefix);
+    public String uploadFile(String key, String contentType, byte[] fileData) {
         log.info("S3 파일 업로드 시작: bucket={}, key={}", bucketName, key);
 
         PutObjectRequest put = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentType(contentType)
-                .build();
+            .bucket(bucketName)
+            .key(key)
+            .contentType(contentType)
+            .build();
 
         s3Client.putObject(put, RequestBody.fromBytes(fileData));
 
@@ -49,9 +48,9 @@ public class S3FileStorageAdapter implements FileStoragePort {
         log.info("S3 파일 삭제 시작: bucket={}, key={}", bucketName, key);
 
         DeleteObjectRequest del = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
+            .bucket(bucketName)
+            .key(key)
+            .build();
 
         s3Client.deleteObject(del);
         log.info("S3 파일 삭제 완료: {}", fileUrl);
@@ -59,7 +58,9 @@ public class S3FileStorageAdapter implements FileStoragePort {
 
     private String buildKey(String fileName, String pathPrefix) {
         // fileName에 이미 경로가 포함되어 있으면 그대로 사용
-        if (fileName != null && fileName.contains("/")) return fileName;
+        if (fileName != null && fileName.contains("/")) {
+            return fileName;
+        }
         String prefix = (pathPrefix == null || pathPrefix.isBlank()) ? "" : pathPrefix.trim();
         return prefix.isEmpty() ? fileName : prefix + "/" + fileName;
     }
@@ -76,7 +77,8 @@ public class S3FileStorageAdapter implements FileStoragePort {
                 return fileUrl.substring(idx + marker.length());
             }
             int slash = fileUrl.indexOf('/', fileUrl.indexOf("://") + 3);
-            return (slash >= 0 && slash + 1 < fileUrl.length()) ? fileUrl.substring(slash + 1) : fileUrl;
+            return (slash >= 0 && slash + 1 < fileUrl.length()) ? fileUrl.substring(slash + 1)
+                : fileUrl;
         }
     }
 }
