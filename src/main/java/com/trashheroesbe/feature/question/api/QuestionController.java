@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.question.api;
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
 import com.trashheroesbe.feature.question.application.QuestionService;
+import com.trashheroesbe.feature.trash.dto.response.TrashDescriptionResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashTypeResponse;
 import com.trashheroesbe.global.response.ApiResponse;
@@ -34,5 +35,14 @@ public class QuestionController implements QuestionControllerApi {
     ) {
         List<TrashItemResponse> response = questionService.getTrashItems(trashTypeId);
         return ApiResponse.success(OK, response);
+    }
+
+    @Override
+    @GetMapping("/trash-items/{trashItemId}")
+    public ApiResponse<List<TrashDescriptionResponse>> getTrashDescriptions(
+        @PathVariable Long trashItemId
+    ) {
+        // TODO : 여기서 question객체 생성해서 검색기록 추적할 수 있도록 하면 좋을 거 같음
+        return ApiResponse.success(OK, null);
     }
 }
