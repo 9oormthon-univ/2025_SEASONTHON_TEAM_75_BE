@@ -39,8 +39,8 @@ public class TrashController implements TrashControllerApi {
     @Override
     @GetMapping("/{trashId}")
     public ApiResponse<TrashResultResponse> getTrash(@PathVariable Long trashId) {
-        // TODO: 조회 로직 구현 필요
-        return null;
+        TrashResultResponse result = trashService.getTrash(trashId);
+        return ApiResponse.success(SuccessCode.OK, result);
     }
 
     @Override
