@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record TrashResult(
+public record TrashResultResponse(
         Long id,
         String imageUrl,
         String name,
@@ -18,8 +18,8 @@ public record TrashResult(
         String cautionNote,
         LocalDateTime createdAt
 ) {
-    public static TrashResult from(Trash trash) {
-        return TrashResult.builder()
+    public static TrashResultResponse from(Trash trash) {
+        return TrashResultResponse.builder()
                 .id(trash.getId())
                 .imageUrl(trash.getImageUrl())
                 .name(trash.getName())
@@ -33,8 +33,8 @@ public record TrashResult(
                 .build();
     }
 
-    public static TrashResult of(Trash trash, List<String> steps, String cautionNote) {
-        return TrashResult.builder()
+    public static TrashResultResponse of(Trash trash, List<String> steps, String cautionNote) {
+        return TrashResultResponse.builder()
                 .id(trash.getId())
                 .imageUrl(trash.getImageUrl())
                 .name(trash.getName())

@@ -2,7 +2,7 @@ package com.trashheroesbe.feature.trash.api;
 
 
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
-import com.trashheroesbe.feature.trash.dto.response.TrashResult;
+import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,13 +28,13 @@ public interface TrashControllerApi {
                     )
             )
     )
-    ApiResponse<TrashResult> createTrash(CreateTrashRequest request, @AuthenticationPrincipal CustomerDetails customerDetails);
+    ApiResponse<TrashResultResponse> createTrash(CreateTrashRequest request, @AuthenticationPrincipal CustomerDetails customerDetails);
 
     @Operation(summary = "쓰레기 조회", description = "쓰레기 ID로 정보를 조회합니다.")
-    ApiResponse<TrashResult> getTrash(@PathVariable Long trashId);
+    ApiResponse<TrashResultResponse> getTrash(@PathVariable Long trashId);
 
     @Operation(summary = "내 쓰레기 목록", description = "현재 인증된 사용자의 모든 쓰레기를 조회합니다.")
-    ApiResponse<List<TrashResult>> getMyTrash(@AuthenticationPrincipal CustomerDetails customerDetails);
+    ApiResponse<List<TrashResultResponse>> getMyTrash(@AuthenticationPrincipal CustomerDetails customerDetails);
 
     @Operation(summary = "쓰레기 삭제", description = "쓰레기와 해당 이미지(S3)를 함께 삭제합니다.")
     ApiResponse<Void> deleteTrash(@PathVariable Long trashId, @AuthenticationPrincipal CustomerDetails customerDetails);
