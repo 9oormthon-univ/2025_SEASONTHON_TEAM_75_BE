@@ -2,8 +2,8 @@ package com.trashheroesbe.feature.trash.api;
 
 import com.trashheroesbe.feature.trash.application.TrashService;
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
-import com.trashheroesbe.feature.trash.dto.response.TrashResult;
 import com.trashheroesbe.feature.trash.application.TrashCreateUseCase;
+import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.response.type.SuccessCode;
@@ -25,34 +25,45 @@ public class TrashController implements TrashControllerApi {
 
     @Override
     @PostMapping
-    public ApiResponse<TrashResult> createTrash(
+    public ApiResponse<TrashResultResponse> createTrash(
             @ModelAttribute CreateTrashRequest request,
             @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
         log.info("쓰레기 생성 요청: userId={}, fileName={}",
                 customerDetails.getUser().getId(), request.imageFile().getOriginalFilename());
 
-        TrashResult result = trashCreateUseCase.createTrash(request, customerDetails.getUser());
+        TrashResultResponse result = trashCreateUseCase.createTrash(request, customerDetails.getUser());
         return ApiResponse.success(SuccessCode.OK, result);
     }
 
     @Override
     @GetMapping("/{trashId}")
-    public ApiResponse<TrashResult> getTrash(@PathVariable Long trashId) {
+    public ApiResponse<TrashResultResponse> getTrash(@PathVariable Long trashId) {
         // TODO: 조회 로직 구현 필요
         return null;
     }
 
     @Override
     @GetMapping("/my")
-    public ApiResponse<List<TrashResult>> getMyTrash(
+    public ApiResponse<List<TrashResultResponse>> getMyTrash(
             @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
         log.info("내 쓰레기 목록 조회 요청: userId={}", customerDetails.getUser().getId());
         
-        List<TrashResult> myTrashList = trashService.getTrashByUser(customerDetails.getUser());
+        List<TrashResultResponse> myTrashList = trashService.getTrashByUser(customerDetails.getUser());
         
         return ApiResponse.success(SuccessCode.OK, myTrashList);
+    }
+
+    @Override
+    @DeleteMapping("/{trashId}")
+    public ApiResponse<Void> deleteTrash(
+            @PathVariable Long trashId,
+            @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        log.info("쓰레기 삭제 요청: userId={}, trashId={}", customerDetails.getUser().getId(), trashId);
+        trashService.deleteTrash(trashId, customerDetails.getUser());
+        return ApiResponse.success(SuccessCode.OK);
     }
 
 }

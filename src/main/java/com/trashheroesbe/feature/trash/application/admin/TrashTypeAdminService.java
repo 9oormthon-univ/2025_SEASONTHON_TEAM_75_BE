@@ -1,11 +1,11 @@
 package com.trashheroesbe.feature.trash.application.admin;
 
+import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
-import java.util.List;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -15,10 +15,9 @@ public class TrashTypeAdminService {
     private final TrashTypeRepository trashTypeRepository;
 
     public void initializeTrashType() {
-        List<TrashType> trashTypes = TrashType.initialize();
-        if (!trashTypeRepository.isEmpty()) {
-            trashTypeRepository.deleteAll();
+        for (var t : Type.values()) {
+            trashTypeRepository.findByType(t)
+                    .orElseGet(() -> trashTypeRepository.save(TrashType.of(t)));
         }
-        trashTypeRepository.saveAll(trashTypes);
     }
 }

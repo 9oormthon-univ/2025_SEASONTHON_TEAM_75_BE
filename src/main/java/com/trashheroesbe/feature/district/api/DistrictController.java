@@ -5,7 +5,6 @@ import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 import com.trashheroesbe.feature.district.application.DistrictService;
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.global.response.ApiResponse;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

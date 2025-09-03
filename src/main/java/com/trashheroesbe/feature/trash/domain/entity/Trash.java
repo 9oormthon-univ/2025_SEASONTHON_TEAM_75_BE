@@ -39,6 +39,14 @@ public class Trash extends BaseTimeEntity {
     @JoinColumn(name = "trash_type_id")
     private TrashType trashType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trash_item_id")
+    private TrashItem trashItem;
+
+    public void applyItem(TrashItem item) {
+        this.trashItem = item;
+    }
+
     public static Trash create(User user, String imageUrl, String name) {
         return Trash.builder()
                 .imageUrl(imageUrl)

@@ -22,7 +22,7 @@ public class TrashType {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "trash_type", length = 30, nullable = false)
+    @Column(name = "trash_type", length = 50, nullable = false)
     private Type type;
 
     public static List<TrashType> initialize() {
