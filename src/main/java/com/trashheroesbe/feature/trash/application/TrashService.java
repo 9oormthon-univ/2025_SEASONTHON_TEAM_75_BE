@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.trash.application;
 
+import com.trashheroesbe.feature.trash.dto.response.PartCardResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
@@ -98,10 +99,12 @@ public class TrashService implements TrashCreateUseCase {
             var steps = descOpt.map(TrashDescription::steps).orElse(java.util.List.of());
             var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
+            var parts = suggestParts(type.getType());
+
             log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
                 saved.getId(), user.getId(), type.getType(), imageUrl);
 
-            return TrashResultResponse.of(saved, steps, caution);
+            return TrashResultResponse.of(saved, steps, caution, parts);
 
         } catch (BusinessException be) {
             throw be;
@@ -120,6 +123,18 @@ public class TrashService implements TrashCreateUseCase {
             default:
                 return false;
         }
+    }
+
+    private List<PartCardResponse> suggestParts(Type baseType) {
+        // PET일 때 예시와 동일하게 3개 추천
+        if (baseType == Type.PET) {
+            return java.util.List.of(
+                    PartCardResponse.of("페트병 뚜껑", Type.PET),
+                    PartCardResponse.of("투명 페트병 몸체", Type.PET),
+                    PartCardResponse.of("비닐 라벨", Type.VINYL_FILM)
+            );
+        }
+        return List.of();
     }
 
     /**
@@ -146,7 +161,11 @@ public class TrashService implements TrashCreateUseCase {
         var steps = descOpt.map(TrashDescription::steps).orElse(java.util.List.of());
         var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
-        return TrashResultResponse.of(trash, steps, caution);
+        var parts = suggestParts(
+                trash.getTrashType() != null ? trash.getTrashType().getType() : Type.UNKNOWN
+        );
+
+        return TrashResultResponse.of(trash, steps, caution, parts);
     }
 
     @Transactional
