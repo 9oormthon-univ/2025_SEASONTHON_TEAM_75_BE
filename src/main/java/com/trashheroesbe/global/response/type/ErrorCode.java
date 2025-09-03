@@ -31,6 +31,12 @@ public enum ErrorCode {
     NOT_EXISTS_TRASH_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 타입이 존재하지 않습니다. 개발자에게 문의 주세요."),
     NOT_EXISTS_TRASH_ITEM(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 품목이 존재하지 않습니다. 개발자에게 문의 주세요."),
     NOT_EXISTS_TRASH_DESCRIPTION(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 설명이 존재하지 않습니다. 개발자에게 문의 주세요."),
+    INVALID_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "검색 키워드가 비어있습니다."),
+
+    ERROR_GPT_CALL(HttpStatus.BAD_GATEWAY, "GPT 호출에 실패했습니다."),
+    EMPTY_GPT_RESPONSE(HttpStatus.BAD_GATEWAY, "GPT 응답이 비었습니다."),
+    FAIL_PARSING_RESPONSE(HttpStatus.UNPROCESSABLE_ENTITY, "응답 파싱에 실패했습니다"),
+
 
     ;
     private final HttpStatus status;
