@@ -4,7 +4,6 @@ import com.trashheroesbe.global.auth.handler.OAuth2FailureHandler;
 import com.trashheroesbe.global.auth.handler.OAuth2SuccessHandler;
 import com.trashheroesbe.global.auth.jwt.filter.JwtAuthenticationFilter;
 import com.trashheroesbe.global.auth.service.CustomOAuth2UserService;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,34 +30,33 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PERMIT_ALL = {
-        "/swagger-ui/**",
-        "/swagger-resources/**",
-        "/v3/api-docs/**",
-        "/api-docs/**",
-        "/api/v1/auth/kakao/**",
-        "/oauth2/**",
-        "/login/**",
-        "/favicon.ico",
-            "/api/v1/**"
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/api/v1/auth/kakao/**",
+            "/oauth2/**",
+            "/login/**",
+            "/favicon.ico"
     };
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(PERMIT_ALL).permitAll()
-                .anyRequest().authenticated())
-            .oauth2Login(oauth2 -> oauth2
-                .successHandler(oAuth2SuccessHandler)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PERMIT_ALL).permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
 //                .failureHandler(oAuth2FailureHandler)
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(customOAuth2UserService)))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -66,7 +66,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(
-            Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
