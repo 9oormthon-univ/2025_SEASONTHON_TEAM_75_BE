@@ -38,11 +38,12 @@ public class QuestionController implements QuestionControllerApi {
     }
 
     @Override
-    @GetMapping("/trash-items/{trashItemId}")
-    public ApiResponse<List<TrashDescriptionResponse>> getTrashDescriptions(
-        @PathVariable Long trashItemId
+    @GetMapping("/trash-types/{trashTypeId}/descriptions")
+    public ApiResponse<TrashDescriptionResponse> getTrashDescriptions(
+        @PathVariable Long trashTypeId
     ) {
         // TODO : 여기서 question객체 생성해서 검색기록 추적할 수 있도록 하면 좋을 거 같음
-        return ApiResponse.success(OK, null);
+        TrashDescriptionResponse response = questionService.getTrashDescriptions(trashTypeId);
+        return ApiResponse.success(OK, response);
     }
 }

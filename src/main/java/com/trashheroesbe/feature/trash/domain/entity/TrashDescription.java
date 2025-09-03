@@ -1,6 +1,8 @@
 package com.trashheroesbe.feature.trash.domain.entity;
 
 import jakarta.persistence.*;
+import java.util.Arrays;
+import java.util.List;
 import lombok.*;
 
 @Getter
@@ -29,11 +31,13 @@ public class TrashDescription {
     private String cautionNote;
 
     // 줄바꿈으로 STEP 리스트 변환
-    public java.util.List<String> steps() {
-        if (methodDetail == null || methodDetail.isBlank()) return java.util.List.of();
-        return java.util.Arrays.stream(methodDetail.split("\\r?\\n"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .toList();
+    public List<String> steps() {
+        if (methodDetail == null || methodDetail.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(methodDetail.split("\\r?\\n"))
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .toList();
     }
 }

@@ -1,7 +1,10 @@
 package com.trashheroesbe.feature.trash.domain.service;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_TYPE;
+
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
+import com.trashheroesbe.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,11 @@ public class TrashTypeFinder {
     private final TrashTypeRepository trashTypeRepository;
 
     public List<TrashType> getAllTrashTypes() {
-        return trashTypeRepository.findAll();
+        List<TrashType> trashTypes = trashTypeRepository.findAllByOrderByIdAsc();
+        if (trashTypes.isEmpty()) {
+            throw new BusinessException(NOT_EXISTS_TRASH_TYPE);
+        }
+
+        return trashTypes;
     }
 }
