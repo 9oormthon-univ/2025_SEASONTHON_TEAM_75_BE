@@ -1,6 +1,5 @@
 package com.trashheroesbe.feature.trash.application;
 
-import com.trashheroesbe.feature.gpt.application.ChatGPTClient;
 import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
@@ -8,7 +7,7 @@ import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
-import com.trashheroesbe.feature.trash.dto.response.TrashResult;
+import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.feature.trash.infrastructure.TrashDescriptionRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashRepository;
@@ -16,17 +15,16 @@ import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
+import com.trashheroesbe.global.util.FileUtils;
+import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,20 +35,20 @@ public class TrashService implements TrashCreateUseCase {
 
     private final TrashRepository trashRepository;
     private final FileStoragePort fileStoragePort;
-    private final ChatGPTClient chatGPTClient;
+    private final ChatAIClientPort chatGPTClient;
     private final TrashTypeRepository trashTypeRepository;
     private final TrashItemRepository trashItemRepository;
     private final TrashDescriptionRepository trashDescriptionRepository;
 
     @Override
     @Transactional
-    public TrashResult createTrash(CreateTrashRequest request, User user) {
+    public TrashResultResponse createTrash(CreateTrashRequest request, User user) {
         log.info("쓰레기 생성 시작: userId={}", user.getId());
         request.validate();
 
         try {
             var file = request.imageFile();
-            String storedFileName = generateStoredFileName(Objects.requireNonNull(file.getOriginalFilename()));
+            String storedFileName = FileUtils.generateStoredFileName(Objects.requireNonNull(file.getOriginalFilename()));
             byte[] bytes = file.getBytes();
             String contentType = file.getContentType();
 
@@ -99,7 +97,7 @@ public class TrashService implements TrashCreateUseCase {
             log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
                     saved.getId(), user.getId(), type.getType(), imageUrl);
 
-            return TrashResult.of(saved, steps, caution);
+            return TrashResultResponse.of(saved, steps, caution);
 
         } catch (BusinessException be) {
             throw be;
@@ -122,34 +120,17 @@ public class TrashService implements TrashCreateUseCase {
     /**
      * 특정 사용자의 모든 쓰레기를 최신순으로 조회
      */
-    public List<TrashResult> getTrashByUser(User user) {
+    public List<TrashResultResponse> getTrashByUser(User user) {
         log.info("사용자별 쓰레기 조회 시작: userId={}", user.getId());
 
         List<Trash> trashes = trashRepository.findByUserOrderByCreatedAtDesc(user);
 
-        List<TrashResult> results = trashes.stream()
-                .map(TrashResult::from)
+        List<TrashResultResponse> results = trashes.stream()
+                .map(TrashResultResponse::from)
                 .collect(Collectors.toList());
 
         log.info("사용자별 쓰레기 조회 완료: userId={}, count={}", user.getId(), results.size());
         return results;
-    }
-
-    /**
-     * 저장될 파일명을 생성합니다.
-     * 형식: trash/YYYYMMDD_HHmmss_UUID_확장자
-     */
-    private String generateStoredFileName(String originalFileName) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
-
-        String extension = "";
-        int lastDotIndex = originalFileName.lastIndexOf(".");
-        if (lastDotIndex > 0) {
-            extension = originalFileName.substring(lastDotIndex);
-        }
-
-        return String.format("trash/%s_%s%s", timestamp, uuid, extension);
     }
 
     @Transactional

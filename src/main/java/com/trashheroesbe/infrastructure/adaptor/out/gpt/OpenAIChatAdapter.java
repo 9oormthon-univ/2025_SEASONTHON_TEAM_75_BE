@@ -1,10 +1,15 @@
-package com.trashheroesbe.feature.gpt.application;
+package com.trashheroesbe.infrastructure.adaptor.out.gpt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
+import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,40 +17,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
-public class ChatGPTClient {
+public class OpenAIChatAdapter implements ChatAIClientPort {
 
-    private final ChatClient chatClient;
     private final ObjectMapper om = new ObjectMapper();
+    private final ChatClient chatClient;
 
-    public ChatGPTClient(ChatClient.Builder builder) {
+    public OpenAIChatAdapter(ChatClient.Builder builder) {
         this.chatClient = builder.build();
     }
 
-    // 1단계: 타입 + 설명
+    @Override
     public TrashAnalysisResponseDto analyzeType(byte[] imageBytes, String contentType) {
         try {
             MimeType mime = (contentType != null && contentType.startsWith("image/"))
-                    ? MimeType.valueOf(contentType)
-                    : MimeTypeUtils.IMAGE_JPEG;
+                    ? MimeType.valueOf(contentType) : MimeTypeUtils.IMAGE_JPEG;
 
             ByteArrayResource resource = new ByteArrayResource(imageBytes) {
-                @Override
-                public String getFilename() {
-                    mime.getSubtype();
+                @Override public String getFilename() {
                     String subtype = mime.getSubtype();
                     return "upload." + subtype;
                 }
             };
 
-            String content = chatClient
-                    .prompt()
+            String content = chatClient.prompt()
                     .system(buildTypePrompt())
                     .user(u -> u.text("이 이미지를 분류해 JSON만 반환해줘.").media(mime, resource))
                     .call()
@@ -59,24 +55,20 @@ public class ChatGPTClient {
         }
     }
 
-    // 2단계: 세부 품목(item)만
+    @Override
     public String analyzeItem(byte[] imageBytes, String contentType, Type type) {
         try {
             MimeType mime = (contentType != null && contentType.startsWith("image/"))
-                    ? MimeType.valueOf(contentType)
-                    : MimeTypeUtils.IMAGE_JPEG;
+                    ? MimeType.valueOf(contentType) : MimeTypeUtils.IMAGE_JPEG;
 
             ByteArrayResource resource = new ByteArrayResource(imageBytes) {
-                @Override
-                public String getFilename() {
-                    mime.getSubtype();
+                @Override public String getFilename() {
                     String subtype = mime.getSubtype();
                     return "upload." + subtype;
                 }
             };
 
-            String content = chatClient
-                    .prompt()
+            String content = chatClient.prompt()
                     .system(buildItemPrompt(type))
                     .user(u -> u.text("이 이미지를 분류해 JSON만 반환해줘.").media(mime, resource))
                     .call()
@@ -92,8 +84,7 @@ public class ChatGPTClient {
 
     private String buildTypePrompt() {
         String allowed = java.util.Arrays.stream(Type.values())
-                .map(Enum::name)
-                .collect(Collectors.joining(", "));
+                .map(Enum::name).collect(Collectors.joining(", "));
         return """
                 너는 쓰레기 분류 전문가다. 아래 규칙을 엄격히 지켜라.
                 - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
@@ -106,15 +97,15 @@ public class ChatGPTClient {
     private final Map<Type, List<String>> ALLOWED_ITEMS = new EnumMap<>(Type.class) {{
         put(Type.PAPER, List.of("일반 종이류"));
         put(Type.PAPER_PACK, List.of("종이팩"));
-        put(Type.PLASTIC, List.of("유색 페트병", "음식 용기", "과일용기", "투명한 일회용컵", "삼푸병"));
-        put(Type.PET, List.of("투명 무색 페트병(생수)", "투명 무색 페트병(음료수)"));
-        put(Type.VINYL_FILM, List.of("비닐봉투", "뽁뽁이", "패키징 봉투", "아이스팩"));
+        put(Type.PLASTIC, List.of("플라스틱 병", "음식 용기", "과일용기", "샴푸병"));
+        put(Type.PET, List.of("PET(투명 페트병)", "PET(유색 페트병)"));
+        put(Type.VINYL_FILM, List.of("비닐봉투", "뽁뽁이", "아이스팩"));
         put(Type.STYROFOAM, List.of("완충 포장재", "라면용기", "식품 포장상자", "아이스박스"));
         put(Type.GLASS, List.of("투명 유리병", "유색 유리병"));
-        put(Type.METAL, List.of("알루미늄 캔", "철 캔", "부탄가스 캔", "후라이팬", "냄비", "철사"));
-        put(Type.TEXTILES, List.of("헌옷", "이불", "신발", "가방"));
+        put(Type.METAL, List.of("알루미늄 캔", "철 캔"));
+        put(Type.TEXTILES, List.of("의류", "섬유"));
         put(Type.E_WASTE, List.of("냉장고", "TV", "핸드폰", "라디오"));
-        put(Type.HAZARDOUS_SMALL_WASTE, List.of("폐형광등", "폐건전지", "폐의약품", "보조배터리"));
+        put(Type.HAZARDOUS_SMALL_WASTE, List.of("폐형광등", "폐건전지", "보조배터리"));
     }};
 
     private String buildItemPrompt(Type type) {
@@ -134,7 +125,6 @@ public class ChatGPTClient {
             if (content == null) {
                 return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null, "이미지 분석에 실패했습니다.");
             }
-
             String json = sanitizeToJson(content);
             JsonNode node = om.readTree(json);
 
@@ -142,11 +132,8 @@ public class ChatGPTClient {
             String description = node.path("description").asText("설명을 생성하지 못했습니다.");
 
             Type typeEnum;
-            try {
-                typeEnum = Type.valueOf(typeStr.trim().toUpperCase());
-            } catch (Exception e) {
-                typeEnum = Type.UNKNOWN;
-            }
+            try { typeEnum = Type.valueOf(typeStr.trim().toUpperCase()); }
+            catch (Exception e) { typeEnum = Type.UNKNOWN; }
 
             return TrashAnalysisResponseDto.of(TrashType.of(typeEnum), null, description);
 
