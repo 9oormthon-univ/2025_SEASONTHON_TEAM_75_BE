@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.gpt.dto.response;
+package com.trashheroesbe.feature.trash.dto.response;
 
 
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;

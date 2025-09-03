@@ -1,8 +1,8 @@
-package com.trashheroesbe.infrastructure.adaptor.out.gpt;
+package com.trashheroesbe.infrastructure.adapter.out.gpt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
+import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
