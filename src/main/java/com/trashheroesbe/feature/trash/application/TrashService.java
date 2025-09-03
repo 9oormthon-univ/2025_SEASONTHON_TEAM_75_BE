@@ -138,6 +138,17 @@ public class TrashService implements TrashCreateUseCase {
         return results;
     }
 
+    public TrashResultResponse getTrash(Long trashId) {
+        Trash trash = trashRepository.findById(trashId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+
+        var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());
+        var steps = descOpt.map(TrashDescription::steps).orElse(java.util.List.of());
+        var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
+
+        return TrashResultResponse.of(trash, steps, caution);
+    }
+
     @Transactional
     public void deleteTrash(Long trashId, User user) {
         log.info("쓰레기 삭제 시작: userId={}, trashId={}", user.getId(), trashId);
