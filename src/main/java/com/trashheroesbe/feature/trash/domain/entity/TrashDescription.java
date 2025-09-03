@@ -1,6 +1,5 @@
-package com.trashheroesbe.feature.trash.domain;
+package com.trashheroesbe.feature.trash.domain.entity;
 
-import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import jakarta.persistence.*;
 import lombok.*;
 

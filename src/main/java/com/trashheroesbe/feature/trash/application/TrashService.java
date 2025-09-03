@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.trash.application;
 
 import com.trashheroesbe.feature.gpt.dto.response.TrashAnalysisResponseDto;
-import com.trashheroesbe.feature.trash.domain.TrashDescription;
+import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
