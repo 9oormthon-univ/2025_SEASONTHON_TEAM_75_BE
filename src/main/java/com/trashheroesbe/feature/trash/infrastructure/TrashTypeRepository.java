@@ -2,6 +2,7 @@ package com.trashheroesbe.feature.trash.infrastructure;
 
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,6 @@ public interface TrashTypeRepository extends JpaRepository<TrashType, Long> {
     boolean isEmpty();
 
     Optional<TrashType> findByType(Type type);
+
+    List<TrashType> findAllByOrderByIdAsc();
 }
