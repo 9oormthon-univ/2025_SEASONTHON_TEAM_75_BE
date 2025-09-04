@@ -13,6 +13,7 @@ import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.domain.service.UserDistrictFinder;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import com.trashheroesbe.global.exception.BusinessException;
@@ -84,6 +85,9 @@ public class UserService {
             throw new BusinessException(DUPLICATE_USER_DISTRICT);
         }
 
+        userDistricts
+            .forEach(userDistrict -> userDistrict.updateDefaultDistrict(false));
+
         User user = userFinder.findById(userId);
         District district = districtFinder.findById(districtId);
 
@@ -99,13 +103,29 @@ public class UserService {
         userDistrictRepository.deleteById(userDistrictId);
     }
 
-    public List<DistrictListResponse> getUserDistrictsByUserId(Long userId) {
+    public List<UserDistrictResponse> getUserDistrictsByUserId(Long userId) {
+        List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
+        return userDistricts.stream()
+            .map(UserDistrictResponse::from)
+            .toList();
+    }
+
+    @Transactional
+    public void updateDefaultUserDistrict(Long userDistrictId, Long userId) {
         List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
 
-        return userDistricts.stream()
-            .map(UserDistrict::getDistrict)
-            .filter(Objects::nonNull)
-            .map(DistrictListResponse::from)
-            .toList();  // Jav
+        boolean exists = false;
+        for (UserDistrict userDistrict : userDistricts) {
+            if (userDistrict.getId().equals(userDistrictId)) {
+                userDistrict.updateDefaultDistrict(true);
+                exists = true;
+            } else {
+                userDistrict.updateDefaultDistrict(false);
+            }
+        }
+
+        if (!exists) {
+            throw new BusinessException(ENTITY_NOT_FOUND);
+        }
     }
 }
