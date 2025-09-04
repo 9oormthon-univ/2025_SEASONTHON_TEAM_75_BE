@@ -96,10 +96,20 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUserDistrict(Long userDistrictId) {
+    public void deleteUserDistrict(Long userDistrictId, Long userId) {
         if (!userDistrictFinder.existsByUserDistrictId(userDistrictId)) {
             throw new BusinessException(ENTITY_NOT_FOUND);
         }
+
+        List<UserDistrict> userDistricts = userDistrictFinder.findByUserId(userId);
+        if (userDistricts.size() == MAX_USER_DISTRICTS) {
+            UserDistrict userDistrict = userDistricts.stream()
+                .filter(defaultUserDistrict -> !defaultUserDistrict.getId().equals(userDistrictId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+            userDistrict.updateDefaultDistrict(true);
+        }
+
         userDistrictRepository.deleteById(userDistrictId);
     }
 
