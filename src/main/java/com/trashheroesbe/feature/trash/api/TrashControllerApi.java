@@ -35,35 +35,49 @@ public interface TrashControllerApi {
             description = "성공",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = TrashResultResponse.class),
+                    schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(name = "success", value = """
-{
-  "httpCode": 200,
-  "httpStatus": "OK",
-  "message": "요청에 성공하였습니다.",
-  "data": {
-    "id": 8,
-    "imageUrl": "https://trashheroes.s3.ap-northeast-2.amazonaws.com/trash/20250904_003905_126ed9a4.jpg",
-    "name": "쓰레기",
-    "summary": "생수용 PET 플라스틱 병(뚜껑 포함)",
-    "itemName": "PET(투명 페트병)",
-    "typeCode": "R04",
-    "typeName": "PET(투명 페트병)",
-    "guideSteps": [
-      "STEP 1: 내용물을 비우고 깨끗이 헹궈요.",
-      "STEP 2: 비닐 라벨을 제거하여 비닐류로 배출해요.",
-      "STEP 3: 페트병은 찌그러뜨린 뒤 뚜껑을 닫아 일반 플라스틱류와 구분하여 투명/반투명 봉투에 담아 배출해요."
-    ],
-    "cautionNote": "주의: 유색·불투명 페트병이나 식용유병은 투명 페트병으로 분리하지 않아요.",
-    "parts": [
-      { "name": "페트병 뚜껑", "typeCode": "R04", "typeName": "PET(투명 페트병)" },
-      { "name": "투명 페트병 몸체", "typeCode": "R04", "typeName": "PET(투명 페트병)" },
-      { "name": "비닐 라벨", "typeCode": "R05", "typeName": "비닐류" }
-    ],
-    "createdAt": "2025-09-04T00:39:17.853269"
-  }
-}
-""")
+                            {
+                              "httpCode": 200,
+                              "httpStatus": "OK",
+                              "message": "요청에 성공하였습니다.",
+                              "data": {
+                                "id": 8,
+                                "imageUrl": "https://trashheroes.s3.ap-northeast-2.amazonaws.com/trash/20250904_003905_126ed9a4.jpg",
+                                "name": "쓰레기",
+                                "summary": "생수용 PET 플라스틱 병(뚜껑 포함)",
+                                "itemName": "PET(투명 페트병)",
+                                "typeCode": "R04",
+                                "typeName": "PET(투명 페트병)",
+                                "guideSteps": [
+                                  "STEP 1: 내용물을 비우고 깨끗이 헹궈요.",
+                                  "STEP 2: 비닐 라벨을 제거하여 비닐류로 배출해요.",
+                                  "STEP 3: 페트병은 찌그러뜨린 뒤 뚜껑을 닫아 일반 플라스틱류와 구분하여 투명/반투명 봉투에 담아 배출해요."
+                                ],
+                                "cautionNote": "주의: 유색·불투명 페트병이나 식용유병은 투명 페트병으로 분리하지 않아요.",
+                                "days": [
+                                                                  "월요일",
+                                                                  "화요일",
+                                                                  "수요일",
+                                                                  "목요일",
+                                                                  "금요일",
+                                                                  "일요일"
+                                                                ],
+                                                                "location": {
+                                                                                                  "id": "1156012500",
+                                                                                                  "sido": "서울특별시",
+                                                                                                  "sigungu": "영등포구",
+                                                                                                  "eupmyeondong": "양평동1가"
+                                                                                                },
+                                "parts": [
+                                  { "name": "페트병 뚜껑", "typeCode": "R04", "typeName": "PET(투명 페트병)" },
+                                  { "name": "투명 페트병 몸체", "typeCode": "R04", "typeName": "PET(투명 페트병)" },
+                                  { "name": "비닐 라벨", "typeCode": "R05", "typeName": "비닐류" }
+                                ],
+                                "createdAt": "2025-09-04T00:39:17.853269"
+                              }
+                            }
+                            """)
             )
     )
     ApiResponse<TrashResultResponse> createTrash(CreateTrashRequest request, @AuthenticationPrincipal CustomerDetails customerDetails);
@@ -93,16 +107,16 @@ public interface TrashControllerApi {
                     mediaType = "application/json",
                     schema = @Schema(implementation = TrashResultResponse.class),
                     examples = @ExampleObject(name = "success", value = """
-{
-  "httpCode": 200,
-  "httpStatus": "OK",
-  "message": "요청에 성공하였습니다.",
-  "data": [
-    { "id": 8, "imageUrl": "...", "name": "쓰레기", "summary": "..." },
-    { "id": 7, "imageUrl": "...", "name": "쓰레기", "summary": "..." }
-  ]
-}
-""")
+                            {
+                              "httpCode": 200,
+                              "httpStatus": "OK",
+                              "message": "요청에 성공하였습니다.",
+                              "data": [
+                                { "id": 8, "imageUrl": "...", "name": "쓰레기", "summary": "..." },
+                                { "id": 7, "imageUrl": "...", "name": "쓰레기", "summary": "..." }
+                              ]
+                            }
+                            """)
             )
     )
     ApiResponse<List<TrashResultResponse>> getMyTrash(@AuthenticationPrincipal CustomerDetails customerDetails);
@@ -114,13 +128,13 @@ public interface TrashControllerApi {
             content = @Content(
                     mediaType = "application/json",
                     examples = @ExampleObject(value = """
-{
-  "httpCode": 200,
-  "httpStatus": "OK",
-  "message": "요청에 성공하였습니다.",
-  "data": null
-}
-""")
+                            {
+                              "httpCode": 200,
+                              "httpStatus": "OK",
+                              "message": "요청에 성공하였습니다.",
+                              "data": null
+                            }
+                            """)
             )
     )
     ApiResponse<Void> deleteTrash(@PathVariable Long trashId, @AuthenticationPrincipal CustomerDetails customerDetails);
