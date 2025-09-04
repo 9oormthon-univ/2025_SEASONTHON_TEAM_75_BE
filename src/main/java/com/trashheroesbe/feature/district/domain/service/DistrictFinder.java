@@ -5,7 +5,6 @@ import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.infrastructure.DistrictRepository;
 import com.trashheroesbe.global.exception.BusinessException;
-import com.trashheroesbe.global.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
