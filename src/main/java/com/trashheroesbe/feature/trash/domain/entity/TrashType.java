@@ -25,13 +25,6 @@ public class TrashType {
     @Column(name = "trash_type", length = 50, nullable = false)
     private Type type;
 
-    public static List<TrashType> initialize() {
-        Type[] types = Type.values();
-        return Arrays.stream(types)
-            .map(TrashType::of)
-            .toList();
-    }
-
     public static TrashType of(Type type) {
         return TrashType.builder()
             .type(type)
