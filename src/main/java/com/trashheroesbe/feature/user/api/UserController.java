@@ -54,9 +54,10 @@ public class UserController implements UserControllerApi {
     @Override
     @DeleteMapping("/districts/{userDistrictId}")
     public ApiResponse<Void> deleteUserDistrict(
-        @PathVariable Long userDistrictId
+        @PathVariable Long userDistrictId,
+        @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
-        userService.deleteUserDistrict(userDistrictId);
+        userService.deleteUserDistrict(userDistrictId, customerDetails.getUser().getId());
         return ApiResponse.success(OK);
     }
 
