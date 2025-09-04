@@ -4,6 +4,7 @@ import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -30,39 +31,43 @@ public record TrashResultResponse(
         List<String> guideSteps,
         @Schema(description = "주의사항", example = "주의: 유색·불투명 페트병이나 식용유병은 투명 페트병으로 분리하지 않아요.")
         String cautionNote,
+        @ArraySchema(arraySchema = @Schema(description = "자치구 배출 요일(문자 배열)"))
+        List<String> days,
+        DistrictSummaryResponse location,
         @Schema(description = "부품 카드 목록")
         List<PartCardResponse> parts,
         @Schema(description = "생성 시각", example = "2025-09-04T00:39:17.853269")
         LocalDateTime createdAt
 ) {
-    private static TrashResultResponseBuilder base(Trash trash) {
-        var trashType = trash.getTrashType();
-        var type = (trashType != null) ? trashType.getType() : null;
-
+    private static TrashResultResponseBuilder base(Trash t) {
+        var tt = t.getTrashType() != null ? t.getTrashType().getType() : null;
         return TrashResultResponse.builder()
-                .id(trash.getId())
-                .imageUrl(trash.getImageUrl())
-                .name(trash.getName())
-                .summary(trash.getSummary())
-                .itemName(trash.getTrashItem() != null ? trash.getTrashItem().getName() : null)
-                .typeCode(type != null ? type.getTypeCode() : null)
-                .typeName(type != null ? type.getNameKo() : null)
-                .createdAt(trash.getCreatedAt());
+                .id(t.getId()).imageUrl(t.getImageUrl()).name(t.getName()).summary(t.getSummary())
+                .itemName(t.getTrashItem()!=null?t.getTrashItem().getName():null)
+                .typeCode(tt!=null?tt.getTypeCode():null)
+                .typeName(tt!=null?tt.getNameKo():null)
+                .createdAt(t.getCreatedAt());
     }
 
-    public static TrashResultResponse from(Trash trash) {
-        return base(trash)
+    public static TrashResultResponse from(Trash t) {
+        return base(t)
                 .guideSteps(List.of())
                 .cautionNote(null)
+                .days(List.of())
                 .parts(List.of())
+                .location(null)
                 .build();
     }
 
-    public static TrashResultResponse of(Trash trash, List<String> steps, String cautionNote, List<PartCardResponse> parts) {
-        return base(trash)
+    public static TrashResultResponse of(Trash t, List<String> steps, String caution,
+                                         List<String> days, List<PartCardResponse> parts,
+                                         DistrictSummaryResponse location) {
+        return base(t)
                 .guideSteps(steps != null ? steps : List.of())
-                .cautionNote(cautionNote)
+                .cautionNote(caution)
+                .days(days != null ? days : List.of())
                 .parts(parts != null ? parts : List.of())
+                .location(location)
                 .build();
     }
 }
