@@ -5,6 +5,7 @@ import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.application.UserService;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 
@@ -63,10 +64,10 @@ public class UserController implements UserControllerApi {
 
     @Override
     @GetMapping("/my/districts")
-    public ApiResponse<List<DistrictListResponse>> getMyDistricts(
+    public ApiResponse<List<UserDistrictResponse>> getMyDistricts(
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
-        List<DistrictListResponse> response = userService.getUserDistrictsByUserId(
+        List<UserDistrictResponse> response = userService.getUserDistrictsByUserId(
             customerDetails.getUser().getId());
         return ApiResponse.success(OK, response);
     }

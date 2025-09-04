@@ -13,6 +13,7 @@ import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.domain.service.UserDistrictFinder;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import com.trashheroesbe.global.exception.BusinessException;
@@ -102,14 +103,10 @@ public class UserService {
         userDistrictRepository.deleteById(userDistrictId);
     }
 
-
-    public List<DistrictListResponse> getUserDistrictsByUserId(Long userId) {
+    public List<UserDistrictResponse> getUserDistrictsByUserId(Long userId) {
         List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
-
         return userDistricts.stream()
-            .map(UserDistrict::getDistrict)
-            .filter(Objects::nonNull)
-            .map(DistrictListResponse::from)
+            .map(UserDistrictResponse::from)
             .toList();
     }
 

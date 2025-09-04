@@ -31,7 +31,7 @@ public class UserDistrictFinder {
     }
 
     public List<UserDistrict> findByUserIdFetchJoin(Long userId) {
-        return userDistrictRepository.findByUserIdFetchJoin(userId);
+        return userDistrictRepository.findByUserId(userId);
     }
 
     public UserDistrict getByUserDistrictId(Long userDistrictId) {
