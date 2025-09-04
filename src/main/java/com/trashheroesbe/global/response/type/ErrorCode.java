@@ -26,6 +26,8 @@ public enum ErrorCode {
     // user
     DUPLICATE_USER_DISTRICT(HttpStatus.BAD_REQUEST, "중복된 자치구 입니다."),
     MAX_USER_DISTRICTS_EXCEEDED(HttpStatus.BAD_REQUEST, "자치구는 최대 2개만 가질 수 있습니다."),
+    NOT_FOUND_USER_DISTRICTS(HttpStatus.NOT_FOUND, "자치구 등록을 하지 않으셨습니다. 등록해주세요."),
+    NOT_FOUND_DEFAULT_USER_DISTRICTS(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
 
     // trash
     NOT_EXISTS_TRASH_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 타입이 존재하지 않습니다. 개발자에게 문의 주세요."),
@@ -33,6 +35,7 @@ public enum ErrorCode {
     NOT_EXISTS_TRASH_DESCRIPTION(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 설명이 존재하지 않습니다. 개발자에게 문의 주세요."),
     INVALID_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "검색 키워드가 비어있습니다."),
 
+    // gpt
     ERROR_GPT_CALL(HttpStatus.BAD_GATEWAY, "GPT 호출에 실패했습니다."),
     EMPTY_GPT_RESPONSE(HttpStatus.BAD_GATEWAY, "GPT 응답이 비었습니다."),
     FAIL_PARSING_RESPONSE(HttpStatus.UNPROCESSABLE_ENTITY, "응답 파싱에 실패했습니다"),

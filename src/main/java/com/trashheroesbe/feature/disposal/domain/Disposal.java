@@ -12,11 +12,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Entity
@@ -42,6 +45,7 @@ public class Disposal extends BaseTimeEntity {
     @Column(name = "method_detail", columnDefinition = "TEXT")
     private String methodDetail;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "days", columnDefinition = "JSON")
-    private String days;
+    private List<String> days;
 }
