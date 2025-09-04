@@ -8,6 +8,7 @@ import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
+import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.feature.trash.infrastructure.TrashDescriptionRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
@@ -115,14 +116,11 @@ public class TrashService implements TrashCreateUseCase {
     }
 
     private boolean isRecyclable(Type t) {
-        switch (t) {
-            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES,
-                 E_WASTE,
-                 HAZARDOUS_SMALL_WASTE:
-                return true;
-            default:
-                return false;
-        }
+        return switch (t) {
+            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE,
+                 HAZARDOUS_SMALL_WASTE -> true;
+            default -> false;
+        };
     }
 
     private List<PartCardResponse> suggestParts(Type baseType) {
@@ -164,6 +162,51 @@ public class TrashService implements TrashCreateUseCase {
         var parts = suggestParts(
                 trash.getTrashType() != null ? trash.getTrashType().getType() : Type.UNKNOWN
         );
+
+        return TrashResultResponse.of(trash, steps, caution, parts);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrashItemResponse> getTrashItemsByTrashId(Long trashId) {
+        var trash = trashRepository.findById(trashId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+
+        if (trash.getTrashType() == null) {
+            return List.of();
+        }
+
+        return trashItemRepository.findByTrashTypeId(trash.getTrashType().getId())
+                .stream()
+                .map(TrashItemResponse::from)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional
+    public TrashResultResponse changeTrashItem(Long trashId, Long trashItemId, User user) {
+        var trash = trashRepository.findById(trashId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+
+        if (!trash.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);
+        }
+
+        var item = trashItemRepository.findById(trashItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+
+        if (trash.getTrashType() == null || item.getTrashType() == null ||
+                !item.getTrashType().getId().equals(trash.getTrashType().getId())) {
+            throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);
+        }
+
+        trash.applyItem(item);
+
+        var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());
+        var steps = descOpt.map(TrashDescription::steps)
+                .orElse(java.util.List.of());
+        var caution = descOpt.map(TrashDescription::getCautionNote)
+                .orElse(null);
+
+        var parts = suggestParts(trash.getTrashType().getType());
 
         return TrashResultResponse.of(trash, steps, caution, parts);
     }

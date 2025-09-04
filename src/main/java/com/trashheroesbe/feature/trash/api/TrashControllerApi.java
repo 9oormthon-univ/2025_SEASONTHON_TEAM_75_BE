@@ -2,6 +2,7 @@ package com.trashheroesbe.feature.trash.api;
 
 
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
+import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
@@ -77,6 +78,12 @@ public interface TrashControllerApi {
             )
     )
     ApiResponse<TrashResultResponse> getTrash(@PathVariable Long trashId);
+
+    @Operation(summary = "쓰레기 품목 목록", description = "해당 쓰레기와 같은 타입의 품목 리스트를 반환합니다.")
+    ApiResponse<List<TrashItemResponse>> getTrashItems(@PathVariable Long trashId);
+
+    @Operation(summary = "쓰레기 품목 변경", description = "선택한 품목ID로 해당 쓰레기의 품목을 변경합니다.")
+    ApiResponse<TrashResultResponse> changeTrashItem(Long trashId, Long trashItemId, @AuthenticationPrincipal CustomerDetails customerDetails);
 
     @Operation(summary = "내 쓰레기 목록", description = "현재 인증된 사용자의 모든 쓰레기를 최신순으로 조회합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(

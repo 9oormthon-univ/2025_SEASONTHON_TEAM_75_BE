@@ -1,4 +1,4 @@
-package com.trashheroesbe.feature.dispasal.domain;
+package com.trashheroesbe.feature.disposal.domain;
 
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
