@@ -36,11 +36,12 @@ public interface UserControllerApi {
     ApiResponse<Void> createUserDistrict(CustomerDetails customerDetails, String districtId);
 
     @Operation(summary = "유저 자치구 삭제하기", description = "유저의 자치구를 삭제합니다.")
-    ApiResponse<Void> deleteUserDistrict(Long userDistrictId);
+    ApiResponse<Void> deleteUserDistrict(Long userDistrictId, CustomerDetails customerDetails);
 
     @Operation(summary = "내 자치구 조회하기", description = "나의 등록된 자치구를 조회합니다.")
     ApiResponse<List<UserDistrictResponse>> getMyDistricts(CustomerDetails customerDetails);
 
-    @Operation(summary = "유저 대표 자치구 수정하기", description = "유저의 자치구를 수정합니다.")
-    ApiResponse<Void> updateDefaultUserDistrict(Long userDistrictId, CustomerDetails customerDetails);
+    @Operation(summary = "유저 대표(default) 자치구 수정하기", description = "유저 자치구의 default 값을 수정합니다.")
+    ApiResponse<Void> updateDefaultUserDistrict(Long userDistrictId,
+        CustomerDetails customerDetails);
 }
