@@ -1,9 +1,11 @@
 package com.trashheroesbe.feature.trash.dto.response;
 
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
+@Schema(description = "쓰레기 품목")
 public record TrashItemResponse(
     Long trashItemId,
     String itemName,
