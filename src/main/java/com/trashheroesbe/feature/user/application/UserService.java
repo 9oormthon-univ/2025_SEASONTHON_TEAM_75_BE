@@ -84,6 +84,9 @@ public class UserService {
             throw new BusinessException(DUPLICATE_USER_DISTRICT);
         }
 
+        userDistricts
+            .forEach(userDistrict -> userDistrict.updateDefaultDistrict(false));
+
         User user = userFinder.findById(userId);
         District district = districtFinder.findById(districtId);
 
@@ -99,6 +102,7 @@ public class UserService {
         userDistrictRepository.deleteById(userDistrictId);
     }
 
+
     public List<DistrictListResponse> getUserDistrictsByUserId(Long userId) {
         List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
 
@@ -106,6 +110,25 @@ public class UserService {
             .map(UserDistrict::getDistrict)
             .filter(Objects::nonNull)
             .map(DistrictListResponse::from)
-            .toList();  // Jav
+            .toList();
+    }
+
+    @Transactional
+    public void updateDefaultUserDistrict(Long userDistrictId, Long userId) {
+        List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
+
+        boolean exists = false;
+        for (UserDistrict userDistrict : userDistricts) {
+            if (userDistrict.getId().equals(userDistrictId)) {
+                userDistrict.updateDefaultDistrict(true);
+                exists = true;
+            } else {
+                userDistrict.updateDefaultDistrict(false);
+            }
+        }
+
+        if (!exists) {
+            throw new BusinessException(ENTITY_NOT_FOUND);
+        }
     }
 }

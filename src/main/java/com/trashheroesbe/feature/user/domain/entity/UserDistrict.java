@@ -38,13 +38,17 @@ public class UserDistrict extends BaseTimeEntity {
     private District district;
 
     @Column
-    private Boolean isDefault = false;
+    private Boolean isDefault;
 
     public static UserDistrict createUserDistrict(User user, District district) {
         return UserDistrict.builder()
             .user(user)
             .district(district)
-            .isDefault(false)
+            .isDefault(true)
             .build();
+    }
+
+    public void updateDefaultDistrict(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 }

@@ -1,8 +1,11 @@
 package com.trashheroesbe.feature.user.domain.service;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
+
 import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 
+import com.trashheroesbe.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,5 +32,10 @@ public class UserDistrictFinder {
 
     public List<UserDistrict> findByUserIdFetchJoin(Long userId) {
         return userDistrictRepository.findByUserIdFetchJoin(userId);
+    }
+
+    public UserDistrict getByUserDistrictId(Long userDistrictId) {
+        return userDistrictRepository.findById(userDistrictId)
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
     }
 }

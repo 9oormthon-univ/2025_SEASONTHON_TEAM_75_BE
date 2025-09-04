@@ -70,4 +70,14 @@ public class UserController implements UserControllerApi {
             customerDetails.getUser().getId());
         return ApiResponse.success(OK, response);
     }
+
+    @Override
+    @PatchMapping("/districts/{userDistrictId}")
+    public ApiResponse<Void> updateDefaultUserDistrict(
+        @PathVariable Long userDistrictId,
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        userService.updateDefaultUserDistrict(userDistrictId, customerDetails.getUser().getId());
+        return ApiResponse.success(OK);
+    }
 }
