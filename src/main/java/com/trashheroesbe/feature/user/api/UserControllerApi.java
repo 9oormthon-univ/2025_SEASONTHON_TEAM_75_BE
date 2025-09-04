@@ -2,6 +2,7 @@ package com.trashheroesbe.feature.user.api;
 
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,5 +39,8 @@ public interface UserControllerApi {
     ApiResponse<Void> deleteUserDistrict(Long userDistrictId);
 
     @Operation(summary = "내 자치구 조회하기", description = "나의 등록된 자치구를 조회합니다.")
-    ApiResponse<List<DistrictListResponse>> getMyDistricts(CustomerDetails customerDetails);
+    ApiResponse<List<UserDistrictResponse>> getMyDistricts(CustomerDetails customerDetails);
+
+    @Operation(summary = "유저 대표 자치구 수정하기", description = "유저의 자치구를 수정합니다.")
+    ApiResponse<Void> updateDefaultUserDistrict(Long userDistrictId, CustomerDetails customerDetails);
 }

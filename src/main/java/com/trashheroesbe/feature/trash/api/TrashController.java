@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.trash.api;
 import com.trashheroesbe.feature.trash.application.TrashService;
 import com.trashheroesbe.feature.trash.dto.request.CreateTrashRequest;
 import com.trashheroesbe.feature.trash.application.TrashCreateUseCase;
+import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashResultResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
@@ -40,6 +41,22 @@ public class TrashController implements TrashControllerApi {
     @GetMapping("/{trashId}")
     public ApiResponse<TrashResultResponse> getTrash(@PathVariable Long trashId) {
         TrashResultResponse result = trashService.getTrash(trashId);
+        return ApiResponse.success(SuccessCode.OK, result);
+    }
+
+    @GetMapping("/{trashId}/items")
+    public ApiResponse<List<TrashItemResponse>> getTrashItems(@PathVariable Long trashId) {
+        List<TrashItemResponse> items = trashService.getTrashItemsByTrashId(trashId);
+        return ApiResponse.success(SuccessCode.OK, items);
+    }
+
+    @PatchMapping("/{trashId}/items/{trashItemId}")
+    public ApiResponse<TrashResultResponse> changeTrashItem(
+            @PathVariable Long trashId,
+            @PathVariable Long trashItemId,
+            @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        var result = trashService.changeTrashItem(trashId, trashItemId, customerDetails.getUser());
         return ApiResponse.success(SuccessCode.OK, result);
     }
 
