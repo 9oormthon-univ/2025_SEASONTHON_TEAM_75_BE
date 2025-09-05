@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,12 +38,6 @@ public class TrashRank extends BaseTimeEntity {
     @JoinColumn(name = "trash_type_id", nullable = false)
     private TrashType trashType;
 
-    @Column(name = "week_start_date", nullable = false, columnDefinition = "DATE COMMENT '시작날짜'")
-    private LocalDate weekStartDate;
-
-    @Column(name = "week_end_date", nullable = false)
-    private LocalDate weekEndDate;
-
     @Column(name = "rank_order", nullable = false, columnDefinition = "INT COMMENT '순위'")
     private Integer rankOrder;
 
@@ -58,4 +53,7 @@ public class TrashRank extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "trend_direction", columnDefinition = "VARCHAR(10) COMMENT '트렌드 방향'")
     private TrendDirection trendDirection;
+
+    @Column(name = "last_updated", columnDefinition = "DATETIME COMMENT '마지막 업데이트 시간'")
+    private LocalDateTime lastUpdated;
 }

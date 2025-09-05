@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.rank.api;
 
 import com.trashheroesbe.feature.rank.application.TrashRankService;
-import com.trashheroesbe.feature.rank.dto.response.WeeklyRankResponse;
+import com.trashheroesbe.feature.rank.dto.response.RankResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.response.type.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ public class TrashRankController implements TrashRankControllerApi {
 
     @Override
     @GetMapping("/current")
-    public ApiResponse<WeeklyRankResponse> getCurrentWeekRanking() {
-        WeeklyRankResponse response = trashRankService.getCurrentWeekRanking();
+    public ApiResponse<RankResponse> getCurrentRanking() {
+        RankResponse response = trashRankService.getCurrentWeekRanking();
         return ApiResponse.success(SuccessCode.OK, response);
     }
 }
