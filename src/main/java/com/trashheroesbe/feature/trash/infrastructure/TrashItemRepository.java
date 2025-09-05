@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.trash.infrastructure;
 
+import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import java.util.List;
@@ -15,4 +16,7 @@ public interface TrashItemRepository extends JpaRepository<TrashItem, Long> {
     List<TrashItem> findByTrashTypeId(Long trashTypeId);
 
     Optional<TrashItem> findByTrashTypeAndName(TrashType trashType, String name);
+
+    @EntityGraph(attributePaths = {"trashType"})
+    List<TrashItem> findByTrashType_Type(Type type);
 }

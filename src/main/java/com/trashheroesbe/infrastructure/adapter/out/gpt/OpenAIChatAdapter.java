@@ -11,12 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
+import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
+import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -24,6 +25,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
+import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 
 @Service
 @Slf4j
@@ -31,9 +33,15 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
 
     private final ObjectMapper om = new ObjectMapper();
     private final ChatClient chatClient;
+    private final TrashItemRepository trashItemRepository;
+    private final TrashTypeRepository trashTypeRepository;
 
-    public OpenAIChatAdapter(ChatClient.Builder builder) {
+    private final Map<Type, List<String>> itemCache = new ConcurrentHashMap<>();
+
+    public OpenAIChatAdapter(ChatClient.Builder builder, final TrashItemRepository trashItemRepository, final TrashTypeRepository trashTypeRepository) {
         this.chatClient = builder.build();
+        this.trashItemRepository = trashItemRepository;
+        this.trashTypeRepository = trashTypeRepository;
     }
 
     @Override
@@ -113,8 +121,9 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
     }
 
     private String buildSimilarTrashTypePrompt(String keyword) {
-        String availableTypes = ALLOWED_ITEMS.keySet().stream()
-            .map(Type::name)
+        var types = trashTypeRepository.findAllTypes();
+        String availableTypes = types.stream()
+            .map(Enum::name)
             .collect(Collectors.joining(", "));
 
         return String.format("""
@@ -158,32 +167,34 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             """.formatted(allowed);
     }
 
-    private final Map<Type, List<String>> ALLOWED_ITEMS = new EnumMap<>(Type.class) {{
-        put(Type.PAPER, List.of("일반 종이류"));
-        put(Type.PAPER_PACK, List.of("종이팩"));
-        put(Type.PLASTIC, List.of("플라스틱 병", "음식 용기", "과일용기", "샴푸병"));
-        put(Type.PET, List.of("PET(투명 페트병)", "PET(유색 페트병)"));
-        put(Type.VINYL_FILM, List.of("비닐봉투", "뽁뽁이", "아이스팩"));
-        put(Type.STYROFOAM, List.of("완충 포장재", "라면용기", "식품 포장상자", "아이스박스"));
-        put(Type.GLASS, List.of("투명 유리병", "유색 유리병"));
-        put(Type.METAL, List.of("알루미늄 캔", "철 캔"));
-        put(Type.TEXTILES, List.of("의류", "섬유"));
-        put(Type.E_WASTE, List.of("냉장고", "TV", "핸드폰", "라디오"));
-        put(Type.HAZARDOUS_SMALL_WASTE, List.of("폐형광등", "폐건전지", "보조배터리"));
-        put(Type.FOOD_WASTE, List.of("야채,과일 껍질", "남은음식", "뼈(닭 등의 뼈다귀, 생선뼈)", "껍데기(갑각류, 어패류)"));
-        put(Type.NON_RECYCLABLE, List.of("일반쓰레기", "기름이 묻은 종이", "카드영수증", "부서진 그릇"));
-    }};
+    private List<String> loadAllowedItems(Type type) {
+        return itemCache.computeIfAbsent(type, t ->
+                trashItemRepository.findByTrashType_Type(t).stream()
+                        .map(TrashItem::getName)
+                        .filter(s -> s != null && !s.isBlank())
+                        .toList()
+        );
+    }
 
     private String buildItemPrompt(Type type) {
-        List<String> items = ALLOWED_ITEMS.getOrDefault(type, List.of());
-        String list = items.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", "));
+        List<String> items = loadAllowedItems(type);
+        if (items.isEmpty()) {
+            // 품목 테이블에 데이터가 없는 타입은 목록 제한 없이 간단 규칙만 제공
+            return """
+                너는 쓰레기 분류 전문가다. 세부 품목(item)만 판단하여 JSON으로 반환하라.
+                - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
+                - type=%s 이다. item은 한국어로 간결히 작성:
+                - 출력 형식: {"item":"PET(투명 페트병)"}
+                """.formatted(type.name());
+        }
+        String list = items.stream().map(s -> "\"" + s + "\"").collect(java.util.stream.Collectors.joining(", "));
         return """
             너는 쓰레기 분류 전문가다. 세부 품목(item)만 판단하여 JSON으로 반환하라.
             - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
             - type=%s 이며, item은 아래 허용 목록 중 정확히 하나(한국어)만 선택:
             [ %s ]
-            - 출력 형식: {"item":"PET(투명 페트병)"}
-            """.formatted(type.name(), list);
+            - 출력 형식: {"item":"%s"}
+            """.formatted(type.name(), list, items.get(0));
     }
 
     private TrashAnalysisResponseDto parseTypeResponse(String content) {
