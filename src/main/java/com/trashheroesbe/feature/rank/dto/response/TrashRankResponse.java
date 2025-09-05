@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-@Schema(description = "쓰레기 검색 순위 응답")
 public record TrashRankResponse(
-
     @Schema(description = "랭킹 ID", example = "1")
     Long rankId,
 
@@ -43,4 +41,22 @@ public record TrashRankResponse(
     Integer rankChange
 ) {
 
+    public static TrashRankResponse from(TrashRank trashRank) {
+        Integer rankChange = trashRank.getPreviousRank() - trashRank.getRankOrder();
+        Integer countChange = trashRank.getSearchCount() - trashRank.getPreviousSearchCount();
+        return TrashRankResponse.builder()
+            .rankId(trashRank.getRankId())
+            .trashImageUrl(trashRank.getTrashType().getImageUrl())
+            .trashTypeName(trashRank.getTrashType().getType().getNameKo())
+            .rankOrder(trashRank.getRankOrder())
+            .previousRank(trashRank.getPreviousRank())
+            .totalSearchCount(trashRank.getSearchCount())
+            .previousTotalSearchCount(trashRank.getPreviousSearchCount())
+            .trendDirection(trashRank.getTrendDirection())
+            .trendMessage(trashRank.getTrendDirection() != null ?
+                trashRank.getTrendDirection().getMessage() : null)
+            .countChange(countChange)
+            .rankChange(rankChange)
+            .build();
+    }
 }
