@@ -80,8 +80,10 @@ public class TrashService implements TrashCreateUseCase {
             // 5) 업로드
             String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
 
+            String displayName = displayNameFor(analyzedType);
+
             // 6) 저장(타입/요약 적용)
-            Trash trash = Trash.create(user, imageUrl, "쓰레기");
+            Trash trash = Trash.create(user, imageUrl, displayName);
             trash.applyAnalysis(type, step1 != null ? step1.description() : null);
 
             // 7) 세부 품목 매핑(있으면)
@@ -122,6 +124,14 @@ public class TrashService implements TrashCreateUseCase {
             log.error("쓰레기 생성 실패: userId={}", user.getId(), e);
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private String displayNameFor(Type t) {
+        return switch (t) {
+            case FOOD_WASTE -> "음식물 쓰레기";
+            case NON_RECYCLABLE -> "일반 쓰레기";
+            default -> "쓰레기";
+        };
     }
 
     private boolean isRecyclable(Type t) {
