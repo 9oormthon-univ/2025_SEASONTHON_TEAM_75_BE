@@ -25,9 +25,15 @@ public class TrashType {
     @Column(name = "trash_type", length = 50, nullable = false)
     private Type type;
 
+    @Column(name = "trash_image_url")
+    private String imageUrl;
+
     public static TrashType of(Type type) {
         return TrashType.builder()
             .type(type)
             .build();
+    }
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
