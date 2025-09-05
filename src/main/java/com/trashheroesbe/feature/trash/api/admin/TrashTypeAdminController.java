@@ -1,6 +1,8 @@
 package com.trashheroesbe.feature.trash.api.admin;
 
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import com.trashheroesbe.feature.trash.application.admin.TrashTypeAdminService;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.response.type.SuccessCode;
@@ -28,7 +30,7 @@ public class TrashTypeAdminController implements TrashTypeAdminControllerApi {
     }
 
     @Override
-    @PostMapping("/{trashTypeId}/image")
+    @PostMapping(value = "/{trashTypeId}/image", consumes = MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> uploadTrashTypeImage(
         @PathVariable Long trashTypeId,
         @RequestPart("image") MultipartFile image
