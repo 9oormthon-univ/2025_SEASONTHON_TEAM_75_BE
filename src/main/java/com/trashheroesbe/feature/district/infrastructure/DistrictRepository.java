@@ -15,7 +15,7 @@ public interface DistrictRepository extends JpaRepository<District, String> {
         FROM District d
         WHERE d.sido LIKE CONCAT('%', :sido, '%')
           AND d.sigungu IS NOT NULL
-          AND d.eupmyeondong IS NULL
+          AND d.eupmyeondong IS NOT NULL
         ORDER BY d.sigungu ASC
         """)
     List<District> findDistrictsBySido(@Param("sido") String sido);
