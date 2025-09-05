@@ -6,10 +6,11 @@ import com.trashheroesbe.feature.question.application.QuestionService;
 import com.trashheroesbe.feature.trash.dto.response.TrashDescriptionResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashTypeResponse;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,9 +53,11 @@ public class QuestionController implements QuestionControllerApi {
     @Override
     @GetMapping("/search")
     public ApiResponse<TrashDescriptionResponse> searchTrashDescription(
-        @RequestParam("keyword") String keyword
+        @RequestParam("keyword") String keyword,
+        @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
-        TrashDescriptionResponse response = questionService.searchTrashDescription(keyword);
+        TrashDescriptionResponse response = questionService.searchTrashDescription(
+            keyword, customerDetails.getUser());
         return ApiResponse.success(OK, response);
     }
 
