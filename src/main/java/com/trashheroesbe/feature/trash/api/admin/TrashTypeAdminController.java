@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +31,7 @@ public class TrashTypeAdminController implements TrashTypeAdminControllerApi {
     @PostMapping("/{trashTypeId}/image")
     public ApiResponse<Void> uploadTrashTypeImage(
         @PathVariable Long trashTypeId,
-        @RequestParam("image") MultipartFile image
+        @RequestPart("image") MultipartFile image
     ) {
         trashTypeAdminService.uploadTrashTypeImage(trashTypeId, image);
         return ApiResponse.success(SuccessCode.OK);
