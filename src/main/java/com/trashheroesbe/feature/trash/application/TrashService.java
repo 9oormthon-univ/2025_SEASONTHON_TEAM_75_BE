@@ -1,7 +1,10 @@
 package com.trashheroesbe.feature.trash.application;
 
+import static com.trashheroesbe.feature.search.domain.LogSource.IMAGE;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
+import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.trash.dto.response.*;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.Type;
@@ -45,6 +48,7 @@ public class TrashService implements TrashCreateUseCase {
     private final TrashDescriptionRepository trashDescriptionRepository;
     private final DisposalRepository disposalRepository;
     private final UserDistrictRepository userDistrictRepository;
+    private final SearchLogService searchLogService;
 
     @Override
     @Transactional
@@ -55,7 +59,7 @@ public class TrashService implements TrashCreateUseCase {
         try {
             var file = request.imageFile();
             String storedKey = FileUtils.generateStoredKey(
-                    Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
+                Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
             byte[] bytes = file.getBytes();
             String contentType = file.getContentType();
 
@@ -64,12 +68,12 @@ public class TrashService implements TrashCreateUseCase {
 
             // 2) 타입 결정
             Type analyzedType =
-                    (step1 != null && step1.type() != null && step1.type().getType() != null)
-                            ? step1.type().getType() : Type.UNKNOWN;
+                (step1 != null && step1.type() != null && step1.type().getType() != null)
+                    ? step1.type().getType() : Type.UNKNOWN;
 
             // 3) 타입 엔티티 조회/없으면 생성
             TrashType type = trashTypeRepository.findByType(analyzedType)
-                    .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
+                .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
             // 4) 재활용군이면 세부 품목 분석
             String itemName = null;
@@ -88,10 +92,10 @@ public class TrashService implements TrashCreateUseCase {
             if (itemName != null && !itemName.isBlank()) {
                 String key = itemName.trim();
                 var item = trashItemRepository.findByTrashTypeAndName(type, key)
-                        .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
-                                .trashType(type)
-                                .name(key)
-                                .build()));
+                    .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
+                        .trashType(type)
+                        .name(key)
+                        .build()));
                 trash.applyItem(item);
             }
 
@@ -109,12 +113,14 @@ public class TrashService implements TrashCreateUseCase {
             var district = resolveUserDistrictSummary(user.getId());
 
             log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
-                    saved.getId(), user.getId(), type.getType(), imageUrl);
+                saved.getId(), user.getId(), type.getType(), imageUrl);
 
             List<String> days = java.util.Collections.emptyList();
             if (district != null) {
                 days = resolveDisposalDays(district.id(), TrashType.of(type.getType()));
             }
+
+            searchLogService.log(IMAGE, type, user);
 
             return TrashResultResponse.of(saved, steps, caution, days, parts, district);
 
@@ -128,7 +134,8 @@ public class TrashService implements TrashCreateUseCase {
 
     private boolean isRecyclable(Type t) {
         return switch (t) {
-            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE,
+            case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES,
+                 E_WASTE,
                  HAZARDOUS_SMALL_WASTE -> true;
             default -> false;
         };
@@ -138,19 +145,23 @@ public class TrashService implements TrashCreateUseCase {
         // PET일 때 예시와 동일하게 3개 추천
         if (baseType == Type.PET) {
             return java.util.List.of(
-                    PartCardResponse.of("페트병 뚜껑", Type.PET),
-                    PartCardResponse.of("투명 페트병 몸체", Type.PET),
-                    PartCardResponse.of("비닐 라벨", Type.VINYL_FILM)
+                PartCardResponse.of("페트병 뚜껑", Type.PET),
+                PartCardResponse.of("투명 페트병 몸체", Type.PET),
+                PartCardResponse.of("비닐 라벨", Type.VINYL_FILM)
             );
         }
         return List.of();
     }
 
     private List<String> parseDays(String json) {
-        if (json == null || json.isBlank()) return List.of();
+        if (json == null || json.isBlank()) {
+            return List.of();
+        }
         try {
             var node = new ObjectMapper().readTree(json);
-            if (!node.isArray()) return List.of();
+            if (!node.isArray()) {
+                return List.of();
+            }
             List<String> out = new java.util.ArrayList<>();
             node.forEach(n -> out.add(n.asText()));
             return out;
@@ -162,21 +173,24 @@ public class TrashService implements TrashCreateUseCase {
     private DistrictSummaryResponse resolveUserDistrictSummary(Long userId) {
         var uds = userDistrictRepository.findByUserIdFetchJoin(userId);
         var udOpt = uds.stream()
-                .filter(ud -> Boolean.TRUE.equals(ud.getIsDefault()))
-                .findFirst()
-                .or(() -> uds.stream().findFirst());
+            .filter(ud -> Boolean.TRUE.equals(ud.getIsDefault()))
+            .findFirst()
+            .or(() -> uds.stream().findFirst());
         return udOpt.map(ud -> {
             var d = ud.getDistrict();
-            return new DistrictSummaryResponse(d.getId(), d.getSido(), d.getSigungu(), d.getEupmyeondong());
+            return new DistrictSummaryResponse(d.getId(), d.getSido(), d.getSigungu(),
+                d.getEupmyeondong());
         }).orElse(null);
     }
 
     private List<String> resolveDisposalDays(String districtId, TrashType trashType) {
-        if (districtId == null || trashType == null) return List.of();
+        if (districtId == null || trashType == null) {
+            return List.of();
+        }
         return disposalRepository
-                .findByDistrict_IdAndTrashType_Type(districtId, trashType.getType())
-                .map(d -> parseDays(d.getDays()))
-                .orElse(List.of());
+            .findByDistrict_IdAndTrashType_Type(districtId, trashType.getType())
+            .map(d -> parseDays(String.valueOf(d.getDays())))
+            .orElse(List.of());
     }
 
     /**
@@ -197,37 +211,38 @@ public class TrashService implements TrashCreateUseCase {
 
     public TrashResultResponse getTrash(Long trashId) {
         Trash trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());
         var steps = descOpt.map(TrashDescription::steps)
-                .orElse(java.util.List.of());
+            .orElse(java.util.List.of());
         var caution = descOpt.map(TrashDescription::getCautionNote)
-                .orElse(null);
+            .orElse(null);
 
         var parts = suggestParts(
-                trash.getTrashType() != null ? trash.getTrashType().getType() : Type.UNKNOWN
+            trash.getTrashType() != null ? trash.getTrashType().getType() : Type.UNKNOWN
         );
 
         // 사용자 기본 자치구 요약
         var uds = userDistrictRepository.findByUserIdFetchJoin(trash.getUser().getId());
         var districtOpt = uds.stream()
-                .filter(ud -> Boolean.TRUE.equals(ud.getIsDefault()))
-                .findFirst()
-                .or(() -> uds.stream().findFirst());
+            .filter(ud -> Boolean.TRUE.equals(ud.getIsDefault()))
+            .findFirst()
+            .or(() -> uds.stream().findFirst());
 
         DistrictSummaryResponse district = districtOpt.map(ud -> {
             var d = ud.getDistrict();
-            return new DistrictSummaryResponse(d.getId(), d.getSido(), d.getSigungu(), d.getEupmyeondong());
+            return new DistrictSummaryResponse(d.getId(), d.getSido(), d.getSigungu(),
+                d.getEupmyeondong());
         }).orElse(null);
 
         // 자치구 + 타입(enum)으로 days 조회 (enum 기반)
         java.util.List<String> days = java.util.Collections.emptyList();
         if (district != null && trash.getTrashType() != null) {
             days = disposalRepository
-                    .findByDistrict_IdAndTrashType_Type(district.id(), trash.getTrashType().getType())
-                    .map(d -> parseDays(d.getDays()))
-                    .orElse(java.util.List.of());
+                .findByDistrict_IdAndTrashType_Type(district.id(), trash.getTrashType().getType())
+                .map(d -> parseDays(String.valueOf(d.getDays())))
+                .orElse(java.util.List.of());
         }
 
         return TrashResultResponse.of(trash, steps, caution, days, parts, district);
@@ -236,32 +251,32 @@ public class TrashService implements TrashCreateUseCase {
     @Transactional(readOnly = true)
     public List<TrashItemResponse> getTrashItemsByTrashId(Long trashId) {
         var trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (trash.getTrashType() == null) {
             return List.of();
         }
 
         return trashItemRepository.findByTrashTypeId(trash.getTrashType().getId())
-                .stream()
-                .map(TrashItemResponse::from)
-                .collect(java.util.stream.Collectors.toList());
+            .stream()
+            .map(TrashItemResponse::from)
+            .collect(java.util.stream.Collectors.toList());
     }
 
     @Transactional
     public TrashResultResponse changeTrashItem(Long trashId, Long trashItemId, User user) {
         var trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (!trash.getUser().getId().equals(user.getId())) {
             throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);
         }
 
         var item = trashItemRepository.findById(trashItemId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (trash.getTrashType() == null || item.getTrashType() == null ||
-                !item.getTrashType().getId().equals(trash.getTrashType().getId())) {
+            !item.getTrashType().getId().equals(trash.getTrashType().getId())) {
             throw new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM);
         }
 
