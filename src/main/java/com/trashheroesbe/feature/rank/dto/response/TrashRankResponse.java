@@ -8,6 +8,7 @@ import lombok.Builder;
 @Builder
 public record TrashRankResponse(
     Long rankId,
+    String trashImageUrl,
     String trashTypeName,
     LocalDate weekStartDate,
     LocalDate weekEndDate,
@@ -44,6 +45,6 @@ public record TrashRankResponse(
         if (previousRank == null) {
             return null;
         }
-        return previousRank - currentRank; // 양수면 상승, 음수면 하락
+        return previousRank - currentRank;
     }
 }
