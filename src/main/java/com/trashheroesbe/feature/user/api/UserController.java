@@ -5,6 +5,7 @@ import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 import com.trashheroesbe.feature.user.application.UserService;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
+import com.trashheroesbe.feature.user.dto.response.UserResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 
@@ -78,6 +79,23 @@ public class UserController implements UserControllerApi {
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
         userService.updateDefaultUserDistrict(userDistrictId, customerDetails.getUser().getId());
+        return ApiResponse.success(OK);
+    }
+
+    @Override
+    @GetMapping("/me")
+    public ApiResponse<UserResponse> getUserByToken(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        UserResponse response = UserResponse.from(customerDetails.getUser());
+        return ApiResponse.success(OK, response);
+    }
+
+    @Override
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteUserByToken(
+        @AuthenticationPrincipal CustomerDetails customerDetails) {
+        userService.deleteUser(customerDetails.getUser());
         return ApiResponse.success(OK);
     }
 }
