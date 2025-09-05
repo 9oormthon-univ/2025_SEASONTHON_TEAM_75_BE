@@ -1,7 +1,5 @@
 package com.trashheroesbe.feature.trash.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trashheroesbe.feature.disposal.domain.Disposal;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.trash.dto.response.*;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
@@ -174,16 +172,18 @@ public class TrashService implements TrashCreateUseCase {
         }).orElse(null);
     }
 
-    private Type normalize(Type t) {
-        if (t == null) return Type.UNKNOWN;
-        return switch (t) { case PET -> Type.PLASTIC; default -> t; };
-    }
     private List<String> resolveDisposalDays(String districtId, Type type) {
         if (districtId == null || type == null) return List.of();
-        Type q = normalize(type); // 예: PET -> PLASTIC
-        return disposalRepository
-                .findByDistrict_IdAndTrashType_Type(districtId, q)
-                .map(Disposal::getDays)
+        String did = districtId.trim();
+
+        // 1) 먼저 정확히 해당 타입으로 조회
+        var exact = disposalRepository.findByDistrict_IdAndTrashType_Type(did, type);
+        if (exact.isPresent()) return exact.get().getDays();
+
+        // 2) 없으면 정규화 타입으로 재조회
+        Type fallback = (type == Type.PET) ? Type.PLASTIC : type;
+        return disposalRepository.findByDistrict_IdAndTrashType_Type(did, fallback)
+                .map(com.trashheroesbe.feature.disposal.domain.Disposal::getDays)
                 .orElse(List.of());
     }
 
@@ -217,28 +217,17 @@ public class TrashService implements TrashCreateUseCase {
                 trash.getTrashType() != null ? trash.getTrashType().getType() : Type.UNKNOWN
         );
 
-        // 사용자 기본 자치구 요약
-        var uds = userDistrictRepository.findByUserIdFetchJoin(trash.getUser().getId());
-        var districtOpt = uds.stream()
-                .filter(ud -> Boolean.TRUE.equals(ud.getIsDefault()))
-                .findFirst()
-                .or(() -> uds.stream().findFirst());
+        // 1) location(사용자 기본 자치구)
+        var location = resolveUserDistrictSummary(trash.getUser().getId());
 
-        DistrictSummaryResponse district = districtOpt.map(ud -> {
-            var d = ud.getDistrict();
-            return new DistrictSummaryResponse(d.getId(), d.getSido(), d.getSigungu(), d.getEupmyeondong());
-        }).orElse(null);
-
-        // 자치구 + 타입(enum)으로 days 조회 (enum 기반)
+        // 2) days(enum 기반 조회, 정규화 + id trim)
         java.util.List<String> days = java.util.Collections.emptyList();
-        if (district != null && trash.getTrashType() != null) {
-            days = disposalRepository
-                    .findByDistrict_IdAndTrashType_Type(district.id(), trash.getTrashType().getType())
-                    .map(d -> parseDays(String.valueOf(d.getDays())))
-                    .orElse(java.util.List.of());
+        if (location != null && trash.getTrashType() != null) {
+            String did = location.id() != null ? location.id().trim() : null;
+            days = resolveDisposalDays(did, trash.getTrashType().getType());
         }
 
-        return TrashResultResponse.of(trash, steps, caution, days, parts, district);
+        return TrashResultResponse.of(trash, steps, caution, days, parts, location);
     }
 
     @Transactional(readOnly = true)
