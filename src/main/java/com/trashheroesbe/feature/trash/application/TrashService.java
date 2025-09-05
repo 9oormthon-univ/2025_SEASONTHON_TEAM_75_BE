@@ -24,9 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -80,8 +78,10 @@ public class TrashService implements TrashCreateUseCase {
             // 5) 업로드
             String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
 
+            String displayName = displayNameFor(analyzedType);
+
             // 6) 저장(타입/요약 적용)
-            Trash trash = Trash.create(user, imageUrl, "쓰레기");
+            Trash trash = Trash.create(user, imageUrl, displayName);
             trash.applyAnalysis(type, step1 != null ? step1.description() : null);
 
             // 7) 세부 품목 매핑(있으면)
@@ -113,7 +113,7 @@ public class TrashService implements TrashCreateUseCase {
 
             var days = (location != null)
                     ? resolveDisposalDays(location.id(), type.getType())
-                    : java.util.List.<String>of();
+                    : List.<String>of();
             return TrashResultResponse.of(saved, steps, caution, days, parts, location);
 
         } catch (BusinessException be) {
@@ -122,6 +122,14 @@ public class TrashService implements TrashCreateUseCase {
             log.error("쓰레기 생성 실패: userId={}", user.getId(), e);
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private String displayNameFor(Type t) {
+        return switch (t) {
+            case FOOD_WASTE -> "음식물 쓰레기";
+            case NON_RECYCLABLE -> "일반 쓰레기";
+            default -> "쓰레기";
+        };
     }
 
     private boolean isRecyclable(Type t) {
@@ -135,7 +143,7 @@ public class TrashService implements TrashCreateUseCase {
     private List<PartCardResponse> suggestParts(Type baseType) {
         // PET일 때 예시와 동일하게 3개 추천
         if (baseType == Type.PET) {
-            return java.util.List.of(
+            return List.of(
                     PartCardResponse.of("페트병 뚜껑", Type.PET),
                     PartCardResponse.of("투명 페트병 몸체", Type.PET),
                     PartCardResponse.of("비닐 라벨", Type.VINYL_FILM)
@@ -149,13 +157,13 @@ public class TrashService implements TrashCreateUseCase {
         try {
             var n = new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
             if (n.isArray()) {
-                List<String> out = new java.util.ArrayList<>();
+                List<String> out = new ArrayList<>();
                 n.forEach(x -> out.add(x.asText()));
                 return out;
             }
             var s = n.asText(); // "월요일,화요일" 대응
             if (s != null && !s.isBlank())
-                return java.util.Arrays.stream(s.split("\\s*,\\s*")).filter(v -> !v.isBlank()).toList();
+                return Arrays.stream(s.split("\\s*,\\s*")).filter(v -> !v.isBlank()).toList();
         } catch (Exception ignore) {}
         return List.of();
     }
@@ -209,7 +217,7 @@ public class TrashService implements TrashCreateUseCase {
 
         var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());
         var steps = descOpt.map(TrashDescription::steps)
-                .orElse(java.util.List.of());
+                .orElse(List.of());
         var caution = descOpt.map(TrashDescription::getCautionNote)
                 .orElse(null);
 
@@ -221,7 +229,7 @@ public class TrashService implements TrashCreateUseCase {
         var location = resolveUserDistrictSummary(trash.getUser().getId());
 
         // 2) days(enum 기반 조회, 정규화 + id trim)
-        java.util.List<String> days = java.util.Collections.emptyList();
+        List<String> days = Collections.emptyList();
         if (location != null && trash.getTrashType() != null) {
             String did = location.id() != null ? location.id().trim() : null;
             days = resolveDisposalDays(did, trash.getTrashType().getType());
@@ -242,7 +250,7 @@ public class TrashService implements TrashCreateUseCase {
         return trashItemRepository.findByTrashTypeId(trash.getTrashType().getId())
                 .stream()
                 .map(TrashItemResponse::from)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Transactional
