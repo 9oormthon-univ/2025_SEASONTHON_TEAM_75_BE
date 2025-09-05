@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.question.api;
 import com.trashheroesbe.feature.trash.dto.response.TrashDescriptionResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashTypeResponse;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,8 +20,14 @@ public interface QuestionControllerApi {
     ApiResponse<List<TrashItemResponse>> getTrashItems(Long trashTypeId);
 
     @Operation(summary = "쓰레기 배출 방법 조회하기", description = "trashTypeId를 통해 쓰레기 배출 방법을 조회 합니다.")
-    ApiResponse<TrashDescriptionResponse> getTrashDescriptions(Long trashTypeId);
+    ApiResponse<TrashDescriptionResponse> getTrashDescriptions(
+        Long trashTypeId,
+        CustomerDetails customerDetails
+    );
 
     @Operation(summary = "단어로 쓰레기 배출 방법 조회하기", description = "keyword로 쓰레기 배출방법을 조회한다.")
-    ApiResponse<TrashDescriptionResponse> searchTrashDescription(@NotBlank String keyword);
+    ApiResponse<TrashDescriptionResponse> searchTrashDescription(
+        @NotBlank String keyword,
+        CustomerDetails customerDetails
+    );
 }

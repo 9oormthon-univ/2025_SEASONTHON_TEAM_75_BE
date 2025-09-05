@@ -32,4 +32,14 @@ public interface DistrictRepository extends JpaRepository<District, String> {
         @Param("sido") String sido,
         @Param("sigungu") String sigungu
     );
+
+    @Query("""
+        SELECT d
+        FROM District d
+        WHERE d.sigungu LIKE CONCAT('%', :sigungu, '%')
+          AND d.sido IS NOT NULL
+          AND d.eupmyeondong IS NOT NULL
+        ORDER BY d.sido ASC
+        """)
+    List<District> findDistrictBySigungu(@Param("sigungu") String sigungu);
 }

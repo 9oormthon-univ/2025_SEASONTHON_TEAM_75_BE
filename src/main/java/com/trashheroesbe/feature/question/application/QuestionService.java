@@ -1,9 +1,11 @@
 package com.trashheroesbe.feature.question.application;
 
+import static com.trashheroesbe.feature.search.domain.LogSource.QUESTION;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_DESCRIPTION;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_ITEM;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_TYPE;
 
+import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.trash.domain.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
@@ -14,6 +16,7 @@ import com.trashheroesbe.feature.trash.domain.service.TrashTypeFinder;
 import com.trashheroesbe.feature.trash.dto.response.TrashDescriptionResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashTypeResponse;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
 import java.util.List;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuestionService {
 
+    private final SearchLogService searchLogService;
     private final TrashTypeFinder trashTypeFinder;
     private final TrashItemFinder trashItemFinder;
     private final TrashDescriptionFinder trashDescriptionFinder;
@@ -48,13 +52,16 @@ public class QuestionService {
             .collect(Collectors.toList());
     }
 
-    public TrashDescriptionResponse getTrashDescriptions(Long trashTypeId) {
+    @Transactional
+    public TrashDescriptionResponse getTrashDescriptions(Long trashTypeId, User user) {
         TrashDescription trashDescription = trashDescriptionFinder.findTrashDescriptionsByTrashTypeId(
             trashTypeId);
+        searchLogService.log(QUESTION, trashDescription.getTrashType(), user);
         return TrashDescriptionResponse.from(trashDescription);
     }
 
-    public TrashDescriptionResponse searchTrashDescription(String keyword) {
+    @Transactional
+    public TrashDescriptionResponse searchTrashDescription(String keyword, User user) {
         Type type = chatAIClientPort.findSimilarTrashItem(keyword);
         if (type == null) {
             return TrashDescriptionResponse.ofNotFound();
@@ -63,6 +70,8 @@ public class QuestionService {
         TrashType trashType = trashTypeFinder.getTrashType(type);
         TrashDescription trashDescription = trashDescriptionFinder.findTrashDescriptionsByTrashTypeId(
             trashType.getId());
+
+        searchLogService.log(QUESTION, trashType, user);
         return TrashDescriptionResponse.from(trashDescription);
     }
 }
