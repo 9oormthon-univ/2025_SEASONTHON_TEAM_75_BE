@@ -38,16 +38,16 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Authentication authentication
     ) throws IOException, ServletException {
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
         Cookie accessTokenCookie = cookieProvider.createTokenCookie(
-                ACCESS_TOKEN, jwtToken.getAccessToken());
+            ACCESS_TOKEN, jwtToken.getAccessToken());
         Cookie refreshTokenCookie = cookieProvider.createTokenCookie(
-                REFRESH_TOKEN, jwtToken.getRefreshToken());
+            REFRESH_TOKEN, jwtToken.getRefreshToken());
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
@@ -59,22 +59,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         User user = (kakaoId != null)
-                ? userRepository.findByKakaoId(kakaoId).orElse(null)
-                : null;
+            ? userRepository.findByKakaoId(kakaoId).orElse(null)
+            : null;
 
         boolean hasProfile = false;
         if (user != null) {
             // 기본 자치구가 하나라도 있는지로 프로필 설정 여부 판단
             hasProfile = userDistrictRepository.findByUserId(user.getId())
-                    .stream()
-                    .anyMatch(ud -> Boolean.TRUE.equals(ud.getIsDefault()));
+                .stream()
+                .anyMatch(ud -> Boolean.TRUE.equals(ud.getIsDefault()));
         }
 
         String redirectUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-//                .path(hasProfile ? "/home" : "/profile")
-                .queryParam("success", true)
-                .build()
-                .toUriString();
+            .path(hasProfile ? "/home" : "/profile")
+            .queryParam("success", true)
+            .build()
+            .toUriString();
 
         response.sendRedirect(redirectUrl);
 
