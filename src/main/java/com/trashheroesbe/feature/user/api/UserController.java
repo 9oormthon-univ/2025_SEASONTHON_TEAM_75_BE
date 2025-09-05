@@ -90,4 +90,12 @@ public class UserController implements UserControllerApi {
         UserResponse response = UserResponse.from(customerDetails.getUser());
         return ApiResponse.success(OK, response);
     }
+
+    @Override
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteUserByToken(
+        @AuthenticationPrincipal CustomerDetails customerDetails) {
+        userService.deleteUser(customerDetails.getUser());
+        return ApiResponse.success(OK);
+    }
 }

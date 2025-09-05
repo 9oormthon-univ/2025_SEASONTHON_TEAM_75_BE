@@ -138,4 +138,10 @@ public class UserService {
             throw new BusinessException(ENTITY_NOT_FOUND);
         }
     }
+
+    @Transactional
+    public void deleteUser(User user) {
+        fileStoragePort.deleteFileByUrl(user.getProfileImageUrl());
+        userRepository.delete(user);
+    }
 }

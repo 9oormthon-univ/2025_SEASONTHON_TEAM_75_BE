@@ -50,4 +50,7 @@ public interface UserControllerApi {
 
     @Operation(summary = "유저 상세조회(me)", description = "토큰 정보로 유저를 조회합니다")
     ApiResponse<UserResponse> getUserByToken(CustomerDetails customerDetails);
+
+    @Operation(summary = "유저 탈퇴", description = "토큰 정보로 유저를 삭제합니다.")
+    ApiResponse<Void> deleteUserByToken(CustomerDetails customerDetails);
 }
