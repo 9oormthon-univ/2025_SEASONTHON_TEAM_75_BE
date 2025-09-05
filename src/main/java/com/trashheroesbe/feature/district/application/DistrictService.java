@@ -21,6 +21,8 @@ public class DistrictService {
         List<District> districtList;
         if (sigungu == null) {
             districtList = districtRepository.findDistrictsBySido(sido);
+        } else if (sido == null) {
+            districtList = districtRepository.findDistrictBySigungu(sigungu);
         } else {
             districtList = districtRepository.findEupmyeondongBySidoAndSigungu(sido, sigungu);
         }

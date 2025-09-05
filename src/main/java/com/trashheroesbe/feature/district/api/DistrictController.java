@@ -22,7 +22,7 @@ public class DistrictController implements DistrictControllerApi {
     @Override
     @GetMapping
     public ApiResponse<List<DistrictListResponse>> getDistrictList(
-        @RequestParam String sido,
+        @RequestParam(required = false) String sido,
         @RequestParam(required = false) String sigungu
     ) {
         List<DistrictListResponse> response = districtService.getDistrictList(sido, sigungu);
