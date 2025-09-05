@@ -52,12 +52,15 @@ public class QuestionService {
             .collect(Collectors.toList());
     }
 
-    public TrashDescriptionResponse getTrashDescriptions(Long trashTypeId) {
+    @Transactional
+    public TrashDescriptionResponse getTrashDescriptions(Long trashTypeId, User user) {
         TrashDescription trashDescription = trashDescriptionFinder.findTrashDescriptionsByTrashTypeId(
             trashTypeId);
+        searchLogService.log(QUESTION, trashDescription.getTrashType(), user);
         return TrashDescriptionResponse.from(trashDescription);
     }
 
+    @Transactional
     public TrashDescriptionResponse searchTrashDescription(String keyword, User user) {
         Type type = chatAIClientPort.findSimilarTrashItem(keyword);
         if (type == null) {

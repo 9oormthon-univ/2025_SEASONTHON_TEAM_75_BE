@@ -20,7 +20,10 @@ public interface QuestionControllerApi {
     ApiResponse<List<TrashItemResponse>> getTrashItems(Long trashTypeId);
 
     @Operation(summary = "쓰레기 배출 방법 조회하기", description = "trashTypeId를 통해 쓰레기 배출 방법을 조회 합니다.")
-    ApiResponse<TrashDescriptionResponse> getTrashDescriptions(Long trashTypeId);
+    ApiResponse<TrashDescriptionResponse> getTrashDescriptions(
+        Long trashTypeId,
+        CustomerDetails customerDetails
+    );
 
     @Operation(summary = "단어로 쓰레기 배출 방법 조회하기", description = "keyword로 쓰레기 배출방법을 조회한다.")
     ApiResponse<TrashDescriptionResponse> searchTrashDescription(
