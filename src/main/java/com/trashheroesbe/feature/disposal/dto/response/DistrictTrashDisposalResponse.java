@@ -52,8 +52,8 @@ public record DistrictTrashDisposalResponse(
 
     private static String getCategoryName(Type type) {
         return switch (type) {
-            case NON_RECYCLABLE, FOOD_WASTE -> "일반쓰레기/음식물쓰레기";
-            case PET, VINYL_FILM -> "투명페트병/비닐류";
+            case NON_RECYCLABLE, FOOD_WASTE -> "일반 /음식물쓰레기";
+            case PET, VINYL_FILM -> "투명페트병/비닐";
             case PAPER, PAPER_PACK, PLASTIC, STYROFOAM, GLASS, METAL, TEXTILES,
                  E_WASTE, HAZARDOUS_SMALL_WASTE -> "그외 재활용품";
             default -> "기타";
