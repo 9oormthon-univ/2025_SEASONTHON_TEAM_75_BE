@@ -8,6 +8,24 @@ public class DateTimeUtils {
 
     public static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
+    public static LocalDate getCurrentWeekStart() {
+        LocalDate today = LocalDate.now();
+        return today.with(DayOfWeek.MONDAY);
+    }
+
+    public static LocalDate getCurrentWeekEnd() {
+        LocalDate today = LocalDate.now();
+        return today.with(DayOfWeek.SUNDAY);
+    }
+
+    public static LocalDate getWeekStart(LocalDate date) {
+        return date.with(DayOfWeek.MONDAY);
+    }
+
+    public static LocalDate getWeekEnd(LocalDate date) {
+        return date.with(DayOfWeek.SUNDAY);
+    }
+
     public static String getTodayKorean() {
         return toKoreanDay(LocalDate.now(KST).getDayOfWeek());
     }
