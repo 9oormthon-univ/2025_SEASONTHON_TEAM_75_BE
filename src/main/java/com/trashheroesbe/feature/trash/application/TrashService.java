@@ -152,22 +152,6 @@ public class TrashService implements TrashCreateUseCase {
         return List.of();
     }
 
-    private List<String> parseDays(String json) {
-        if (json == null || json.isBlank()) return List.of();
-        try {
-            var n = new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
-            if (n.isArray()) {
-                List<String> out = new ArrayList<>();
-                n.forEach(x -> out.add(x.asText()));
-                return out;
-            }
-            var s = n.asText(); // "월요일,화요일" 대응
-            if (s != null && !s.isBlank())
-                return Arrays.stream(s.split("\\s*,\\s*")).filter(v -> !v.isBlank()).toList();
-        } catch (Exception ignore) {}
-        return List.of();
-    }
-
     private DistrictSummaryResponse resolveUserDistrictSummary(Long userId) {
         var uds = userDistrictRepository.findByUserIdFetchJoin(userId);
         var udOpt = uds.stream()
