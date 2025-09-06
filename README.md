@@ -5,6 +5,9 @@
 
 ---
 
+![image](https://github.com/user-attachments/assets/f1444925-28d5-4cbc-90a5-83c592fdd014)
+
+
 ## 📌 기본 설명
 
 - **목표**
