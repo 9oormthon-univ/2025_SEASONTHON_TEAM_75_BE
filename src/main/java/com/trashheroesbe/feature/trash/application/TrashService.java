@@ -26,7 +26,9 @@ import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +36,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class TrashService implements TrashCreateUseCase {
 
     private static final String S3_TRASH_PREFIX = "trash/";
@@ -48,88 +49,97 @@ public class TrashService implements TrashCreateUseCase {
     private final DisposalRepository disposalRepository;
     private final UserDistrictRepository userDistrictRepository;
     private final SearchLogService searchLogService;
+    private final PlatformTransactionManager txManager;
 
     @Override
-    @Transactional
     public TrashResultResponse createTrash(CreateTrashRequest request, User user) {
         log.info("쓰레기 생성 시작: userId={}", user.getId());
         request.validate();
 
-        try {
-            var file = request.imageFile();
-            String storedKey = FileUtils.generateStoredKey(
+        var file = request.imageFile();
+        String storedKey = FileUtils.generateStoredKey(
                 Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
-            byte[] bytes = file.getBytes();
-            String contentType = file.getContentType();
+        byte[] bytes;
+        String contentType;
+        try {
+            bytes = file.getBytes();
+            contentType = file.getContentType();
+        } catch (Exception e) {
+            log.error("파일 읽기 실패", e);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
 
-            // 1) 타입 분석
-            TrashAnalysisResponseDto step1 = chatGPTClient.analyzeType(bytes, contentType);
-
-            // 2) 타입 결정
-            Type analyzedType =
+        // 1) 타입/품목 분석 (외부 I/O)
+        TrashAnalysisResponseDto step1 = chatGPTClient.analyzeType(bytes, contentType);
+        Type analyzedType =
                 (step1 != null && step1.type() != null && step1.type().getType() != null)
-                    ? step1.type().getType() : Type.UNKNOWN;
+                        ? step1.type().getType() : Type.UNKNOWN;
 
-            // 3) 타입 엔티티 조회/없으면 생성
-            TrashType type = trashTypeRepository.findByType(analyzedType)
-                .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
+        String itemName;
+        if (isRecyclable(analyzedType)) {
+            itemName = chatGPTClient.analyzeItem(bytes, contentType, analyzedType);
+        } else {
+            itemName = null;
+        }
 
-            // 4) 재활용군이면 세부 품목 분석
-            String itemName = null;
-            if (isRecyclable(analyzedType)) {
-                itemName = chatGPTClient.analyzeItem(bytes, contentType, analyzedType);
-            }
+        // 2) 업로드 (외부 I/O)
+        String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
 
-            // 5) 업로드
-            String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
+        // 3) 이름 요약 (외부 I/O)
+        String aiSummarizedName = chatGPTClient.suggestNameByImage(bytes, contentType, analyzedType);
+        String finalName = decideTrashName(analyzedType, step1, itemName, aiSummarizedName);
 
+        // 4) DB 쓰기 (트랜잭션)
+        Trash saved;
+        try {
+            TransactionTemplate writeTx = new TransactionTemplate(txManager);
+            saved = writeTx.execute(status -> {
+                TrashType type = trashTypeRepository.findByType(analyzedType)
+                        .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
-            // 6) 저장(타입/요약 적용)
-            String aiSummarizedName = chatGPTClient.suggestNameByImage(bytes, contentType, analyzedType);
-            String aiName = decideTrashName(analyzedType, step1, itemName, aiSummarizedName);
-            Trash trash = Trash.create(user, imageUrl, aiName);
-            trash.applyAnalysis(type);
+                Trash trash = Trash.create(user, imageUrl, finalName);
+                trash.applyAnalysis(type);
 
-            // 7) 세부 품목 매핑(있으면)
-            if (itemName != null && !itemName.isBlank()) {
-                String key = itemName.trim();
-                var item = trashItemRepository.findByTrashTypeAndName(type, key)
-                    .orElseGet(() -> trashItemRepository.save(TrashItem.builder()
-                        .trashType(type)
-                        .name(key)
-                        .build()));
-                trash.applyItem(item);
-            }
+                if (itemName != null && !itemName.isBlank()) {
+                    String key = itemName.trim();
+                    var item = trashItemRepository.findByTrashTypeAndName(type, key)
+                            .orElseGet(() -> trashItemRepository.save(
+                                    TrashItem.builder().trashType(type).name(key).build()
+                            ));
+                    trash.applyItem(item);
+                }
 
-            Trash saved = trashRepository.save(trash);
+                Trash persisted = trashRepository.save(trash);
+                searchLogService.log(IMAGE, type, user); // 참여 트랜잭션
+                return persisted;
+            });
+        } catch (RuntimeException ex) {
+            try { fileStoragePort.deleteFileByUrl(imageUrl); } catch (RuntimeException ignore) { }
+            throw ex;
+        }
 
-            // 가이드/주의사항 조회
-            var descOpt = trashDescriptionRepository.findByTrashType(type);
+        // 5) 응답 구성 (읽기 전용 트랜잭션)
+        TransactionTemplate readTx = new TransactionTemplate(txManager);
+        readTx.setReadOnly(true);
+        return readTx.execute(status -> {
+            var descOpt = trashDescriptionRepository.findByTrashType(saved.getTrashType());
             var steps = descOpt.map(TrashDescription::steps).orElse(List.of());
             var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
-            // 부품 카드
-            var parts = suggestParts(type.getType());
+            var parts = suggestParts(
+                    saved.getTrashType() != null ? saved.getTrashType().getType() : Type.UNKNOWN
+            );
 
-            // 사용자 기본 자치구/배출요일
             var location = resolveUserDistrictSummary(user.getId());
 
-            log.info("쓰레기 생성 완료: id={}, userId={}, type={}, imageUrl={}",
-                saved.getId(), user.getId(), type.getType(), imageUrl);
+            List<String> days = Collections.emptyList();
+            if (location != null && saved.getTrashType() != null) {
+                String did = location.id() != null ? location.id().trim() : null;
+                days = resolveDisposalDays(did, saved.getTrashType().getType());
+            }
 
-            var days = (location != null)
-                ? resolveDisposalDays(location.id(), type.getType())
-                : List.<String>of();
-
-            searchLogService.log(IMAGE, type, user);
             return TrashResultResponse.of(saved, steps, caution, days, parts, location);
-
-        } catch (BusinessException be) {
-            throw be;
-        } catch (Exception e) {
-            log.error("쓰레기 생성 실패: userId={}", user.getId(), e);
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+        });
     }
 
     private String decideTrashName(Type type, TrashAnalysisResponseDto step1, String itemName, String aiName) {
@@ -197,6 +207,7 @@ public class TrashService implements TrashCreateUseCase {
     /**
      * 특정 사용자의 모든 쓰레기를 최신순으로 조회
      */
+    @Transactional(readOnly = true)
     public List<TrashResultResponse> getTrashByUser(User user) {
         log.info("사용자별 쓰레기 조회 시작: userId={}", user.getId());
 
@@ -210,6 +221,7 @@ public class TrashService implements TrashCreateUseCase {
         return results;
     }
 
+    @Transactional(readOnly = true)
     public TrashResultResponse getTrash(Long trashId) {
         Trash trash = trashRepository.findById(trashId)
             .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
