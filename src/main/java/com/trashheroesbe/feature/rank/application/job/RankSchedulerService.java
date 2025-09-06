@@ -92,7 +92,6 @@ public class RankSchedulerService {
 
         updatedRankings.sort((a, b) -> b.getSearchCount().compareTo(a.getSearchCount()));
 
-        // 순위 및 트렌드 계산 위에 process랑 합쳐지면 됨  List<TrashRank> updatedRankings 이걸로 리턴 받기
         return IntStream.range(0, updatedRankings.size())
             .mapToObj(i -> {
                 TrashRank rank = updatedRankings.get(i);
