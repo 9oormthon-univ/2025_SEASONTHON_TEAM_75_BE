@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.ByteArrayResource;
@@ -31,26 +32,14 @@ import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OpenAIChatAdapter implements ChatAIClientPort {
 
-    private final ObjectMapper om = new ObjectMapper();
+    private final ObjectMapper om;
     private final ChatClient chatClient;
     private final TrashItemRepository trashItemRepository;
-    private final TrashTypeRepository trashTypeRepository;
-    private final TrashItemFinder trashItemFinder;
 
     private final Map<Type, List<String>> itemCache = new ConcurrentHashMap<>();
-
-    public OpenAIChatAdapter(ChatClient.Builder builder,
-        final TrashItemRepository trashItemRepository,
-        final TrashTypeRepository trashTypeRepository,
-        final TrashItemFinder trashItemFinder
-    ) {
-        this.chatClient = builder.build();
-        this.trashItemRepository = trashItemRepository;
-        this.trashTypeRepository = trashTypeRepository;
-        this.trashItemFinder = trashItemFinder;
-    }
 
     @Override
     public TrashAnalysisResponseDto analyzeType(byte[] imageBytes, String contentType) {
