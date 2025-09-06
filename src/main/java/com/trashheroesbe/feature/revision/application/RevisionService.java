@@ -20,7 +20,7 @@ public class RevisionService {
     private final RevisionRepository revisionRepository;
 
     public List<RevisionListResponse> getRevisionList() {
-        List<Revision> revisions = revisionRepository.findAllByOrderByRevisionDateAsc();
+        List<Revision> revisions = revisionRepository.findAllByOrderByRevisionDateDesc();
         return revisions.stream()
             .map(RevisionListResponse::from)
             .toList();

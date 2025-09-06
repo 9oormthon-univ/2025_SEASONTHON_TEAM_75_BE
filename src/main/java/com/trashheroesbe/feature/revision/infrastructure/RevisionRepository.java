@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface RevisionRepository extends JpaRepository<Revision, Long> {
 
     @EntityGraph("trashType")
-    List<Revision> findAllByOrderByRevisionDateAsc();
+    List<Revision> findAllByOrderByRevisionDateDesc();
 }
