@@ -2,6 +2,7 @@ package com.trashheroesbe.infrastructure.port.gpt;
 
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.type.Type;
+import com.trashheroesbe.infrastructure.adapter.out.gpt.dto.SimilarResult;
 
 public interface ChatAIClientPort {
 
@@ -9,7 +10,7 @@ public interface ChatAIClientPort {
 
     String analyzeItem(byte[] imageBytes, String contentType, Type type);
 
-    Type findSimilarTrashItem(String keyword);
+    SimilarResult findSimilarTrashItem(String keyword);
 
     String suggestNameByImage(byte[] imageBytes, String contentType, Type type);
 

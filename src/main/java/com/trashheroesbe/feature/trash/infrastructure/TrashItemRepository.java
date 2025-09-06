@@ -17,6 +17,9 @@ public interface TrashItemRepository extends JpaRepository<TrashItem, Long> {
 
     Optional<TrashItem> findByTrashTypeAndName(TrashType trashType, String name);
 
-    @EntityGraph(attributePaths = {"trashType"})
+    @EntityGraph(attributePaths = "trashType")
     List<TrashItem> findByTrashType_Type(Type type);
+
+    @EntityGraph(attributePaths = "trashType")
+    TrashItem findByName(String itemName);
 }

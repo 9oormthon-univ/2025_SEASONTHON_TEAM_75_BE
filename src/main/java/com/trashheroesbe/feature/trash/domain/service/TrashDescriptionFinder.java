@@ -5,7 +5,6 @@ import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.infrastructure.TrashDescriptionRepository;
 import com.trashheroesbe.global.exception.BusinessException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
