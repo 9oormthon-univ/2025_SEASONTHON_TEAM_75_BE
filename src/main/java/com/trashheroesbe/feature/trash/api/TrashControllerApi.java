@@ -45,7 +45,6 @@ public interface TrashControllerApi {
                                 "id": 8,
                                 "imageUrl": "https://trashheroes.s3.ap-northeast-2.amazonaws.com/trash/20250904_003905_126ed9a4.jpg",
                                 "name": "쓰레기",
-                                "summary": "생수용 PET 플라스틱 병(뚜껑 포함)",
                                 "itemName": "PET(투명 페트병)",
                                 "typeCode": "R04",
                                 "typeName": "PET(투명 페트병)",
@@ -112,8 +111,8 @@ public interface TrashControllerApi {
                               "httpStatus": "OK",
                               "message": "요청에 성공하였습니다.",
                               "data": [
-                                { "id": 8, "imageUrl": "...", "name": "쓰레기", "summary": "..." },
-                                { "id": 7, "imageUrl": "...", "name": "쓰레기", "summary": "..." }
+                                { "id": 8, "imageUrl": "...", "name": "쓰레기" },
+                                { "id": 7, "imageUrl": "...", "name": "쓰레기" }
                               ]
                             }
                             """)

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.ByteArrayResource;
@@ -71,6 +70,98 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             log.error("1단계(type) 분석 실패", e);
             return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null, "이미지 분석에 실패했습니다.");
         }
+    }
+
+    @Override
+    public String suggestNameByImage(byte[] imageBytes, String contentType, Type type) {
+        try {
+            MimeType mime = (contentType != null && contentType.startsWith("image/"))
+                    ? MimeType.valueOf(contentType) : MimeTypeUtils.IMAGE_JPEG;
+
+            ByteArrayResource resource = new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    String subtype = mime.getSubtype();
+                    return "upload." + subtype;
+                }
+            };
+
+            String content = chatClient.prompt()
+                    .system(buildNamePrompt(type))
+                    .user(u -> u.text("이 이미지를 보고 핵심 명칭을 요약해 JSON만 반환해줘.").media(mime, resource))
+                    .call()
+                    .content();
+
+            return parseNameResponse(content);
+        } catch (Exception e) {
+            log.error("이름 요약(이미지) 실패", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String suggestNameByKeyword(String keyword, Type type) {
+        if (keyword == null || keyword.isBlank()) return null;
+        try {
+            String prompt = buildNameByKeywordPrompt(keyword, type);
+            String content = chatClient.prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
+            return parseNameResponse(content);
+        } catch (Exception e) {
+            log.error("이름 요약(키워드) 실패", e);
+            return null;
+        }
+    }
+
+    private String buildNameByKeywordPrompt(String keyword, Type type) {
+        return """
+            너는 쓰레기 명칭 요약 전문가다.
+            - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
+            - name은 한국어 2~12자, 과도한 수식어/조사 제거.
+            - type=%s, keyword="%s"
+            - 출력 형식: {"name":"투명 페트병"}
+            답변:""".formatted(type != null ? type.name() : "UNKNOWN", keyword);
+    }
+
+    private String parseNameResponse(String content) {
+        try {
+            if (content == null) return null;
+            String json = sanitizeToJson(content);
+            JsonNode node = om.readTree(json);
+            String name = node.path("name").asText(null);
+            if (name != null && !name.isBlank()) {
+                return name.trim();
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("이름 요약 응답 파싱 실패", e);
+            return null;
+        }
+    }
+
+    private String buildNamePrompt(Type type) {
+        List<String> items = loadAllowedItems(type);
+        if (items.isEmpty()) {
+            return """
+                너는 쓰레기 명칭 요약 전문가다.
+                - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
+                - name은 한국어 2~12자, 핵심 품목명 위주로 간결히.
+                - type=%s
+                - 출력 형식: {"name":"투명 페트병"}
+                """.formatted(type != null ? type.name() : "UNKNOWN");
+        }
+        String list = items.stream().limit(30).map(s -> "\"" + s + "\"")
+                .collect(java.util.stream.Collectors.joining(", "));
+        return """
+            너는 쓰레기 명칭 요약 전문가다.
+            - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
+            - name은 한국어 2~12자, 핵심 품목명 위주로 간결히.
+            - type=%s, 아래 예시 품목을 참고해 가장 일반적 명칭으로 요약(그대로 복붙 금지):
+            [ %s ]
+            - 출력 형식: {"name":"%s"}
+            """.formatted(type != null ? type.name() : "UNKNOWN", list, items.get(0));
     }
 
     @Override
