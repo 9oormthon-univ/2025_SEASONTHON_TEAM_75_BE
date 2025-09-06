@@ -1,15 +1,11 @@
 package com.trashheroesbe.feature.rank.application.job;
 
 import com.trashheroesbe.feature.rank.domain.TrashRank;
-import com.trashheroesbe.feature.rank.domain.TrendDirection;
 import com.trashheroesbe.feature.rank.infrastructure.TrashRankRepository;
 import com.trashheroesbe.feature.search.infrastructure.SearchLogRepository;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
-import com.trashheroesbe.feature.trash.domain.service.TrashTypeFinder;
-import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
