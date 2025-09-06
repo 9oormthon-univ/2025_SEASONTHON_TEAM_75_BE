@@ -66,9 +66,7 @@ public class TrashRank extends BaseTimeEntity {
     public void calculateTrendDirection(Integer newRankOrder) {
         if (rankOrder == null) {
             this.trendDirection = TrendDirection.NEW;
-        }
-
-        if (newRankOrder < rankOrder) {
+        } else if (newRankOrder < rankOrder) {
             this.trendDirection = TrendDirection.UP;
         } else if (newRankOrder > rankOrder) {
             this.trendDirection = TrendDirection.DOWN;

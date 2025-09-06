@@ -91,8 +91,8 @@ public class RankSchedulerService {
             .mapToObj(i -> {
                 TrashRank rank = updatedRankings.get(i);
                 int newRankOrder = i + 1;
-                rank.updateRankOrder(newRankOrder);
                 rank.calculateTrendDirection(newRankOrder);
+                rank.updateRankOrder(newRankOrder);
                 rank.updateLastUpdated();
 
                 return rank;
