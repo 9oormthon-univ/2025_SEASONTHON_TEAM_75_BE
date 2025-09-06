@@ -4,10 +4,12 @@ import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
 import com.trashheroesbe.feature.revision.application.RevisionService;
 import com.trashheroesbe.feature.revision.dto.response.RevisionListResponse;
+import com.trashheroesbe.feature.revision.dto.response.RevisionResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +24,15 @@ public class RevisionController implements RevisionControllerApi {
     @GetMapping
     public ApiResponse<List<RevisionListResponse>> getRevisionList() {
         List<RevisionListResponse> response = revisionService.getRevisionList();
+        return ApiResponse.success(OK, response);
+    }
+
+    @Override
+    @GetMapping("/{revisionId}")
+    public ApiResponse<RevisionResponse> getRevision(
+        @PathVariable Long revisionId
+    ) {
+        RevisionResponse response = revisionService.getRevisionById(revisionId);
         return ApiResponse.success(OK, response);
     }
 }
