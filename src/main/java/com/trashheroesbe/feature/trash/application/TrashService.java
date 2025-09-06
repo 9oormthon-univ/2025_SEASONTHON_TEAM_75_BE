@@ -69,30 +69,36 @@ public class TrashService implements TrashCreateUseCase {
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        // 1) 타입/품목 분석 (외부 I/O)
-        TrashAnalysisResponseDto step1 = chatGPTClient.analyzeType(bytes, contentType);
-        Type analyzedType =
-                (step1 != null && step1.type() != null && step1.type().getType() != null)
-                        ? step1.type().getType() : Type.UNKNOWN;
+        // 업로드(S3)와 GPT 단일 분석 병렬 수행
+        var uploadFuture = java.util.concurrent.CompletableFuture.supplyAsync(
+                () -> fileStoragePort.uploadFile(storedKey, contentType, bytes)
+        );
+        var bundleFuture = java.util.concurrent.CompletableFuture.supplyAsync(
+                () -> chatGPTClient.analyzeAll(bytes, contentType)
+        );
 
-        String itemName;
-        if (isRecyclable(analyzedType)) {
-            itemName = chatGPTClient.analyzeItem(bytes, contentType, analyzedType);
-        } else {
-            itemName = null;
-        }
+        var bundle = bundleFuture.join();
+        Type analyzedType = (bundle != null && bundle.type() != null) ? bundle.type() : Type.UNKNOWN;
 
-        // 2) 업로드 (외부 I/O)
-        String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
+        // name은 한 번에 받은 요약명
+        String aiSummarizedName = (bundle != null) ? bundle.name() : null;
 
-        // 3) 이름 요약 (외부 I/O)
-        String aiSummarizedName = chatGPTClient.suggestNameByImage(bytes, contentType, analyzedType);
+        // itemName은 항상 DB에서만 선택(요약명을 힌트로 사용)
+        String itemName = pickItemNameFromDb(analyzedType, aiSummarizedName);
+
+        // step1.item은 사용하지 않음(null)
+        TrashAnalysisResponseDto step1 =
+                TrashAnalysisResponseDto.of(TrashType.of(analyzedType), null, bundle != null ? bundle.description() : null);
+
+        String imageUrl = uploadFuture.join();
+
         String finalName = decideTrashName(analyzedType, step1, itemName, aiSummarizedName);
 
-        // 4) DB 쓰기 (트랜잭션)
+        // DB 쓰기 (트랜잭션) - 기존 로직 유지
         Trash saved;
         try {
             TransactionTemplate writeTx = new TransactionTemplate(txManager);
+            String finalItemName = itemName;
             saved = writeTx.execute(status -> {
                 TrashType type = trashTypeRepository.findByType(analyzedType)
                         .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
@@ -100,8 +106,8 @@ public class TrashService implements TrashCreateUseCase {
                 Trash trash = Trash.create(user, imageUrl, finalName);
                 trash.applyAnalysis(type);
 
-                if (itemName != null && !itemName.isBlank()) {
-                    String key = itemName.trim();
+                if (finalItemName != null && !finalItemName.isBlank()) {
+                    String key = finalItemName.trim();
                     var item = trashItemRepository.findByTrashTypeAndName(type, key)
                             .orElseGet(() -> trashItemRepository.save(
                                     TrashItem.builder().trashType(type).name(key).build()
@@ -110,7 +116,7 @@ public class TrashService implements TrashCreateUseCase {
                 }
 
                 Trash persisted = trashRepository.save(trash);
-                searchLogService.log(IMAGE, type, user); // 참여 트랜잭션
+                searchLogService.log(IMAGE, type, user);
                 return persisted;
             });
         } catch (RuntimeException ex) {
@@ -118,7 +124,7 @@ public class TrashService implements TrashCreateUseCase {
             throw ex;
         }
 
-        // 5) 응답 구성 (읽기 전용 트랜잭션)
+        // 응답 구성 (읽기 전용 트랜잭션)
         TransactionTemplate readTx = new TransactionTemplate(txManager);
         readTx.setReadOnly(true);
         return readTx.execute(status -> {
@@ -140,6 +146,53 @@ public class TrashService implements TrashCreateUseCase {
 
             return TrashResultResponse.of(saved, steps, caution, days, parts, location);
         });
+    }
+    private String pickItemNameFromDb(Type type, String nameHint) {
+        var items = trashItemRepository.findByTrashType_Type(type);
+        if (items == null || items.isEmpty()) {
+            log.warn("아이템 목록 없음: type={}", type);
+            return null; // DB에 없으면 설정하지 않음
+        }
+
+        String hint = nameHint != null ? normalizeK(nameHint) : null;
+        if (hint != null) {
+            String best = null;
+            int bestScore = -1;
+            for (var it : items) {
+                var nm = it.getName();
+                if (nm == null || nm.isBlank()) continue;
+                if (nm.contains("기타")) continue;
+                int score = scoreByBigram(normalizeK(nm), hint);
+                if (score > bestScore) { bestScore = score; best = nm; }
+            }
+            if (best != null) return best;
+        }
+
+        // 기본값: "기타" 우선, 없으면 null
+        return items.stream()
+                .map(com.trashheroesbe.feature.trash.domain.entity.TrashItem::getName)
+                .filter(n -> n != null && !n.isBlank())
+                .filter(n -> n.contains("기타"))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String normalizeK(String s) {
+        return s.replaceAll("\\s+", "").toLowerCase();
+    }
+
+    private int scoreByBigram(String a, String b) {
+        java.util.Set<String> sa = toBigrams(a);
+        java.util.Set<String> sb = toBigrams(b);
+        sa.retainAll(sb);
+        return sa.size();
+    }
+
+    private java.util.Set<String> toBigrams(String s) {
+        java.util.HashSet<String> set = new java.util.HashSet<>();
+        if (s.length() < 2) { set.add(s); return set; }
+        for (int i = 0; i < s.length() - 1; i++) set.add(s.substring(i, i + 2));
+        return set;
     }
 
     private String decideTrashName(Type type, TrashAnalysisResponseDto step1, String itemName, String aiName) {
