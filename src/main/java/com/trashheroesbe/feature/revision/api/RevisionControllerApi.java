@@ -2,7 +2,6 @@ package com.trashheroesbe.feature.revision.api;
 
 import com.trashheroesbe.feature.revision.dto.response.RevisionListResponse;
 import com.trashheroesbe.feature.revision.dto.response.RevisionResponse;
-import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

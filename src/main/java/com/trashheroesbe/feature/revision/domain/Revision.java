@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.revision.domain;
 
+import com.trashheroesbe.feature.revision.dto.request.RevisionCreateRequest;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -45,4 +46,14 @@ public class Revision extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trash_type_id", nullable = false)
     private TrashType trashType;
+
+    public static Revision createRevision(RevisionCreateRequest request, TrashType trashType) {
+        return Revision.builder()
+            .subTitle(request.subTitle())
+            .title(request.title())
+            .content(request.content())
+            .revisionDate(request.revisionDate())
+            .trashType(trashType)
+            .build();
+    }
 }
