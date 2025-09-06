@@ -82,5 +82,4 @@ public class TrashController implements TrashControllerApi {
         trashService.deleteTrash(trashId, customerDetails.getUser());
         return ApiResponse.success(SuccessCode.OK);
     }
-
 }
