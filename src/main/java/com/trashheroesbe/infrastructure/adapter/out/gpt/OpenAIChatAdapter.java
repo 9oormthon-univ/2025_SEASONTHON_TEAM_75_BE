@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import com.trashheroesbe.infrastructure.port.gpt.ImageAnalysisBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -383,5 +385,96 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             return trimmed.substring(s, e + 1);
         }
         return trimmed;
+    }
+
+    @Override
+    public ImageAnalysisBundle analyzeAll(byte[] imageBytes, String contentType) {
+        try {
+            MimeType mime = (contentType != null && contentType.startsWith("image/"))
+                    ? MimeType.valueOf(contentType) : MimeTypeUtils.IMAGE_JPEG;
+
+            ByteArrayResource resource = new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    String subtype = mime.getSubtype();
+                    return "upload." + subtype;
+                }
+            };
+
+            String prompt = buildAllPrompt(); // 타입별 허용 아이템을 포함
+            String content = chatClient.prompt()
+                    .system(prompt)
+                    .user(u -> u.text("이미지를 분석해 JSON만 반환해줘.").media(mime, resource))
+                    .call()
+                    .content();
+
+            return parseAllResponse(content);
+        } catch (Exception e) {
+            log.error("단일 호출 분석 실패", e);
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, "이미지 분석에 실패했습니다.");
+        }
+    }
+
+    private String buildAllPrompt() {
+        String allowedTypes = java.util.Arrays.stream(Type.values())
+                .map(Enum::name).collect(java.util.stream.Collectors.joining(", "));
+
+        // 재활용 타입들만 아이템 목록 제공
+        java.util.Map<Type, java.util.List<String>> itemsByType = new java.util.HashMap<>();
+        for (Type t : Type.values()) {
+            boolean recyclable = switch (t) {
+                case PAPER, PAPER_PACK, PLASTIC, PET, VINYL_FILM, STYROFOAM, GLASS, METAL, TEXTILES, E_WASTE, HAZARDOUS_SMALL_WASTE -> true;
+                default -> false;
+            };
+            if (!recyclable) continue;
+            var list = loadAllowedItems(t); // DB에서 로드 + 캐시
+            if (list != null && !list.isEmpty()) {
+                // 너무 길어지지 않게 상한
+                itemsByType.put(t, list.stream().limit(50).toList());
+            }
+        }
+        String itemsJson = itemsByType.entrySet().stream()
+                .map(e -> "\"" + e.getKey().name() + "\":[" +
+                        e.getValue().stream().map(s -> "\"" + s + "\"").collect(java.util.stream.Collectors.joining(", "))
+                        + "]")
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        return """
+        너는 쓰레기 분류/명칭 전문가다. 아래 규칙을 엄격히 지켜라.
+        - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
+        - 1) 이미지를 보고 type을 결정. type은 다음 중 정확히 하나만 허용: [%s]
+        - 2) 반드시 itemName을 선택하며, 반드시 아래 'itemsByType'에서 해당 type의 목록 중 정확히 하나만 고른다.
+             목록이 없거나 확신이 없으면 itemName은 "기타"로 해줘.
+        - 3) name은 사용자 친화적인 핵심 명칭(한국어 2~12자), 과도한 수식어·조사 금지.
+        - itemsByType: { %s }
+        - 출력 형식 예시:
+          {"type":"PET","itemName":"투명 페트병","name":"페트병"}
+        """.formatted(allowedTypes, itemsJson);
+    }
+
+    private ImageAnalysisBundle parseAllResponse(String content) {
+        try {
+            if (content == null) return new ImageAnalysisBundle(Type.UNKNOWN, null, null, null);
+            String json = sanitizeToJson(content);
+            JsonNode node = om.readTree(json);
+
+            String typeStr = node.path("type").asText("UNKNOWN");
+            Type typeEnum;
+            try { typeEnum = Type.valueOf(typeStr.trim().toUpperCase()); }
+            catch (Exception e) { typeEnum = Type.UNKNOWN; }
+
+            String itemName = node.path("itemName").asText(null);
+            if (itemName != null && itemName.isBlank()) itemName = null;
+
+            String name = node.path("name").asText(null);
+            if (name != null && name.isBlank()) name = null;
+
+            String desc = node.path("description").asText(null);
+
+            return new ImageAnalysisBundle(typeEnum, itemName, name, desc);
+        } catch (Exception e) {
+            log.error("단일 호출 응답 파싱 실패", e);
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, null);
+        }
     }
 }
