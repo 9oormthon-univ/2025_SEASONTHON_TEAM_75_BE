@@ -33,6 +33,7 @@ public class TrashItemFinder {
     }
 
     public TrashItem getTrashItemByName(String itemName) {
-        return trashItemRepository.findByName(itemName);
+        return trashItemRepository.findByName(itemName)
+            .orElseThrow(() -> new BusinessException(NOT_EXISTS_TRASH_ITEM));
     }
 }

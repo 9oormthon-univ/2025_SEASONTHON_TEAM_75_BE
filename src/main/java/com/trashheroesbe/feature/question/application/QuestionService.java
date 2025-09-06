@@ -15,9 +15,11 @@ import com.trashheroesbe.feature.trash.dto.response.TrashDescriptionResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashItemResponse;
 import com.trashheroesbe.feature.trash.dto.response.TrashTypeResponse;
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.infrastructure.adapter.out.gpt.dto.SimilarResult;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -69,6 +71,7 @@ public class QuestionService {
         if (result.getItemName().isPresent()) {
             String itemName = result.getItemName().get();
             TrashItem trashItem = trashItemFinder.getTrashItemByName(itemName);
+
 
             if (trashItem.getItemType() == NORMAL) {
                 trashDescription = trashDescriptionFinder.findTrashDescriptionsByTrashTypeId(
