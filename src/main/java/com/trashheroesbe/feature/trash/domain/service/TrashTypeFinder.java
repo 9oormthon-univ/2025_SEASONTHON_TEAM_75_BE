@@ -37,4 +37,8 @@ public class TrashTypeFinder {
         return trashTypeRepository.findById(trashTypeId)
             .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
     }
+
+    public List<Type> getAllTypes() {
+        return trashTypeRepository.findAllTypes();
+    }
 }

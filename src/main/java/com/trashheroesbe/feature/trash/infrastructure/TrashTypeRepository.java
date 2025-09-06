@@ -19,5 +19,5 @@ public interface TrashTypeRepository extends JpaRepository<TrashType, Long> {
     List<TrashType> findAllByOrderByIdAsc();
 
     @Query("select t.type from TrashType t")
-    java.util.List<Type> findAllTypes();
+    List<Type> findAllTypes();
 }

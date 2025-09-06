@@ -205,11 +205,15 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
     }
 
     @Override
-    public SimilarResult findSimilarTrashItem(String keyword) {
+    public SimilarResult findSimilarTrashItem(
+        String keyword,
+        List<String> itemNames,
+        List<Type> types
+    ) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BusinessException(INVALID_SEARCH_KEYWORD);
         }
-        String prompt = buildSimilarTrashTypePrompt(keyword);
+        String prompt = buildSimilarTrashTypePrompt(keyword, itemNames, types);
 
         try {
             String gptResponse = chatClient.prompt()
@@ -224,14 +228,16 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
         }
     }
 
-    private String buildSimilarTrashTypePrompt(String keyword) {
-        List<String> itemNames = trashItemFinder.getTrashItemNames();
+    private String buildSimilarTrashTypePrompt(
+        String keyword,
+        List<String> itemNames,
+        List<Type> types
+    ) {
         String availableItemNames = itemNames.stream()
             .filter(name -> !name.contains("기타"))
             .map(String::toString)
             .collect(Collectors.joining(", "));
 
-        List<Type> types = trashTypeRepository.findAllTypes();
         String availableTypes = types.stream()
             .map(Enum::name)
             .collect(Collectors.joining(", "));

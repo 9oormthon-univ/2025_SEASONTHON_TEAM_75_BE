@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class QuestionService {
 
@@ -34,6 +33,7 @@ public class QuestionService {
     private final TrashDescriptionFinder trashDescriptionFinder;
     private final ChatAIClientPort chatAIClientPort;
 
+    @Transactional(readOnly = true)
     public List<TrashTypeResponse> getTrashTypes() {
         List<TrashType> trashTypes = trashTypeFinder.getAllTrashTypes();
 
@@ -43,6 +43,7 @@ public class QuestionService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<TrashItemResponse> getTrashItems(Long trashTypeId) {
         List<TrashItem> trashItems = trashItemFinder.findTrashItemsByTrashTypeId(trashTypeId);
         return trashItems.stream()
@@ -58,9 +59,11 @@ public class QuestionService {
         return TrashDescriptionResponse.from(trashDescription);
     }
 
-    @Transactional
     public TrashDescriptionResponse searchTrashDescription(String keyword, User user) {
-        SimilarResult result = chatAIClientPort.findSimilarTrashItem(keyword);
+        List<String> itemNames = trashItemFinder.getTrashItemNames();
+        List<Type> types = trashTypeFinder.getAllTypes();
+
+        SimilarResult result = chatAIClientPort.findSimilarTrashItem(keyword, itemNames, types);
 
         TrashDescription trashDescription;
         if (result.getItemName().isPresent()) {
