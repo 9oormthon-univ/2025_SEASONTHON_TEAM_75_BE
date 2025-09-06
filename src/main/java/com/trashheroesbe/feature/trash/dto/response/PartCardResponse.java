@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.trash.dto.response;
 
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 
 public record PartCardResponse(
         String name,

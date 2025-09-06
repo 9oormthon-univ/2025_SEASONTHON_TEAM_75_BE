@@ -44,10 +44,10 @@ public class TrashRank extends BaseTimeEntity {
     @Column(name = "previous_rank")
     private Integer previousRank;
 
-    @Column(name = "search_count", nullable = false, columnDefinition = "INT COMMENT '주간 검색 수'")
+    @Column(name = "search_count", nullable = false, columnDefinition = "INT")
     private Integer searchCount;
 
-    @Column(name = "previous_search_count", columnDefinition = "INT COMMENT '이전 주간 검색 수'")
+    @Column(name = "previous_search_count", columnDefinition = "INT")
     private Integer previousSearchCount;
 
     @Enumerated(EnumType.STRING)
@@ -56,4 +56,29 @@ public class TrashRank extends BaseTimeEntity {
 
     @Column(name = "last_updated", columnDefinition = "DATETIME COMMENT '마지막 업데이트 시간'")
     private LocalDateTime lastUpdated;
+
+
+    public void updateTotalSearchCount(Integer searchCount, Integer recentSearchCount) {
+        this.previousSearchCount = searchCount;
+        this.searchCount = searchCount + recentSearchCount;
+    }
+
+    public void calculateTrendDirection(Integer newRankOrder) {
+        if (rankOrder == null) {
+            this.trendDirection = TrendDirection.NEW;
+        }
+
+        if (newRankOrder < rankOrder) {
+            this.trendDirection = TrendDirection.UP;
+        } else if (newRankOrder > rankOrder) {
+            this.trendDirection = TrendDirection.DOWN;
+        } else {
+            this.trendDirection = TrendDirection.SAME;
+        }
+    }
+
+    public void updateLastUpdated() {
+        this.lastUpdated = LocalDateTime.now();
+    }
+
 }

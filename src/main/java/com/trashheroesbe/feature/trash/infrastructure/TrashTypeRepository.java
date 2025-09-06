@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.trash.infrastructure;
 
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import java.util.List;
 import java.util.Optional;

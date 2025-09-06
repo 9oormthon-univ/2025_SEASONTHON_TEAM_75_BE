@@ -1,7 +1,7 @@
 package com.trashheroesbe.feature.disposal.dto.response;
 
 import com.trashheroesbe.feature.disposal.domain.Disposal;
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;

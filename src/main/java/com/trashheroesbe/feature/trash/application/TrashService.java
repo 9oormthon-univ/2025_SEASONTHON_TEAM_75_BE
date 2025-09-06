@@ -2,12 +2,11 @@ package com.trashheroesbe.feature.trash.application;
 
 import static com.trashheroesbe.feature.search.domain.LogSource.IMAGE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.trash.dto.response.*;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;

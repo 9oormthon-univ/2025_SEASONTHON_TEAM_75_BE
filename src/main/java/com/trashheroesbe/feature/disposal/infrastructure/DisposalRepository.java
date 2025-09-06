@@ -2,7 +2,7 @@ package com.trashheroesbe.feature.disposal.infrastructure;
 
 import com.trashheroesbe.feature.disposal.domain.Disposal;
 import com.trashheroesbe.feature.district.domain.entity.District;
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
