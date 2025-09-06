@@ -4,6 +4,7 @@ import static com.trashheroesbe.feature.search.domain.LogSource.IMAGE;
 
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.search.application.SearchLogService;
+import com.trashheroesbe.feature.trash.domain.type.ItemType;
 import com.trashheroesbe.feature.trash.dto.response.*;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
 import com.trashheroesbe.feature.trash.domain.type.Type;
@@ -268,6 +269,10 @@ public class TrashService implements TrashCreateUseCase {
 
         trash.applyItem(item);
 
+        if(item.getItemType()== ItemType.CAUTION && item.getTrashType()!=null){
+            trash.applyAnalysis(item.getRedirectTrashType(), trash.getSummary());
+        }
+
         var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());
         var steps = descOpt.map(TrashDescription::steps).orElse(List.of());
         var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
@@ -307,5 +312,4 @@ public class TrashService implements TrashCreateUseCase {
 
         log.info("쓰레기 삭제 완료: userId={}, trashId={}", user.getId(), trashId);
     }
-
 }
