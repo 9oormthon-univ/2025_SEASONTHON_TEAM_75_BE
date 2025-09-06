@@ -1,9 +1,22 @@
-# 2025_SEASONTHON_TEAM_75_BE
+<div align="center">
+  <h1>
+    ♻️ [2025 kakao X 9oorm 시즌톤] 75팀 분리특공대 ♻️
+  </h1>
+  <strong>IT 연합 동아리 구름톤 유니브</strong>
+  <p>2025_SEASONTHON_TEAM_75_BE</p>
 
-> **[2025 kakao X groom 시즌톤] 75팀 – 분리특공대 BE**  
-> 생활 폐기물 분류·배출 가이드를 제공하고, 지역(자치구/읍면동)별 분리수거 규칙을 빠르게 검색·학습할 수 있는 서비스의 서버 애플리케이션입니다.
+  <br/>
 
----
+  <p>
+    <strong>"이거 어떻게 버려야 하지?" 헷갈리는 분리배출, 이제 그만!</strong>
+  </p>
+  <p>
+    분리특공대는 복잡한 쓰레기 배출 정보를 한눈에 알려주고, <br/>
+    우리 동네 배출일에 맞춰 알림을 보내주는 똑똑한 분리배출 가이드 서비스입니다.
+  </p>
+
+  <br/>
+</div>
 
 ![image](https://github.com/user-attachments/assets/f1444925-28d5-4cbc-90a5-83c592fdd014)
 
