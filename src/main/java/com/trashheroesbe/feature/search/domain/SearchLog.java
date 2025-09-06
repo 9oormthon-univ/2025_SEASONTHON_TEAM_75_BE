@@ -41,16 +41,19 @@ public class SearchLog extends BaseTimeEntity {
     @JoinColumn(name = "trash_type_id", nullable = false)
     private TrashType trashType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
 
     public static SearchLog create(LogSource logSource, TrashType trashType, User user) {
         return SearchLog.builder()
             .logSource(logSource)
             .trashType(trashType)
-            .user(user)
+            .userId(user.getId())
             .build();
     }
 }
