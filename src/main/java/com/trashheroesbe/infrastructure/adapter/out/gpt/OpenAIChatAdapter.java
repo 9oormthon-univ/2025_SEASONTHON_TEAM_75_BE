@@ -8,12 +8,10 @@ import static com.trashheroesbe.global.response.type.ErrorCode.INVALID_SEARCH_KE
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trashheroesbe.feature.trash.domain.service.TrashItemFinder;
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
 import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
-import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.infrastructure.adapter.out.gpt.dto.SimilarResult;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
