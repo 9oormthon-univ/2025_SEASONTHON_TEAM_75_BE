@@ -1,6 +1,10 @@
 package com.trashheroesbe.feature.trash.domain.entity;
 
+import com.trashheroesbe.feature.trash.domain.type.ItemType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +30,16 @@ public class TrashItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String name;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private ItemType itemType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "redirect_trash_type_id")
+    private TrashType redirectTrashType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trash_type_id")

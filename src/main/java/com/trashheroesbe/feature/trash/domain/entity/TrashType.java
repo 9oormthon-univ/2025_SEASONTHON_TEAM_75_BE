@@ -1,9 +1,7 @@
 package com.trashheroesbe.feature.trash.domain.entity;
 
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import jakarta.persistence.*;
-import java.util.Arrays;
-import java.util.List;
 import lombok.*;
 
 @Getter

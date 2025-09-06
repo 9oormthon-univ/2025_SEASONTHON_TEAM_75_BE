@@ -1,8 +1,7 @@
 package com.trashheroesbe.feature.trash.dto.response;
 
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashDescription;
-import com.trashheroesbe.feature.trash.domain.entity.TrashItem;
 import java.util.List;
 import lombok.Builder;
 

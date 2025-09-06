@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;

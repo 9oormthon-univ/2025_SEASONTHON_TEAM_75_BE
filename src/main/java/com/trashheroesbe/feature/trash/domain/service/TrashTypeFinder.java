@@ -3,7 +3,7 @@ package com.trashheroesbe.feature.trash.domain.service;
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_TYPE;
 
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import com.trashheroesbe.global.exception.BusinessException;

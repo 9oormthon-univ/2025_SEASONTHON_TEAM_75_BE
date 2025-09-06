@@ -1,7 +1,7 @@
 package com.trashheroesbe.infrastructure.port.gpt;
 
 import com.trashheroesbe.feature.trash.dto.response.TrashAnalysisResponseDto;
-import com.trashheroesbe.feature.trash.domain.Type;
+import com.trashheroesbe.feature.trash.domain.type.Type;
 
 public interface ChatAIClientPort {
 
