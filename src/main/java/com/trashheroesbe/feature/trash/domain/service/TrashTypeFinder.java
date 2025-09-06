@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.trash.domain.service;
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TRASH_TYPE;
 
+import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.trash.domain.type.Type;
 import com.trashheroesbe.feature.trash.domain.entity.TrashType;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
@@ -29,6 +30,11 @@ public class TrashTypeFinder {
 
     public TrashType getTrashType(Type type) {
         return trashTypeRepository.findByType(type)
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+    }
+
+    public TrashType getTrashTypeById(Long trashTypeId) {
+        return trashTypeRepository.findById(trashTypeId)
             .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
     }
 }
