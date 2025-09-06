@@ -84,15 +84,14 @@ public class RankSchedulerService {
 
             })
             .filter(Objects::nonNull)
+            .sorted((a, b) -> b.getSearchCount().compareTo(a.getSearchCount()))
             .toList();
-
-        updatedRankings.sort((a, b) -> b.getSearchCount().compareTo(a.getSearchCount()));
 
         return IntStream.range(0, updatedRankings.size())
             .mapToObj(i -> {
                 TrashRank rank = updatedRankings.get(i);
                 int newRankOrder = i + 1;
-
+                rank.updateRankOrder(newRankOrder);
                 rank.calculateTrendDirection(newRankOrder);
                 rank.updateLastUpdated();
 

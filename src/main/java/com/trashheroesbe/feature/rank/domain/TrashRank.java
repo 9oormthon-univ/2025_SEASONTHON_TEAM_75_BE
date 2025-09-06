@@ -81,4 +81,9 @@ public class TrashRank extends BaseTimeEntity {
         this.lastUpdated = LocalDateTime.now();
     }
 
+    public void updateRankOrder(Integer newRankOrder) {
+        this.previousRank = this.rankOrder;
+        this.rankOrder = newRankOrder;
+    }
+
 }
