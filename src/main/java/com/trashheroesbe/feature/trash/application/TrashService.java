@@ -83,11 +83,12 @@ public class TrashService implements TrashCreateUseCase {
             // 5) 업로드
             String imageUrl = fileStoragePort.uploadFile(storedKey, contentType, bytes);
 
-            String displayName = displayNameFor(analyzedType);
 
             // 6) 저장(타입/요약 적용)
-            Trash trash = Trash.create(user, imageUrl, displayName);
-            trash.applyAnalysis(type, step1 != null ? step1.description() : null);
+            String aiSummarizedName = chatGPTClient.suggestNameByImage(bytes, contentType, analyzedType);
+            String aiName = decideTrashName(analyzedType, step1, itemName, aiSummarizedName);
+            Trash trash = Trash.create(user, imageUrl, aiName);
+            trash.applyAnalysis(type);
 
             // 7) 세부 품목 매핑(있으면)
             if (itemName != null && !itemName.isBlank()) {
@@ -131,12 +132,13 @@ public class TrashService implements TrashCreateUseCase {
         }
     }
 
-    private String displayNameFor(Type t) {
-        return switch (t) {
-            case FOOD_WASTE -> "음식물 쓰레기";
-            case NON_RECYCLABLE -> "일반 쓰레기";
-            default -> "쓰레기";
-        };
+    private String decideTrashName(Type type, TrashAnalysisResponseDto step1, String itemName, String aiName) {
+        if (aiName != null && !aiName.isBlank()) return aiName.trim();
+        if (itemName != null && !itemName.isBlank()) return itemName.trim();
+        if (step1 != null && step1.item() != null && !step1.item().isBlank()) return step1.item().trim();
+        if (type == Type.FOOD_WASTE) return "음식물 쓰레기";
+        if (type == Type.NON_RECYCLABLE) return "일반 쓰레기";
+        return (type != null) ? type.getNameKo() : "쓰레기";
     }
 
     private boolean isRecyclable(Type t) {
@@ -270,7 +272,7 @@ public class TrashService implements TrashCreateUseCase {
         trash.applyItem(item);
 
         if(item.getItemType()== ItemType.CAUTION && item.getTrashType()!=null){
-            trash.applyAnalysis(item.getRedirectTrashType(), trash.getSummary());
+            trash.applyAnalysis(item.getRedirectTrashType());
         }
 
         var descOpt = trashDescriptionRepository.findByTrashType(trash.getTrashType());

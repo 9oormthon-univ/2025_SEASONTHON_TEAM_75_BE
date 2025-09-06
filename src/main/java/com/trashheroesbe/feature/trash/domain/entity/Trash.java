@@ -55,8 +55,7 @@ public class Trash extends BaseTimeEntity {
                 .build();
     }
 
-    public void applyAnalysis(TrashType type, String summary) {
+    public void applyAnalysis(TrashType type) {
         this.trashType = type;
-        this.summary = summary;
     }
 }

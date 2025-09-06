@@ -10,4 +10,8 @@ public interface ChatAIClientPort {
     String analyzeItem(byte[] imageBytes, String contentType, Type type);
 
     Type findSimilarTrashItem(String keyword);
+
+    String suggestNameByImage(byte[] imageBytes, String contentType, Type type);
+
+    String suggestNameByKeyword(String keyword, Type type);
 }

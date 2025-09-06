@@ -16,8 +16,6 @@ public record TrashResultResponse(
         String imageUrl,
         @Schema(description = "이름", example = "쓰레기")
         String name,
-        @Schema(description = "요약", example = "생수용 PET 플라스틱 병(뚜껑 포함)")
-        String summary,
         @Schema(description = "세부 품목명", example = "PET(투명 페트병)")
         String itemName,
         @Schema(description = "타입 코드", example = "R04")
@@ -42,7 +40,7 @@ public record TrashResultResponse(
     private static TrashResultResponseBuilder base(Trash t) {
         var tt = t.getTrashType() != null ? t.getTrashType().getType() : null;
         return TrashResultResponse.builder()
-                .id(t.getId()).imageUrl(t.getImageUrl()).name(t.getName()).summary(t.getSummary())
+                .id(t.getId()).imageUrl(t.getImageUrl()).name(t.getName())
                 .itemName(t.getTrashItem()!=null?t.getTrashItem().getName():null)
                 .typeCode(tt!=null?tt.getTypeCode():null)
                 .typeName(tt!=null?tt.getNameKo():null)
