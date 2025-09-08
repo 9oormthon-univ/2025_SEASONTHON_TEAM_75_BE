@@ -18,7 +18,7 @@
   <br/>
 </div>
 
-![image](https://github.com/user-attachments/assets/f1444925-28d5-4cbc-90a5-83c592fdd014)
+![image](https://github.com/user-attachments/assets/1cca76f2-050f-4b4e-8779-a48f25b02718)
 
 
 ## 📌 기본 설명
@@ -171,5 +171,5 @@ global/
   - 인증/보안, 예외 처리, 응답 형식, 설정 클래스들이 위치
 
 ##  ERD
-![image](https://github.com/user-attachments/assets/ff456ea4-492e-438c-8ca6-675e88c56775)
+![image](https://github.com/user-attachments/assets/313216ec-93ad-464b-94c3-b64c7de17c10)
 
