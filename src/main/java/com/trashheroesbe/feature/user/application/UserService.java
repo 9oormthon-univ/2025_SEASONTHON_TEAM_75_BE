@@ -71,7 +71,7 @@ public class UserService {
     }
 
     @Transactional
-    public void createUserDistrict(Long userId, String districtId) {
+    public List<UserDistrictResponse> createUserDistrict(Long userId, String districtId) {
         List<UserDistrict> userDistricts = userDistrictFinder.findByUserId(userId);
 
         if (userDistricts.size() >= MAX_USER_DISTRICTS) {
@@ -93,10 +93,12 @@ public class UserService {
 
         UserDistrict userDistrict = UserDistrict.createUserDistrict(user, district);
         userDistrictRepository.save(userDistrict);
+
+        return getUserDistrictsByUserId(userId);
     }
 
     @Transactional
-    public void deleteUserDistrict(Long userDistrictId, Long userId) {
+    public List<UserDistrictResponse> deleteUserDistrict(Long userDistrictId, Long userId) {
         if (!userDistrictFinder.existsByUserDistrictId(userDistrictId)) {
             throw new BusinessException(ENTITY_NOT_FOUND);
         }
@@ -111,6 +113,7 @@ public class UserService {
         }
 
         userDistrictRepository.deleteById(userDistrictId);
+        return getUserDistrictsByUserId(userId);
     }
 
     public List<UserDistrictResponse> getUserDistrictsByUserId(Long userId) {
@@ -121,7 +124,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateDefaultUserDistrict(Long userDistrictId, Long userId) {
+    public List<UserDistrictResponse> updateDefaultUserDistrict(Long userDistrictId, Long userId) {
         List<UserDistrict> userDistricts = userDistrictFinder.findByUserIdFetchJoin(userId);
 
         boolean exists = false;
@@ -137,6 +140,7 @@ public class UserService {
         if (!exists) {
             throw new BusinessException(ENTITY_NOT_FOUND);
         }
+        return getUserDistrictsByUserId(userId);
     }
 
     @Transactional
