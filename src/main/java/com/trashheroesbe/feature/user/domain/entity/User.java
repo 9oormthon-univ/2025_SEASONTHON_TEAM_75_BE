@@ -56,6 +56,14 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDistrict> userDistricts = new ArrayList<>();
 
+    public static User createGuestUser() {
+        return User.builder()
+            .nickname("특공대요원123123")
+            .provider(AuthProvider.GUEST)
+            .role(Role.GUEST)
+            .build();
+    }
+
     public void updateNickname(String nickname) {
         if (nickname != null && !nickname.isEmpty()) {
             this.nickname = nickname;

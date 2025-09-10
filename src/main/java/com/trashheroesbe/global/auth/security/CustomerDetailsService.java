@@ -14,9 +14,10 @@ public class CustomerDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public CustomerDetails loadUserByUsername(String kakaoId) throws UsernameNotFoundException {
-        User user = userRepository.findByKakaoId(kakaoId)
-            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + kakaoId));
+    public CustomerDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        Long id = Long.parseLong(userId);
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         return new CustomerDetails(user);
     }

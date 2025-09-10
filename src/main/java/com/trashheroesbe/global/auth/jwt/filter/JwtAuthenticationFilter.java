@@ -1,6 +1,7 @@
 package com.trashheroesbe.global.auth.jwt.filter;
 
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.ACCESS_TOKEN;
+import static com.trashheroesbe.global.constants.SecurityConstants.ALLOWED;
 import static com.trashheroesbe.global.response.type.ErrorCode.INVALID_TOKEN;
 import static com.trashheroesbe.global.response.type.ErrorCode.NOT_EXISTS_TOKEN;
 
@@ -38,17 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomerDetailsService customerDetailsService;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final List<String> ALLOWED = List.of(
-        "/swagger-ui/**",
-        "/swagger-resources/**",
-        "/v3/api-docs/**",
-        "/api-docs/**",
-        "/api/v1/auth/kakao/**",
-        "/oauth2/**",
-        "/login/**",
-        "/favicon.ico"
-    );
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 

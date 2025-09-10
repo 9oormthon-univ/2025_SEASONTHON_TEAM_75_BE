@@ -2,7 +2,7 @@ package com.trashheroesbe.feature.auth.api;
 
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
-import com.trashheroesbe.feature.auth.application.KakaoAuthService;
+import com.trashheroesbe.feature.auth.application.AuthService;
 import com.trashheroesbe.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,22 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth/kakao")
-public class KakaoAuthController implements AuthControllerApi {
+@RequestMapping("/api/v1/auth")
+public class AuthController implements AuthControllerApi {
 
-    private final KakaoAuthService kakaoAuthService;
+    private final AuthService authService;
 
     @Override
-    @GetMapping("/login")
+    @GetMapping("/kakao/login")
     public ApiResponse<Void> login(HttpServletResponse response) throws IOException {
         response.sendRedirect("/oauth2/authorization/kakao");
         return ApiResponse.success(OK);
     }
 
     @Override
-    @PostMapping("/logout")
+    @PostMapping("/kakao/logout")
     public ApiResponse<Void> logout(HttpServletResponse response) {
-        kakaoAuthService.logout(response);
+        authService.logout(response);
+        return ApiResponse.success(OK);
+    }
+
+    @Override
+    @PostMapping("/guest/login")
+    public ApiResponse<Void> guestLogin(HttpServletResponse response) {
+        authService.guestLogin(response);
         return ApiResponse.success(OK);
     }
 }

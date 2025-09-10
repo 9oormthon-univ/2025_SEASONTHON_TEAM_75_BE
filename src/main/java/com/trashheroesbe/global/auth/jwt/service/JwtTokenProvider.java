@@ -1,8 +1,10 @@
 package com.trashheroesbe.global.auth.jwt.service;
 
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.ACCESS_TOKEN;
+import static com.trashheroesbe.global.auth.jwt.entity.TokenType.GUEST_ACCESS_TOKEN;
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.REFRESH_TOKEN;
 
+import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.auth.jwt.entity.JwtToken;
 import com.trashheroesbe.global.auth.jwt.entity.TokenDto;
 import io.jsonwebtoken.Claims;
@@ -38,14 +40,23 @@ public class JwtTokenProvider {
     @Value("${jwt.secret-key}")
     private String secretKey;
 
-//    private static final long ACCESS_EXPIRE_MS = 1000L * 60 * 30; // 30분
-//    private static final long REFRESH_EXPIRE_MS = 1000L * 60 * 60 * 24 * 7; // 7일
-
     private SecretKey key;
 
     @PostConstruct
     protected void init() {
         key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    }
+
+    public JwtToken generateGuestToken(User guestUser) {
+        String authorities = guestUser.getRole().toAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
+        String subject = String.valueOf(guestUser.getId());
+
+        String accessToken = createToken(subject, authorities, GUEST_ACCESS_TOKEN.getValidTime());
+        return JwtToken.builder()
+            .accessToken(accessToken)
+            .build();
     }
 
     public JwtToken generateToken(Authentication authentication) {
