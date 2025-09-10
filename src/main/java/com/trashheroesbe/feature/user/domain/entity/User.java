@@ -16,6 +16,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,6 +56,15 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDistrict> userDistricts = new ArrayList<>();
+
+    public static User createGuestUser() {
+        String suffix = String.format("%04d", ThreadLocalRandom.current().nextInt(0, 10000));
+        return User.builder()
+            .nickname("특공대요원" + suffix)
+            .provider(AuthProvider.GUEST)
+            .role(Role.GUEST)
+            .build();
+    }
 
     public void updateNickname(String nickname) {
         if (nickname != null && !nickname.isEmpty()) {

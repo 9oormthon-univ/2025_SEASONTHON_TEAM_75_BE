@@ -6,12 +6,14 @@ import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import com.trashheroesbe.global.auth.jwt.entity.JwtToken;
 import com.trashheroesbe.global.auth.jwt.service.CookieProvider;
 import com.trashheroesbe.global.auth.jwt.service.JwtTokenProvider;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -42,25 +44,32 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         HttpServletResponse response,
         Authentication authentication
     ) throws IOException, ServletException {
-        JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
-
-        Cookie accessTokenCookie = cookieProvider.createTokenCookie(
-            ACCESS_TOKEN, jwtToken.getAccessToken());
-        Cookie refreshTokenCookie = cookieProvider.createTokenCookie(
-            REFRESH_TOKEN, jwtToken.getRefreshToken());
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
         String kakaoId = null;
         if (authentication instanceof OAuth2AuthenticationToken oauth) {
             Map<String, Object> attrs = oauth.getPrincipal().getAttributes();
             kakaoId = String.valueOf(attrs.get("id"));
         }
 
-        User user = (kakaoId != null)
-            ? userRepository.findByKakaoId(kakaoId).orElse(null)
-            : null;
+        User user = userRepository.findByKakaoId(kakaoId).orElse(null);
+
+        if (user != null) {
+            CustomerDetails userDetails = new CustomerDetails(user);
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+            );
+
+            JwtToken jwtToken = jwtTokenProvider.generateToken(newAuth);
+
+            Cookie accessTokenCookie = cookieProvider.createTokenCookie(
+                ACCESS_TOKEN, jwtToken.getAccessToken());
+            Cookie refreshTokenCookie = cookieProvider.createTokenCookie(
+                REFRESH_TOKEN, jwtToken.getRefreshToken());
+
+            response.addCookie(accessTokenCookie);
+            response.addCookie(refreshTokenCookie);
+        }
 
         boolean hasProfile = false;
         if (user != null) {

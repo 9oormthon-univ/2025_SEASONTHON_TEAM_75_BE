@@ -16,4 +16,7 @@ public interface AuthControllerApi {
     @Operation(summary = "로그아웃",  description = "로그아웃을 진행합니다.")
     ApiResponse<Void> logout(HttpServletResponse response);
 
+    @Operation(summary = "비회원 로그인", description = "비회원 로그인을 진행합니다. ")
+    ApiResponse<Void> guestLogin(HttpServletResponse response);
+
 }
