@@ -29,7 +29,7 @@ public class AuthController implements AuthControllerApi {
     }
 
     @Override
-    @PostMapping("/kakao/logout")
+    @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletResponse response) {
         authService.logout(response);
         return ApiResponse.success(OK);
