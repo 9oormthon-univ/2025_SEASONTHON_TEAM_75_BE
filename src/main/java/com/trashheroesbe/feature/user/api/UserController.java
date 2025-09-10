@@ -44,22 +44,24 @@ public class UserController implements UserControllerApi {
 
     @Override
     @PostMapping("/districts/{districtId}")
-    public ApiResponse<Void> createUserDistrict(
+    public ApiResponse<List<UserDistrictResponse>> createUserDistrict(
         @AuthenticationPrincipal CustomerDetails customerDetails,
         @PathVariable String districtId
     ) {
-        userService.createUserDistrict(customerDetails.getUser().getId(), districtId);
-        return ApiResponse.success(OK);
+        List<UserDistrictResponse> response = userService.createUserDistrict(
+            customerDetails.getUser().getId(), districtId);
+        return ApiResponse.success(OK, response);
     }
 
     @Override
     @DeleteMapping("/districts/{userDistrictId}")
-    public ApiResponse<Void> deleteUserDistrict(
+    public ApiResponse<List<UserDistrictResponse>> deleteUserDistrict(
         @PathVariable Long userDistrictId,
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
-        userService.deleteUserDistrict(userDistrictId, customerDetails.getUser().getId());
-        return ApiResponse.success(OK);
+        List<UserDistrictResponse> response = userService.deleteUserDistrict(
+            userDistrictId, customerDetails.getUser().getId());
+        return ApiResponse.success(OK, response);
     }
 
     @Override
@@ -74,12 +76,13 @@ public class UserController implements UserControllerApi {
 
     @Override
     @PatchMapping("/districts/{userDistrictId}")
-    public ApiResponse<Void> updateDefaultUserDistrict(
+    public ApiResponse<List<UserDistrictResponse>> updateDefaultUserDistrict(
         @PathVariable Long userDistrictId,
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
-        userService.updateDefaultUserDistrict(userDistrictId, customerDetails.getUser().getId());
-        return ApiResponse.success(OK);
+        List<UserDistrictResponse> response = userService.updateDefaultUserDistrict(
+            userDistrictId, customerDetails.getUser().getId());
+        return ApiResponse.success(OK, response);
     }
 
     @Override
