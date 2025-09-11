@@ -24,7 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
         AND u.role = :role 
         AND u.createdAt < :cutoffTime
         """)
-    int deleteExpiredGuestUsers(@Param("provider") AuthProvider provider,
+    int deleteExpiredGuestUsers(
+        @Param("provider") AuthProvider provider,
         @Param("role") Role role,
-        @Param("cutoffTime") LocalDateTime cutoffTime);
+        @Param("cutoffTime") LocalDateTime cutoffTime
+    );
 }
