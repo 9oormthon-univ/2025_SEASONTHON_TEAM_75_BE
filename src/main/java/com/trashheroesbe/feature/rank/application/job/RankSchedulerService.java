@@ -56,7 +56,6 @@ public class RankSchedulerService {
             Map<TrashType, TrashRank> currentRankingMap = currentRankings.stream()
                 .collect(Collectors.toMap(TrashRank::getTrashType, rank -> rank));
 
-            // 더티 체크 or save 명시
             List<TrashRank> updateRankings = processCalculate(searchCounts, currentRankingMap);
             trashRankRepository.saveAll(updateRankings);
 
