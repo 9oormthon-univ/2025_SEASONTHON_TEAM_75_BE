@@ -304,17 +304,21 @@ public class TrashService implements TrashCreateUseCase {
 
     @Transactional(readOnly = true)
     public List<TrashItemResponse> getTrashItemsByTrashId(Long trashId) {
-        var trash = trashRepository.findById(trashId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+        Trash trash = trashRepository.findById(trashId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (trash.getTrashType() == null) {
             return List.of();
         }
 
+        Long currentItemId = (trash.getTrashItem() != null) ? trash.getTrashItem().getId() : null;
+
         return trashItemRepository.findByTrashTypeId(trash.getTrashType().getId())
-            .stream()
-            .map(TrashItemResponse::from)
-            .collect(Collectors.toList());
+                .stream()
+                .filter(item -> !item.getId().equals(currentItemId))
+                .sorted(Comparator.comparing(item -> item.getItemType() == ItemType.NORMAL))
+                .map(TrashItemResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
