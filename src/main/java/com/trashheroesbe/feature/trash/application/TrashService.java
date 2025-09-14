@@ -32,6 +32,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -304,17 +305,28 @@ public class TrashService implements TrashCreateUseCase {
 
     @Transactional(readOnly = true)
     public List<TrashItemResponse> getTrashItemsByTrashId(Long trashId) {
-        var trash = trashRepository.findById(trashId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+        Trash trash = trashRepository.findById(trashId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (trash.getTrashType() == null) {
             return List.of();
         }
 
-        return trashItemRepository.findByTrashTypeId(trash.getTrashType().getId())
-            .stream()
-            .map(TrashItemResponse::from)
-            .collect(Collectors.toList());
+        Long currentItemId = (trash.getTrashItem() != null) ? trash.getTrashItem().getId() : null;
+
+        List<TrashItem> items = trashItemRepository.findByTrashTypeId(trash.getTrashType().getId());
+
+        Stream<TrashItem> stream = items.stream();
+
+        if (currentItemId != null) {
+            stream = stream.filter(item -> !item.getId().equals(currentItemId));
+        }
+
+        stream = stream.sorted(Comparator.comparing(item -> item.getItemType() == ItemType.NORMAL));
+
+        return stream
+                .map(TrashItemResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
