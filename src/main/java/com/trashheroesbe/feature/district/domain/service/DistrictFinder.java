@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.district.domain.service;
 
-import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
+import static com.trashheroesbe.global.response.type.ErrorCode.UNSUPPORTED_DISTRICT;
 
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.infrastructure.DistrictRepository;
@@ -18,6 +18,6 @@ public class DistrictFinder {
 
     public District findById(String distributeId) {
         return districtRepository.findById(distributeId)
-            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(UNSUPPORTED_DISTRICT));
     }
 }

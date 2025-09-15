@@ -29,6 +29,9 @@ public enum ErrorCode {
     NOT_FOUND_USER_DISTRICTS(HttpStatus.NOT_FOUND, "자치구 등록을 하지 않으셨습니다. 등록해주세요."),
     NOT_FOUND_DEFAULT_USER_DISTRICTS(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
 
+    // district
+    UNSUPPORTED_DISTRICT(HttpStatus.BAD_REQUEST, "서비스에서 지원하지 않는 지역입니다."),
+
     // trash
     NOT_EXISTS_TRASH_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 타입이 존재하지 않습니다. 개발자에게 문의 주세요."),
     NOT_EXISTS_TRASH_ITEM(HttpStatus.INTERNAL_SERVER_ERROR, "쓰레기 품목이 존재하지 않습니다. 개발자에게 문의 주세요."),
@@ -39,9 +42,8 @@ public enum ErrorCode {
     ERROR_GPT_CALL(HttpStatus.BAD_GATEWAY, "GPT 호출에 실패했습니다."),
     EMPTY_GPT_RESPONSE(HttpStatus.BAD_GATEWAY, "GPT 응답이 비었습니다."),
     FAIL_PARSING_RESPONSE(HttpStatus.UNPROCESSABLE_ENTITY, "응답 파싱에 실패했습니다"),
-
-
     ;
+
     private final HttpStatus status;
     private final String message;
 }
