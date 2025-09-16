@@ -33,4 +33,8 @@ public class Badge {
 
     @Column
     private RuleType ruleType;
+
+    @Column
+    private Integer targetValue;
+
 }

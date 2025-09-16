@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.user.api;
 
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.feature.user.dto.response.UserResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
@@ -54,4 +55,7 @@ public interface UserControllerApi {
 
     @Operation(summary = "유저 탈퇴", description = "토큰 정보로 유저를 삭제합니다.")
     ApiResponse<Void> deleteUserByToken(CustomerDetails customerDetails);
+
+    @Operation(summary = "내 뱃지 리스트 조회", description = "내가 획득한 뱃지 리스트를 조회합니다.")
+    ApiResponse<List<UserBadgeResponse>> getMyBadges(CustomerDetails customerDetails);
 }
