@@ -89,7 +89,7 @@ public class TrashService implements TrashCreateUseCase {
 
         // step1.item은 사용하지 않음(null)
         TrashAnalysisResponseDto step1 =
-                TrashAnalysisResponseDto.of(TrashType.of(analyzedType), null, bundle != null ? bundle.description() : null);
+                TrashAnalysisResponseDto.of(TrashType.of(analyzedType), null);
 
         String imageUrl = uploadFuture.join();
 

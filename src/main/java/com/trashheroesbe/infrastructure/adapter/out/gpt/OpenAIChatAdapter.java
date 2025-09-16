@@ -65,7 +65,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
 
         } catch (Exception e) {
             log.error("1단계(type) 분석 실패", e);
-            return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null, "이미지 분석에 실패했습니다.");
+            return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null);
         }
     }
 
@@ -296,8 +296,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             너는 쓰레기 분류 전문가다. 아래 규칙을 엄격히 지켜라.
             - JSON(객체)만 반환. 코드블록, 여분 텍스트 금지.
             - type 값은 다음 중 정확히 하나만 허용: %s
-            - description은 한국어 50자 내.
-            - 출력 형식: {"type":"PAPER","description":"..."}
+            - 출력 형식: {"type":"PAPER"}
             """.formatted(allowed);
     }
 
@@ -335,14 +334,12 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
     private TrashAnalysisResponseDto parseTypeResponse(String content) {
         try {
             if (content == null) {
-                return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null,
-                    "이미지 분석에 실패했습니다.");
+                return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null);
             }
             String json = sanitizeToJson(content);
             JsonNode node = om.readTree(json);
 
             String typeStr = node.path("type").asText("UNKNOWN");
-            String description = node.path("description").asText("설명을 생성하지 못했습니다.");
 
             Type typeEnum;
             try {
@@ -351,11 +348,11 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
                 typeEnum = Type.UNKNOWN;
             }
 
-            return TrashAnalysisResponseDto.of(TrashType.of(typeEnum), null, description);
+            return TrashAnalysisResponseDto.of(TrashType.of(typeEnum), null);
 
         } catch (Exception e) {
             log.error("1단계 응답 파싱 실패", e);
-            return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null, "이미지 분석에 실패했습니다.");
+            return TrashAnalysisResponseDto.of(TrashType.of(Type.UNKNOWN), null);
         }
     }
 
@@ -411,7 +408,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             return parseAllResponse(content);
         } catch (Exception e) {
             log.error("단일 호출 분석 실패", e);
-            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, "이미지 분석에 실패했습니다.");
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
         }
     }
 
@@ -454,7 +451,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
 
     private ImageAnalysisBundle parseAllResponse(String content) {
         try {
-            if (content == null) return new ImageAnalysisBundle(Type.UNKNOWN, null, null, null);
+            if (content == null) return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
             String json = sanitizeToJson(content);
             JsonNode node = om.readTree(json);
 
@@ -471,10 +468,10 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
 
             String desc = node.path("description").asText(null);
 
-            return new ImageAnalysisBundle(typeEnum, itemName, name, desc);
+            return new ImageAnalysisBundle(typeEnum, itemName, name);
         } catch (Exception e) {
             log.error("단일 호출 응답 파싱 실패", e);
-            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, null);
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
         }
     }
 }
