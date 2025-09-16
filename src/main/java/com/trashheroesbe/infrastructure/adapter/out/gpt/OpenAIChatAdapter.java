@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.trashheroesbe.infrastructure.port.gpt.ImageAnalysisBundle;
+import com.trashheroesbe.infrastructure.port.gpt.PartSuggestion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -408,7 +409,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             return parseAllResponse(content);
         } catch (Exception e) {
             log.error("단일 호출 분석 실패", e);
-            return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, null);
         }
     }
 
@@ -416,7 +417,6 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
         String allowedTypes = java.util.Arrays.stream(Type.values())
                 .map(Enum::name).collect(java.util.stream.Collectors.joining(", "));
 
-        // 재활용 타입들만 아이템 목록 제공
         java.util.Map<Type, java.util.List<String>> itemsByType = new java.util.HashMap<>();
         for (Type t : Type.values()) {
             boolean recyclable = switch (t) {
@@ -424,9 +424,8 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
                 default -> false;
             };
             if (!recyclable) continue;
-            var list = loadAllowedItems(t); // DB에서 로드 + 캐시
+            List<String> list = loadAllowedItems(t);
             if (list != null && !list.isEmpty()) {
-                // 너무 길어지지 않게 상한
                 itemsByType.put(t, list.stream().limit(50).toList());
             }
         }
@@ -443,15 +442,16 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
         - 2) 반드시 itemName을 선택하며, 반드시 아래 'itemsByType'에서 해당 type의 목록 중 정확히 하나만 고른다.
              목록이 없거나 확신이 없으면 itemName은 "기타"로 해줘.
         - 3) name은 사용자 친화적인 핵심 명칭(한국어 2~12자), 과도한 수식어·조사 금지.
+        - 4) parts는 최대 3개. 각 원소는 {"name":"부품명","type":"<허용 enum>"}이며 type은 [%s] 중 하나여야 한다.
         - itemsByType: { %s }
         - 출력 형식 예시:
-          {"type":"PET","itemName":"투명 페트병","name":"페트병"}
-        """.formatted(allowedTypes, itemsJson);
+          {"type":"PET","itemName":"투명 페트병","name":"페트병","parts":[{"name":"페트병 뚜껑","type":"PET"},{"name":"투명 페트병 몸체","type":"PET"},{"name":"비닐 라벨","type":"VINYL_FILM"}]}
+        """.formatted(allowedTypes, allowedTypes, itemsJson);
     }
 
     private ImageAnalysisBundle parseAllResponse(String content) {
         try {
-            if (content == null) return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
+            if (content == null) return new ImageAnalysisBundle(Type.UNKNOWN, null, null, List.of());
             String json = sanitizeToJson(content);
             JsonNode node = om.readTree(json);
 
@@ -466,12 +466,23 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
             String name = node.path("name").asText(null);
             if (name != null && name.isBlank()) name = null;
 
-            String desc = node.path("description").asText(null);
+            java.util.List<PartSuggestion> parts = new java.util.ArrayList<>();
+            JsonNode partsNode = node.path("parts");
+            if (partsNode.isArray()) {
+                for (JsonNode p : partsNode) {
+                    String pn = p.path("name").asText(null);
+                    String pt = p.path("type").asText(null);
+                    if (pn == null || pn.isBlank() || pt == null || pt.isBlank()) continue;
+                    Type pType;
+                    try { pType = Type.valueOf(pt.trim().toUpperCase()); } catch (Exception ex) { continue; }
+                    parts.add(new PartSuggestion(pn.trim(), pType));
+                }
+            }
 
-            return new ImageAnalysisBundle(typeEnum, itemName, name);
+            return new ImageAnalysisBundle(typeEnum, itemName, name, parts);
         } catch (Exception e) {
             log.error("단일 호출 응답 파싱 실패", e);
-            return new ImageAnalysisBundle(Type.UNKNOWN, null, null);
+            return new ImageAnalysisBundle(Type.UNKNOWN, null, null, List.of());
         }
     }
 }
