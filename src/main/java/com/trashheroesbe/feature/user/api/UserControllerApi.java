@@ -1,6 +1,5 @@
 package com.trashheroesbe.feature.user.api;
 
-import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.feature.user.dto.response.UserResponse;
@@ -8,8 +7,6 @@ import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestPart;
