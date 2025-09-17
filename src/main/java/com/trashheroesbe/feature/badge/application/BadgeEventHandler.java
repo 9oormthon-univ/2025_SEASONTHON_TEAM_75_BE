@@ -6,13 +6,14 @@ import com.trashheroesbe.feature.badge.domain.event.TrashAnalysisEvent;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
-import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.context.BadgeContextHolder;
+import com.trashheroesbe.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Component
 @Transactional
@@ -29,6 +30,7 @@ public class BadgeEventHandler {
 
         List<UserBadgeResponse> badgeResponses = badgeManager.processBadgeEvent(user, event);
 
+        // 새로 획득한 뱃지가 있으면 ThreadLocal에 저장
         if (!badgeResponses.isEmpty()) {
             BadgeContextHolder.setNewBadges(badgeResponses);
         }

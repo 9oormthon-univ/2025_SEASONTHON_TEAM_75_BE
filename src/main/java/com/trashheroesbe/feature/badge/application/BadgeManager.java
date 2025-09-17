@@ -1,5 +1,7 @@
 package com.trashheroesbe.feature.badge.application;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 import com.trashheroesbe.feature.badge.domain.entity.Badge;
 import com.trashheroesbe.feature.badge.domain.entity.BadgeProgress;
 import com.trashheroesbe.feature.badge.domain.event.TrashAnalysisEvent;
@@ -34,6 +36,7 @@ public class BadgeManager {
 
     private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
+    @Transactional(propagation = REQUIRES_NEW)
     public List<UserBadgeResponse> processBadgeEvent(User user, TrashAnalysisEvent event) {
         List<UserBadgeResponse> badgeResponses = new ArrayList<>();
 
@@ -51,11 +54,9 @@ public class BadgeManager {
         return badgeResponses;
     }
 
-    private UserBadgeResponse processBadgePolicy(
-        User user,
-        TrashAnalysisEvent event,
-        BadgePolicy policy
-    ) {
+    private UserBadgeResponse processBadgePolicy(User user, TrashAnalysisEvent event,
+        BadgePolicy policy) {
+        System.out.println(policy.name() + " ?????뭥미");
         Badge badge = badgeRepository.findByName(policy.name())
             .orElseGet(() -> badgeRepository.save(Badge.builder()
                 .name(policy.name())
