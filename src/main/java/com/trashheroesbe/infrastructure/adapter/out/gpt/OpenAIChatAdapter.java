@@ -15,6 +15,8 @@ import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.infrastructure.adapter.out.gpt.dto.SimilarResult;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -414,8 +416,8 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
     }
 
     private String buildAllPrompt() {
-        String allowedTypes = java.util.Arrays.stream(Type.values())
-                .map(Enum::name).collect(java.util.stream.Collectors.joining(", "));
+        String allowedTypes = Arrays.stream(Type.values())
+                .map(Enum::name).collect(Collectors.joining(", "));
 
         java.util.Map<Type, java.util.List<String>> itemsByType = new java.util.HashMap<>();
         for (Type t : Type.values()) {

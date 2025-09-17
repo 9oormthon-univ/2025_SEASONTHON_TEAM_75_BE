@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-@Repository
 public interface TrashPartRepository extends JpaRepository<TrashPart, Long> {
 
     @Query("select tp.part from TrashPart tp join tp.part p join p.trashType tt where tp.trash.id = :trashId")
