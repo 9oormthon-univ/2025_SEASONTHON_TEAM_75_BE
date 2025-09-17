@@ -3,6 +3,8 @@ package com.trashheroesbe.feature.badge.domain.entity;
 import com.trashheroesbe.feature.badge.domain.type.RuleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +34,7 @@ public class Badge {
     private String description;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private RuleType ruleType;
 
     @Column

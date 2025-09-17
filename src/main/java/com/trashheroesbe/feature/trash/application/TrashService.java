@@ -2,6 +2,7 @@ package com.trashheroesbe.feature.trash.application;
 
 import static com.trashheroesbe.feature.search.domain.LogSource.IMAGE;
 
+import com.trashheroesbe.feature.badge.application.BadgeService;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.trash.domain.type.ItemType;
@@ -17,9 +18,11 @@ import com.trashheroesbe.feature.trash.infrastructure.TrashItemRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashRepository;
 import com.trashheroesbe.feature.trash.infrastructure.TrashTypeRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
+import com.trashheroesbe.global.context.BadgeContextHolder;
 import com.trashheroesbe.global.util.FileUtils;
 import com.trashheroesbe.infrastructure.port.gpt.ChatAIClientPort;
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
@@ -37,7 +40,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TrashService implements TrashCreateUseCase {
+public class TrashService {
 
     private static final String S3_TRASH_PREFIX = "trash/";
 
@@ -50,16 +53,16 @@ public class TrashService implements TrashCreateUseCase {
     private final DisposalRepository disposalRepository;
     private final UserDistrictRepository userDistrictRepository;
     private final SearchLogService searchLogService;
+    private final BadgeService badgeService;
     private final PlatformTransactionManager txManager;
 
-    @Override
     public TrashResultResponse createTrash(CreateTrashRequest request, User user) {
         log.info("쓰레기 생성 시작: userId={}", user.getId());
         request.validate();
 
         var file = request.imageFile();
         String storedKey = FileUtils.generateStoredKey(
-                Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
+            Objects.requireNonNull(file.getOriginalFilename()), S3_TRASH_PREFIX);
         byte[] bytes;
         String contentType;
         try {
@@ -72,14 +75,15 @@ public class TrashService implements TrashCreateUseCase {
 
         // 업로드(S3)와 GPT 단일 분석 병렬 수행
         var uploadFuture = java.util.concurrent.CompletableFuture.supplyAsync(
-                () -> fileStoragePort.uploadFile(storedKey, contentType, bytes)
+            () -> fileStoragePort.uploadFile(storedKey, contentType, bytes)
         );
         var bundleFuture = java.util.concurrent.CompletableFuture.supplyAsync(
-                () -> chatGPTClient.analyzeAll(bytes, contentType)
+            () -> chatGPTClient.analyzeAll(bytes, contentType)
         );
 
         var bundle = bundleFuture.join();
-        Type analyzedType = (bundle != null && bundle.type() != null) ? bundle.type() : Type.UNKNOWN;
+        Type analyzedType =
+            (bundle != null && bundle.type() != null) ? bundle.type() : Type.UNKNOWN;
 
         // name은 한 번에 받은 요약명
         String aiSummarizedName = (bundle != null) ? bundle.name() : null;
@@ -89,7 +93,8 @@ public class TrashService implements TrashCreateUseCase {
 
         // step1.item은 사용하지 않음(null)
         TrashAnalysisResponseDto step1 =
-                TrashAnalysisResponseDto.of(TrashType.of(analyzedType), null, bundle != null ? bundle.description() : null);
+            TrashAnalysisResponseDto.of(TrashType.of(analyzedType), null,
+                bundle != null ? bundle.description() : null);
 
         String imageUrl = uploadFuture.join();
 
@@ -102,7 +107,7 @@ public class TrashService implements TrashCreateUseCase {
             String finalItemName = itemName;
             saved = writeTx.execute(status -> {
                 TrashType type = trashTypeRepository.findByType(analyzedType)
-                        .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
+                    .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
                 Trash trash = Trash.create(user, imageUrl, finalName);
                 trash.applyAnalysis(type);
@@ -110,18 +115,22 @@ public class TrashService implements TrashCreateUseCase {
                 if (finalItemName != null && !finalItemName.isBlank()) {
                     String key = finalItemName.trim();
                     var item = trashItemRepository.findByTrashTypeAndName(type, key)
-                            .orElseGet(() -> trashItemRepository.save(
-                                    TrashItem.builder().trashType(type).name(key).build()
-                            ));
+                        .orElseGet(() -> trashItemRepository.save(
+                            TrashItem.builder().trashType(type).name(key).build()
+                        ));
                     trash.applyItem(item);
                 }
 
                 Trash persisted = trashRepository.save(trash);
                 searchLogService.log(IMAGE, type, user);
+                badgeService.onTrashAnalysisCompleted(user.getId(), type.getType());
                 return persisted;
             });
         } catch (RuntimeException ex) {
-            try { fileStoragePort.deleteFileByUrl(imageUrl); } catch (RuntimeException ignore) { }
+            try {
+                fileStoragePort.deleteFileByUrl(imageUrl);
+            } catch (RuntimeException ignore) {
+            }
             throw ex;
         }
 
@@ -134,7 +143,7 @@ public class TrashService implements TrashCreateUseCase {
             var caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
             var parts = suggestParts(
-                    saved.getTrashType() != null ? saved.getTrashType().getType() : Type.UNKNOWN
+                saved.getTrashType() != null ? saved.getTrashType().getType() : Type.UNKNOWN
             );
 
             var location = resolveUserDistrictSummary(user.getId());
@@ -145,9 +154,18 @@ public class TrashService implements TrashCreateUseCase {
                 days = resolveDisposalDays(did, saved.getTrashType().getType());
             }
 
-            return TrashResultResponse.of(saved, steps, caution, days, parts, location);
+            // 새로 획득한 뱃지 정보 가져오기
+            List<UserBadgeResponse> newBadges = BadgeContextHolder.getNewBadges();
+            
+            try {
+                return TrashResultResponse.of(saved, steps, caution, days, parts, location, newBadges);
+            } finally {
+                // ThreadLocal 정리
+                BadgeContextHolder.clear();
+            }
         });
     }
+
     private String pickItemNameFromDb(Type type, String nameHint) {
         var items = trashItemRepository.findByTrashType_Type(type);
         if (items == null || items.isEmpty()) {
@@ -161,21 +179,30 @@ public class TrashService implements TrashCreateUseCase {
             int bestScore = -1;
             for (var it : items) {
                 var nm = it.getName();
-                if (nm == null || nm.isBlank()) continue;
-                if (nm.contains("기타")) continue;
+                if (nm == null || nm.isBlank()) {
+                    continue;
+                }
+                if (nm.contains("기타")) {
+                    continue;
+                }
                 int score = scoreByBigram(normalizeK(nm), hint);
-                if (score > bestScore) { bestScore = score; best = nm; }
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = nm;
+                }
             }
-            if (best != null) return best;
+            if (best != null) {
+                return best;
+            }
         }
 
         // 기본값: "기타" 우선, 없으면 null
         return items.stream()
-                .map(com.trashheroesbe.feature.trash.domain.entity.TrashItem::getName)
-                .filter(n -> n != null && !n.isBlank())
-                .filter(n -> n.contains("기타"))
-                .findFirst()
-                .orElse(null);
+            .map(com.trashheroesbe.feature.trash.domain.entity.TrashItem::getName)
+            .filter(n -> n != null && !n.isBlank())
+            .filter(n -> n.contains("기타"))
+            .findFirst()
+            .orElse(null);
     }
 
     private String normalizeK(String s) {
@@ -191,17 +218,33 @@ public class TrashService implements TrashCreateUseCase {
 
     private java.util.Set<String> toBigrams(String s) {
         java.util.HashSet<String> set = new java.util.HashSet<>();
-        if (s.length() < 2) { set.add(s); return set; }
-        for (int i = 0; i < s.length() - 1; i++) set.add(s.substring(i, i + 2));
+        if (s.length() < 2) {
+            set.add(s);
+            return set;
+        }
+        for (int i = 0; i < s.length() - 1; i++) {
+            set.add(s.substring(i, i + 2));
+        }
         return set;
     }
 
-    private String decideTrashName(Type type, TrashAnalysisResponseDto step1, String itemName, String aiName) {
-        if (aiName != null && !aiName.isBlank()) return aiName.trim();
-        if (itemName != null && !itemName.isBlank()) return itemName.trim();
-        if (step1 != null && step1.item() != null && !step1.item().isBlank()) return step1.item().trim();
-        if (type == Type.FOOD_WASTE) return "음식물 쓰레기";
-        if (type == Type.NON_RECYCLABLE) return "일반 쓰레기";
+    private String decideTrashName(Type type, TrashAnalysisResponseDto step1, String itemName,
+        String aiName) {
+        if (aiName != null && !aiName.isBlank()) {
+            return aiName.trim();
+        }
+        if (itemName != null && !itemName.isBlank()) {
+            return itemName.trim();
+        }
+        if (step1 != null && step1.item() != null && !step1.item().isBlank()) {
+            return step1.item().trim();
+        }
+        if (type == Type.FOOD_WASTE) {
+            return "음식물 쓰레기";
+        }
+        if (type == Type.NON_RECYCLABLE) {
+            return "일반 쓰레기";
+        }
         return (type != null) ? type.getNameKo() : "쓰레기";
     }
 
@@ -306,7 +349,7 @@ public class TrashService implements TrashCreateUseCase {
     @Transactional(readOnly = true)
     public List<TrashItemResponse> getTrashItemsByTrashId(Long trashId) {
         Trash trash = trashRepository.findById(trashId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
+            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_TRASH_ITEM));
 
         if (trash.getTrashType() == null) {
             return List.of();
@@ -325,8 +368,8 @@ public class TrashService implements TrashCreateUseCase {
         stream = stream.sorted(Comparator.comparing(item -> item.getItemType() == ItemType.NORMAL));
 
         return stream
-                .map(TrashItemResponse::from)
-                .collect(Collectors.toList());
+            .map(TrashItemResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
@@ -348,7 +391,7 @@ public class TrashService implements TrashCreateUseCase {
 
         trash.applyItem(item);
 
-        if(item.getItemType()== ItemType.CAUTION && item.getTrashType()!=null){
+        if (item.getItemType() == ItemType.CAUTION && item.getTrashType() != null) {
             trash.applyAnalysis(item.getRedirectTrashType());
         }
 

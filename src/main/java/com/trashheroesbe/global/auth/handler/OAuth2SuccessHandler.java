@@ -80,7 +80,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         String redirectUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-            .path(hasProfile ? "/home" : "/profile")
+//            .path(hasProfile ? "/home" : "/profile")
             .queryParam("success", true)
             .build()
             .toUriString();

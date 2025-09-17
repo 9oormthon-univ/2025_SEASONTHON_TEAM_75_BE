@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.trash.dto.response;
 
 import com.trashheroesbe.feature.trash.domain.entity.Trash;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public record TrashResultResponse(
         DistrictSummaryResponse location,
         @Schema(description = "부품 카드 목록")
         List<PartCardResponse> parts,
+        @Schema(description = "새로 획득한 뱃지 목록")
+        List<UserBadgeResponse> newBadges,
         @Schema(description = "생성 시각", example = "2025-09-04T00:39:17.853269")
         LocalDateTime createdAt
 ) {
@@ -54,6 +57,7 @@ public record TrashResultResponse(
                 .days(List.of())
                 .parts(List.of())
                 .location(null)
+                .newBadges(List.of())
                 .build();
     }
 
@@ -66,6 +70,20 @@ public record TrashResultResponse(
                 .days(days != null ? days : List.of())
                 .parts(parts != null ? parts : List.of())
                 .location(location)
+                .newBadges(List.of())
+                .build();
+    }
+
+    public static TrashResultResponse of(Trash t, List<String> steps, String caution,
+                                         List<String> days, List<PartCardResponse> parts,
+                                         DistrictSummaryResponse location, List<UserBadgeResponse> newBadges) {
+        return base(t)
+                .guideSteps(steps != null ? steps : List.of())
+                .cautionNote(caution)
+                .days(days != null ? days : List.of())
+                .parts(parts != null ? parts : List.of())
+                .location(location)
+                .newBadges(newBadges != null ? newBadges : List.of())
                 .build();
     }
 }

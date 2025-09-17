@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -41,7 +42,7 @@ public class BadgeProgress {
     private Badge badge;
 
     @Column
-    private int progressCount;
+    private Integer progressCount;
 
     @ElementCollection
     @CollectionTable(
@@ -50,4 +51,20 @@ public class BadgeProgress {
     )
     @Column(name = "trash_type", nullable = false, length = 64)
     private Set<String> trashTypes = new LinkedHashSet<>();
+
+
+    public void incrementCount() {
+        this.progressCount = (this.progressCount == null) ? 1 : this.progressCount + 1;
+    }
+
+    public void addTrashType(String trashType) {
+        if (this.trashTypes == null) {
+            this.trashTypes = new LinkedHashSet<>();
+        }
+        this.trashTypes.add(trashType);
+    }
+
+    public int getUniqueTrashTypeCount() {
+        return this.trashTypes == null ? 0 : this.trashTypes.size();
+    }
 }
