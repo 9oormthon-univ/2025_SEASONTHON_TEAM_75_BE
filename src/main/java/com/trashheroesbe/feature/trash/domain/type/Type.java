@@ -33,6 +33,9 @@ public enum Type {
     // Non-Recyclable (N)
     NON_RECYCLABLE("N01", "Non-Recyclable Waste", "일반 쓰레기"),
 
+    // Bulky Waste (B)
+    BULKY_WASTE("B01","Bulky Waste", "대형폐기물"),
+
     UNKNOWN("UNK", "Unknown", "미분류");
 
     private final String typeCode;
