@@ -444,7 +444,7 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
         - 2) 반드시 itemName을 선택하며, 반드시 아래 'itemsByType'에서 해당 type의 목록 중 정확히 하나만 고른다.
              목록이 없거나 확신이 없으면 itemName은 "기타"로 해줘.
         - 3) name은 사용자 친화적인 핵심 명칭(한국어 2~12자), 과도한 수식어·조사 금지.
-        - 4) parts는 최대 3개. 각 원소는 {"name":"부품명","type":"<허용 enum>"}이며 type은 [%s] 중 하나여야 한다.
+        - 4) parts는 최대 4개. 각 원소는 {"name":"부품명","type":"<허용 enum>"}이며 type은 [%s] 중 하나여야 한다.
         - itemsByType: { %s }
         - 출력 형식 예시:
           {"type":"PLASTIC","itemName":"투명한 일회용컵","name":"일회용컵","parts":[{"name":"컵 뚜껑","type":"PLASTIC"},{"name":"컵 몸체","type":"PLASTIC"},{"name":"컵 슬리브","type":"PAPER"},{"name":"빨대","type":"NON_RECYCLABLE"}]}
