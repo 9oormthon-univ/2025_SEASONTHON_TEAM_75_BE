@@ -142,7 +142,7 @@ public class TrashService {
                             .filter(ps -> ps.name() != null && !ps.name().isBlank())
                             .map(ps -> new PartSuggestion(ps.name().trim(), ps.type()))
                             .distinct()
-                            .limit(3)
+                            .limit(4)
                             .toList()
                             : List.of();
 
