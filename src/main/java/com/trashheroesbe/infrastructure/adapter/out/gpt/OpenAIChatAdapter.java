@@ -274,24 +274,6 @@ public class OpenAIChatAdapter implements ChatAIClientPort {
         }
     }
 
-    private Type parseSimilarTypeResponse(String gptResponse) {
-        if (gptResponse == null || gptResponse.trim().isEmpty()) {
-            throw new BusinessException(EMPTY_GPT_RESPONSE);
-        }
-        try {
-            String json = sanitizeToJson(gptResponse);
-            JsonNode node = om.readTree(json);
-            String typeStr = node.path("type").asText("UNKNOWN");
-
-            if ("NONE".equalsIgnoreCase(typeStr) || "UNKNOWN".equalsIgnoreCase(typeStr)) {
-                return null;
-            }
-            return Type.valueOf(typeStr.toUpperCase());
-        } catch (JsonProcessingException e) {
-            throw new BusinessException(FAIL_PARSING_RESPONSE);
-        }
-    }
-
     private String buildTypePrompt() {
         String allowed = java.util.Arrays.stream(Type.values())
             .map(Enum::name).collect(Collectors.joining(", "));
