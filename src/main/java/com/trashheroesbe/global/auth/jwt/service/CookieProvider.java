@@ -46,7 +46,7 @@ public class CookieProvider {
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "Lax");
         cookie.setMaxAge((int) maxAge / MILLIS_PER_SECOND);
-        cookie.setSecure(secureCookie);
+        cookie.setSecure(false);
         return cookie;
     }
 }
