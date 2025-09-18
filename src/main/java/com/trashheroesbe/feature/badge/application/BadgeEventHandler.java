@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.badge.application;
 
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 import com.trashheroesbe.feature.badge.domain.event.TrashAnalysisEvent;
 import com.trashheroesbe.feature.user.domain.entity.User;
@@ -11,26 +12,27 @@ import com.trashheroesbe.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Component
-@Transactional
 @RequiredArgsConstructor
 public class BadgeEventHandler {
 
     private final BadgeManager badgeManager;
     private final UserRepository userRepository;
 
+    @Async("badgeTaskExecutor")
     @EventListener
+    @Transactional(propagation = REQUIRES_NEW)
     public void handleTrashAnalysisCompleted(TrashAnalysisEvent event) {
         User user = userRepository.findById(event.getUserId())
             .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
 
         List<UserBadgeResponse> badgeResponses = badgeManager.processBadgeEvent(user, event);
 
-        // 새로 획득한 뱃지가 있으면 ThreadLocal에 저장
         if (!badgeResponses.isEmpty()) {
             BadgeContextHolder.setNewBadges(badgeResponses);
         }

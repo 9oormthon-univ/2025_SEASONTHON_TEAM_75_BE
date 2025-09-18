@@ -36,7 +36,6 @@ public class BadgeManager {
 
     private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
-    @Transactional(propagation = REQUIRES_NEW)
     public List<UserBadgeResponse> processBadgeEvent(User user, TrashAnalysisEvent event) {
         List<UserBadgeResponse> badgeResponses = new ArrayList<>();
 
