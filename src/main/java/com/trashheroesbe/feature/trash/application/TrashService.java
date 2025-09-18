@@ -154,10 +154,11 @@ public class TrashService {
                 days = resolveDisposalDays(did, saved.getTrashType().getType());
             }
 
+//            List<UserBadgeResponse> newBadges = BadgeContextHolder.getNewBadges();
+
             try {
-                return TrashResultResponse.of(saved, steps, caution, days, parts, location, newBadges);
+                return TrashResultResponse.of(saved, steps, caution, days, parts, location);
             } finally {
-                // ThreadLocal 정리
                 BadgeContextHolder.clear();
             }
         });
