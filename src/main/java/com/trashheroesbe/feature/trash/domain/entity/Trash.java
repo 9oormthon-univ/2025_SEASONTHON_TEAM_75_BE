@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @Table(name = "trash")
@@ -46,6 +49,9 @@ public class Trash extends BaseTimeEntity {
     public void applyItem(TrashItem item) {
         this.trashItem = item;
     }
+
+    @OneToMany(mappedBy = "trash", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TrashPart> trashParts = new ArrayList<>();
 
     public static Trash create(User user, String imageUrl, String name) {
         return Trash.builder()
