@@ -181,3 +181,7 @@ global/
 ##  ERD
 ![image](https://github.com/user-attachments/assets/71ed8eb7-b8f4-41c1-8573-4d7a3f1c0db6)
 
+## 아키텍처
+<img width="1319" height="696" alt="image" src="https://github.com/user-attachments/assets/57478ba1-e1ad-412f-a67f-816abee20926" />
+
+
