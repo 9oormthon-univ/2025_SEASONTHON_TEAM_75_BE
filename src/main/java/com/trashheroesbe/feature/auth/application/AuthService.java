@@ -24,7 +24,7 @@ public class AuthService {
     private final CookieProvider cookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public void logout(HttpServletResponse response) {
+    public void invalidateCookie(HttpServletResponse response) {
         Cookie expiredAccessCookie = cookieProvider.createExpiredCookie(ACCESS_TOKEN);
         Cookie expiredRefreshCookie = cookieProvider.createExpiredCookie(REFRESH_TOKEN);
 

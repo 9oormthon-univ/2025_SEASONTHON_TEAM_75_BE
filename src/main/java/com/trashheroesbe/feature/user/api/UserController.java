@@ -10,6 +10,7 @@ import com.trashheroesbe.feature.user.dto.response.UserResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -98,8 +99,10 @@ public class UserController implements UserControllerApi {
     @Override
     @DeleteMapping("/me")
     public ApiResponse<Void> deleteUserByToken(
-        @AuthenticationPrincipal CustomerDetails customerDetails) {
-        userService.deleteUser(customerDetails.getUser());
+        @AuthenticationPrincipal CustomerDetails customerDetails,
+        HttpServletResponse httpResponse
+    ) {
+        userService.deleteUser(customerDetails.getUser(), httpResponse);
         return ApiResponse.success(OK);
     }
 

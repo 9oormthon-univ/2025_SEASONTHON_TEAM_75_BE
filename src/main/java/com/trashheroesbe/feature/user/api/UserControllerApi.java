@@ -9,6 +9,7 @@ import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,7 +55,10 @@ public interface UserControllerApi {
     ApiResponse<UserResponse> getUserByToken(CustomerDetails customerDetails);
 
     @Operation(summary = "유저 탈퇴", description = "토큰 정보로 유저를 삭제합니다.")
-    ApiResponse<Void> deleteUserByToken(CustomerDetails customerDetails);
+    ApiResponse<Void> deleteUserByToken(
+        CustomerDetails customerDetails,
+        HttpServletResponse response
+    );
 
     @Operation(summary = "내 뱃지 리스트 조회", description = "내가 획득한 뱃지 리스트를 조회합니다.")
     ApiResponse<List<UserBadgeResponse>> getMyBadges(CustomerDetails customerDetails);

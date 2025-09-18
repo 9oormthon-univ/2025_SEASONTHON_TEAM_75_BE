@@ -31,7 +31,7 @@ public class AuthController implements AuthControllerApi {
     @Override
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletResponse response) {
-        authService.logout(response);
+        authService.invalidateCookie(response);
         return ApiResponse.success(OK);
     }
 
