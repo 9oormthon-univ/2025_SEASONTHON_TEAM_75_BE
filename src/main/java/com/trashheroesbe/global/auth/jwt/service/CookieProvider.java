@@ -42,11 +42,11 @@ public class CookieProvider {
 
     private Cookie createRoleCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(false);
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) maxAge / MILLIS_PER_SECOND);
-        cookie.setSecure(secureCookie);
+        cookie.setSecure(false);
         return cookie;
     }
 }
