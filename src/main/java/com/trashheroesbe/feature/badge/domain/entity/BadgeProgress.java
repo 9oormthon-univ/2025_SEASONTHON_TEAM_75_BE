@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.badge.domain.entity;
 
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BadgeProgress {
+public class BadgeProgress extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
