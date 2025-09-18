@@ -108,7 +108,9 @@ public class UserController implements UserControllerApi {
 
     @Override
     @GetMapping("/my/badges")
-    public ApiResponse<List<UserBadgeResponse>> getMyBadges(CustomerDetails customerDetails) {
+    public ApiResponse<List<UserBadgeResponse>> getMyBadges(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
         List<UserBadgeResponse> response = userService.getUsrBadgesByUser(
             customerDetails.getUser());
         return ApiResponse.success(OK, response);
