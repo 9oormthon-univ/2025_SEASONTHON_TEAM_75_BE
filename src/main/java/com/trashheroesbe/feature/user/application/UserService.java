@@ -9,11 +9,14 @@ import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.domain.service.DistrictFinder;
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.feature.user.domain.entity.UserBadge;
 import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.domain.service.UserDistrictFinder;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
+import com.trashheroesbe.feature.user.infrastructure.UserBadgeRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import com.trashheroesbe.global.exception.BusinessException;
@@ -42,6 +45,7 @@ public class UserService {
     private final UserDistrictFinder userDistrictFinder;
     private final UserDistrictRepository userDistrictRepository;
     private final UserRepository userRepository;
+    private final UserBadgeRepository userBadgeRepository;
 
 
     @Transactional
@@ -147,5 +151,13 @@ public class UserService {
     public void deleteUser(User user) {
         fileStoragePort.deleteFileByUrl(user.getProfileImageUrl());
         userRepository.delete(user);
+    }
+
+    public List<UserBadgeResponse> getUsrBadgesByUser(User user) {
+        List<UserBadge> userBadges = userBadgeRepository.findByUserOrderByEarnedAtAsc(user);
+
+        return userBadges.stream()
+            .map(UserBadgeResponse::from)
+            .toList();
     }
 }
