@@ -1,5 +1,7 @@
 package com.trashheroesbe.global.auth.jwt.service;
 
+import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.global.auth.jwt.entity.TokenType;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,14 +16,31 @@ public class CookieProvider {
     private boolean secureCookie;
 
     public Cookie createTokenCookie(TokenType tokenType, String token) {
-        return createCookie(tokenType.getName(), token, tokenType.getValidTime());
+        return createTokenCookie(tokenType.getName(), token, tokenType.getValidTime());
     }
 
     public Cookie createExpiredCookie(TokenType tokenType) {
-        return createCookie(tokenType.getName(), null, 0);
+        return createTokenCookie(tokenType.getName(), null, 0);
     }
 
-    private Cookie createCookie(String name, String value, long maxAge) {
+    public Cookie createRoleCheckCookie(TokenType tokenType, User user) {
+        if (user.getRole() == Role.GUEST) {
+            return createRoleCookie("isMember", "false", tokenType.getValidTime());
+        }
+        return createRoleCookie("isMember", "true", tokenType.getValidTime());
+    }
+
+    private Cookie createTokenCookie(String name, String value, long maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
+        cookie.setMaxAge((int) maxAge / MILLIS_PER_SECOND);
+        cookie.setSecure(secureCookie);
+        return cookie;
+    }
+
+    private Cookie createRoleCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

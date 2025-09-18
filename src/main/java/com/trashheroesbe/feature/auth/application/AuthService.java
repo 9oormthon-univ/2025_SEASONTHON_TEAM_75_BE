@@ -41,7 +41,10 @@ public class AuthService {
 
         Cookie guestAccessCookie = cookieProvider.createTokenCookie(
             GUEST_ACCESS_TOKEN, jwtToken.getAccessToken());
+        Cookie roleCheckCookie = cookieProvider.createRoleCheckCookie(
+            GUEST_ACCESS_TOKEN, guestUser);
 
         response.addCookie(guestAccessCookie);
+        response.addCookie(roleCheckCookie);
     }
 }
