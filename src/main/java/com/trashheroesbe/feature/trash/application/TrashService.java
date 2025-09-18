@@ -154,9 +154,6 @@ public class TrashService {
                 days = resolveDisposalDays(did, saved.getTrashType().getType());
             }
 
-            // 새로 획득한 뱃지 정보 가져오기
-            List<UserBadgeResponse> newBadges = BadgeContextHolder.getNewBadges();
-            
             try {
                 return TrashResultResponse.of(saved, steps, caution, days, parts, location, newBadges);
             } finally {
