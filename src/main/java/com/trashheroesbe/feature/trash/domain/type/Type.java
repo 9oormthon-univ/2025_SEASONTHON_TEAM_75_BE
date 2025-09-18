@@ -1,6 +1,10 @@
 package com.trashheroesbe.feature.trash.domain.type;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -86,5 +90,9 @@ public enum Type {
         } catch (Exception e) {
             return UNKNOWN;
         }
+    }
+
+    public static Set<Type> getTypes() {
+        return EnumSet.allOf(Type.class);
     }
 }

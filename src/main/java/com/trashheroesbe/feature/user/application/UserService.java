@@ -5,20 +5,25 @@ import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 import static com.trashheroesbe.global.response.type.ErrorCode.MAX_USER_DISTRICTS_EXCEEDED;
 import static com.trashheroesbe.global.response.type.ErrorCode.S3_UPLOAD_FAIL;
 
+import com.trashheroesbe.feature.auth.application.AuthService;
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.district.domain.service.DistrictFinder;
 import com.trashheroesbe.feature.district.dto.response.DistrictListResponse;
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.feature.user.domain.entity.UserBadge;
 import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.domain.service.UserDistrictFinder;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
+import com.trashheroesbe.feature.user.infrastructure.UserBadgeRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.util.FileUtils;
 import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,11 +42,13 @@ public class UserService {
 
     private final FileStoragePort fileStoragePort;
 
+    private final AuthService authService;
     private final DistrictFinder districtFinder;
     private final UserFinder userFinder;
     private final UserDistrictFinder userDistrictFinder;
     private final UserDistrictRepository userDistrictRepository;
     private final UserRepository userRepository;
+    private final UserBadgeRepository userBadgeRepository;
 
 
     @Transactional
@@ -144,8 +151,17 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(User user) {
+    public void deleteUser(User user, HttpServletResponse response) {
         fileStoragePort.deleteFileByUrl(user.getProfileImageUrl());
         userRepository.delete(user);
+        authService.invalidateCookie(response);
+    }
+
+    public List<UserBadgeResponse> getUsrBadgesByUser(User user) {
+        List<UserBadge> userBadges = userBadgeRepository.findByUserOrderByEarnedAtAsc(user);
+
+        return userBadges.stream()
+            .map(UserBadgeResponse::from)
+            .toList();
     }
 }

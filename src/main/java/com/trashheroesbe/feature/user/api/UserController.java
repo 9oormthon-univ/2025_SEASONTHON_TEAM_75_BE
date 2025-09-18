@@ -4,11 +4,13 @@ import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
 import com.trashheroesbe.feature.user.application.UserService;
 import com.trashheroesbe.feature.user.dto.request.UpdateUserRequest;
+import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
 import com.trashheroesbe.feature.user.dto.response.UserDistrictResponse;
 import com.trashheroesbe.feature.user.dto.response.UserResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -97,8 +99,18 @@ public class UserController implements UserControllerApi {
     @Override
     @DeleteMapping("/me")
     public ApiResponse<Void> deleteUserByToken(
-        @AuthenticationPrincipal CustomerDetails customerDetails) {
-        userService.deleteUser(customerDetails.getUser());
+        @AuthenticationPrincipal CustomerDetails customerDetails,
+        HttpServletResponse httpResponse
+    ) {
+        userService.deleteUser(customerDetails.getUser(), httpResponse);
         return ApiResponse.success(OK);
+    }
+
+    @Override
+    @GetMapping("/my/badges")
+    public ApiResponse<List<UserBadgeResponse>> getMyBadges(CustomerDetails customerDetails) {
+        List<UserBadgeResponse> response = userService.getUsrBadgesByUser(
+            customerDetails.getUser());
+        return ApiResponse.success(OK, response);
     }
 }
