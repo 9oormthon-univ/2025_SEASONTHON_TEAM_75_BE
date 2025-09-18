@@ -66,9 +66,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 ACCESS_TOKEN, jwtToken.getAccessToken());
             Cookie refreshTokenCookie = cookieProvider.createTokenCookie(
                 REFRESH_TOKEN, jwtToken.getRefreshToken());
+            Cookie roleCheckCookie = cookieProvider.createRoleCheckCookie(ACCESS_TOKEN, user);
 
             response.addCookie(accessTokenCookie);
             response.addCookie(refreshTokenCookie);
+            response.addCookie(roleCheckCookie);
         }
 
         boolean hasProfile = false;
