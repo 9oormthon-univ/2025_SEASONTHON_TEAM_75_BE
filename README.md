@@ -31,7 +31,7 @@
 
 ---
 
-## ⚙️ Bakcend 기술 스택
+## ⚙️ Backend 기술 스택
 
 - Gradle project
 - Spring Boot 3.x
