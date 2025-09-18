@@ -32,9 +32,9 @@ public class CookieProvider {
 
     private Cookie createTokenCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(false);
+        cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) maxAge / MILLIS_PER_SECOND);
         cookie.setSecure(secureCookie);
         return cookie;
@@ -42,11 +42,11 @@ public class CookieProvider {
 
     private Cookie createRoleCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(false);
+        cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) maxAge / MILLIS_PER_SECOND);
-        cookie.setSecure(false);
+        cookie.setSecure(secureCookie);
         return cookie;
     }
 }
