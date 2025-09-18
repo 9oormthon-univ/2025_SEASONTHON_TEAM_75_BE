@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.trash.application;
 
+import com.trashheroesbe.feature.badge.application.BadgeService;
 import com.trashheroesbe.feature.disposal.domain.Disposal;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.district.domain.entity.District;
@@ -54,6 +55,7 @@ public class TrashService {
     private final TrashPartRepository trashPartRepository;
     private final SearchLogService searchLogService;
     private final PlatformTransactionManager txManager;
+    private final BadgeService badgeService;
 
 
     public TrashResultResponse createTrash(CreateTrashRequest request, User user) {
@@ -127,6 +129,7 @@ public class TrashService {
 
                 Trash persisted = trashRepository.save(trash);
                 searchLogService.log(LogSource.IMAGE, type, user);
+                badgeService.onTrashAnalysisCompleted(user.getId(), type.getType());
 
                 // 최종 타입 기준으로 재활용 여부 확인
                 Type finalType =
