@@ -182,7 +182,4 @@ global/
 ![image](https://github.com/user-attachments/assets/71ed8eb7-b8f4-41c1-8573-4d7a3f1c0db6)
 
 ## 아키텍처
-<img width="1413" height="703" alt="image" src="https://github.com/user-attachments/assets/34d89786-111b-4931-b557-badb8c3e786d" />
-
-
-
+![image](https://github.com/user-attachments/assets/34d89786-111b-4931-b557-badb8c3e786d)
