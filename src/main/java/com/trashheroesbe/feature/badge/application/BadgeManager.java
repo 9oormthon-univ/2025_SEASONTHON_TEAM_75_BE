@@ -53,9 +53,11 @@ public class BadgeManager {
         return badgeResponses;
     }
 
-    private UserBadgeResponse processBadgePolicy(User user, TrashAnalysisEvent event,
-        BadgePolicy policy) {
-        System.out.println(policy.name() + " ?????뭥미");
+    private UserBadgeResponse processBadgePolicy(
+        User user,
+        TrashAnalysisEvent event,
+        BadgePolicy policy
+    ) {
         Badge badge = badgeRepository.findByName(policy.name())
             .orElseGet(() -> badgeRepository.save(Badge.builder()
                 .name(policy.name())

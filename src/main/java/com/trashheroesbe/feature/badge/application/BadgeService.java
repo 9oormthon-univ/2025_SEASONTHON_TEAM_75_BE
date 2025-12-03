@@ -13,7 +13,6 @@ public class BadgeService {
 
     private final ApplicationEventPublisher publisher;
 
-
     public void onTrashAnalysisCompleted(Long userId, Type trashType) {
         TrashAnalysisEvent event = TrashAnalysisEvent.builder()
             .userId(userId)
