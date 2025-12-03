@@ -3,7 +3,9 @@ package com.trashheroesbe.feature.auth.api;
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
 import com.trashheroesbe.feature.auth.application.AuthService;
+import com.trashheroesbe.feature.auth.dto.response.TokenVerifyResponse;
 import com.trashheroesbe.global.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +42,12 @@ public class AuthController implements AuthControllerApi {
     public ApiResponse<Void> guestLogin(HttpServletResponse response) {
         authService.guestLogin(response);
         return ApiResponse.success(OK);
+    }
+
+    @Override
+    @GetMapping("/verify")
+    public ApiResponse<TokenVerifyResponse> verify(HttpServletRequest request) {
+        TokenVerifyResponse response = authService.verifyToken(request);
+        return ApiResponse.success(OK, response);
     }
 }

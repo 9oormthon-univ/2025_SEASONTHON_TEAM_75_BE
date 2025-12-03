@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.auth.api;
 
+import com.trashheroesbe.feature.auth.dto.response.TokenVerifyResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,5 +19,8 @@ public interface AuthControllerApi {
 
     @Operation(summary = "비회원 로그인", description = "비회원 로그인을 진행합니다. ")
     ApiResponse<Void> guestLogin(HttpServletResponse response);
+
+    @Operation(summary = "토큰 정보 확인", description = "토큰 정보를 확인합니다. ")
+    ApiResponse<TokenVerifyResponse> verify(HttpServletRequest request);
 
 }
