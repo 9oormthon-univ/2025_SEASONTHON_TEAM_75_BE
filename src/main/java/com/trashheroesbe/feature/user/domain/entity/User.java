@@ -73,6 +73,14 @@ public class User extends BaseTimeEntity {
             .build();
     }
 
+    public static User createPartnerUser(String partnerName) {
+        return User.builder()
+            .nickname(partnerName)
+            .provider(AuthProvider.PARTNER)
+            .role(Role.PARTNER)
+            .build();
+    }
+
     public void updateNickname(String nickname) {
         if (nickname != null && !nickname.isEmpty()) {
             this.nickname = nickname;

@@ -1,5 +1,7 @@
 package com.trashheroesbe.feature.partner.dto.request;
 
+import com.trashheroesbe.feature.partner.domain.entity.Partner;
+import com.trashheroesbe.feature.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,4 +25,14 @@ public record RegisterPartnerRequest(
     String description
 ) {
 
+    public Partner toPartner(String encodedPassword, String imageUrl) {
+        return Partner.builder()
+            .partnerName(partnerName)
+            .email(email)
+            .password(encodedPassword)
+            .address(address)
+            .description(description)
+            .imageUrl(imageUrl)
+            .build();
+    }
 }

@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.partner.api;
 
 import com.trashheroesbe.feature.partner.dto.request.RegisterPartnerRequest;
+import com.trashheroesbe.feature.partner.dto.response.RegisterPartnerResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface PartnerControllerApi {
 
     @Operation(summary = "파트너 회원가입", description = "파트너 회원가입을 진행합니다.")
-    ApiResponse<Void> registerPartner(
+    ApiResponse<RegisterPartnerResponse> registerPartner(
 
         @RequestPart(value = "metadata")
         RegisterPartnerRequest request,

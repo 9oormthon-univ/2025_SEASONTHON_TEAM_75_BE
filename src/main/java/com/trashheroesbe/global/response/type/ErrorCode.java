@@ -29,6 +29,9 @@ public enum ErrorCode {
     NOT_FOUND_USER_DISTRICTS(HttpStatus.NOT_FOUND, "자치구 등록을 하지 않으셨습니다. 등록해주세요."),
     NOT_FOUND_DEFAULT_USER_DISTRICTS(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
 
+    //partner
+    EXISTS_EMAIL(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
+
     // district
     UNSUPPORTED_DISTRICT(HttpStatus.BAD_REQUEST, "서비스에서 지원하지 않는 지역입니다."),
 
