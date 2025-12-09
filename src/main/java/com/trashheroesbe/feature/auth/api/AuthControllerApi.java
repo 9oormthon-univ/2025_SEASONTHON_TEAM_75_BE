@@ -23,4 +23,5 @@ public interface AuthControllerApi {
     @Operation(summary = "토큰 정보 확인", description = "토큰 정보를 확인합니다. ")
     ApiResponse<TokenVerifyResponse> verify(HttpServletRequest request);
 
+
 }
