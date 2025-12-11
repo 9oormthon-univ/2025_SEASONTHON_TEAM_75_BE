@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.auth.api;
 import static com.trashheroesbe.global.response.type.SuccessCode.OK;
 
 import com.trashheroesbe.feature.auth.application.AuthService;
+import com.trashheroesbe.feature.auth.dto.request.LoginPartnerRequest;
 import com.trashheroesbe.feature.auth.dto.response.TokenVerifyResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,5 +50,14 @@ public class AuthController implements AuthControllerApi {
     public ApiResponse<TokenVerifyResponse> verify(HttpServletRequest request) {
         TokenVerifyResponse response = authService.verifyToken(request);
         return ApiResponse.success(OK, response);
+    }
+
+    @Override
+    public ApiResponse<Void> partnerLogin(
+        HttpServletResponse response,
+        LoginPartnerRequest request
+    ) throws IOException {
+        authService.partnerLogin(response, request);
+        return ApiResponse.success(OK);
     }
 }
