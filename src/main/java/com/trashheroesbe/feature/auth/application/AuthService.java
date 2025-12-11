@@ -109,7 +109,7 @@ public class AuthService {
             jwtToken.getAccessToken()
         );
         Cookie refreshCookie = cookieProvider.createTokenCookie(
-            REFRESH_TOKEN, jwtToken.getAccessToken());
+            REFRESH_TOKEN, jwtToken.getRefreshToken());
         Cookie roleCheckCookie = cookieProvider.createRoleCheckCookie(
             REFRESH_TOKEN, partnerUser);
 
