@@ -24,10 +24,10 @@ public class Partner {
     @Column(nullable = false)
     private String partnerName;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Column

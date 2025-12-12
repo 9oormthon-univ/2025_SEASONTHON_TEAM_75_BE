@@ -9,7 +9,7 @@ public record TokenVerifyResponse(
     boolean isTokenVerified
 ) {
 
-    public static TokenVerifyResponse of(Role role, Boolean isTokenVerified) {
+    public static TokenVerifyResponse of(Role role, boolean isTokenVerified) {
         return TokenVerifyResponse.builder()
             .role(role)
             .isTokenVerified(isTokenVerified)

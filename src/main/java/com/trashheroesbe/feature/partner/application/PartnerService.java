@@ -47,10 +47,9 @@ public class PartnerService {
 
         String imageUrl = "";
         if (image != null && !image.isEmpty()) {
-            String storedKey = FileUtils.generateStoredKey(
-                Objects.requireNonNull(image.getOriginalFilename()), S3_PARTNER_PREFIX);
-
             try {
+                String storedKey = FileUtils.generateStoredKey(
+                    Objects.requireNonNull(image.getOriginalFilename()), S3_PARTNER_PREFIX);
                 imageUrl = fileStoragePort.uploadFile(
                     storedKey,
                     image.getContentType(),
@@ -62,7 +61,7 @@ public class PartnerService {
         }
 
         Partner partner = request.toPartner(encodedPassword, imageUrl);
-        User user = User.createPartnerUser(request.partnerName());
+        User user = User.createPartnerUser(request.partnerName(), partner);
 
         partnerRepository.save(partner);
         userRepository.save(user);

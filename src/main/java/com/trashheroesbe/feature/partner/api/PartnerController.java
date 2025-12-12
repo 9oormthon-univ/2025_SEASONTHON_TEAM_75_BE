@@ -6,6 +6,7 @@ import com.trashheroesbe.feature.partner.application.PartnerService;
 import com.trashheroesbe.feature.partner.dto.request.RegisterPartnerRequest;
 import com.trashheroesbe.feature.partner.dto.response.RegisterPartnerResponse;
 import com.trashheroesbe.global.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,7 @@ public class PartnerController implements PartnerControllerApi {
     @Override
     @PostMapping(value = "/sign-up", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<RegisterPartnerResponse> registerPartner(
-        @RequestPart(value = "metadata") RegisterPartnerRequest request,
+        @RequestPart(value = "metadata") @Valid RegisterPartnerRequest request,
         @RequestPart(value = "image", required = true) MultipartFile image
     ) {
         RegisterPartnerResponse response = partnerService.registerPartner(request, image);

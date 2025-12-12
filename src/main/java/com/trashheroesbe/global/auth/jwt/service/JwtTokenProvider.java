@@ -98,6 +98,8 @@ public class JwtTokenProvider {
             return Role.USER;
         } else if (authorities.contains("ROLE_GUEST")) {
             return Role.GUEST;
+        } else if (authorities.contains("ROLE_PARTNER")) {
+            return Role.PARTNER;
         }
 
         return null;
