@@ -56,7 +56,6 @@
 - **AWS S3** 
 - **Docker Hub**
 - **GitHub Actions** (CI/CD)
-
 ---
 
 ## 🚀 주요 기능
