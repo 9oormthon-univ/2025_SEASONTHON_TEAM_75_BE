@@ -1,5 +1,5 @@
 package com.trashheroesbe.feature.user.domain.type;
 
 public enum AuthProvider {
-    LOCAL, KAKAO, GUEST
+    LOCAL, KAKAO, GUEST, PARTNER
 }

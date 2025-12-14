@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.user.infrastructure;
 
+import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.type.AuthProvider;
 import com.trashheroesbe.feature.user.domain.type.Role;
@@ -29,4 +30,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
         @Param("role") Role role,
         @Param("cutoffTime") LocalDateTime cutoffTime
     );
+
+    Optional<User> findByPartner(Partner partner);
 }

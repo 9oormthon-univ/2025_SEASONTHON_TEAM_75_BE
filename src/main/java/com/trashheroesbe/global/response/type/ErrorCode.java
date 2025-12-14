@@ -18,6 +18,7 @@ public enum ErrorCode {
     NOT_EXISTS_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않는 토큰입니다."),
     NOT_FOUND_ATTRIBUTES(HttpStatus.NOT_FOUND, "요청 attributes(uri)를 찾을 수 없습니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "일치하지 않은 비밀번호입니다."),
 
     // s3
     S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드에 실패했습니다."),
@@ -28,6 +29,9 @@ public enum ErrorCode {
     MAX_USER_DISTRICTS_EXCEEDED(HttpStatus.BAD_REQUEST, "자치구는 최대 2개만 가질 수 있습니다."),
     NOT_FOUND_USER_DISTRICTS(HttpStatus.NOT_FOUND, "자치구 등록을 하지 않으셨습니다. 등록해주세요."),
     NOT_FOUND_DEFAULT_USER_DISTRICTS(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
+
+    //partner
+    EXISTS_EMAIL(HttpStatus.NOT_FOUND, "이미 사용중인 이메일 입니다."),
 
     // district
     UNSUPPORTED_DISTRICT(HttpStatus.BAD_REQUEST, "서비스에서 지원하지 않는 지역입니다."),

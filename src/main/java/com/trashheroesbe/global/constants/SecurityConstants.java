@@ -23,6 +23,7 @@ public final class SecurityConstants {
         "/api/v1/auth/**",
         "/oauth2/**",
         "/login/**",
-        "/favicon.ico"
+        "/favicon.ico",
+        "/api/v1/partners/sign-up"
     );
 }

@@ -1,5 +1,6 @@
 package com.trashheroesbe.feature.user.domain.entity;
 
+import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.feature.trash.domain.entity.Trash;
 import com.trashheroesbe.feature.user.domain.type.AuthProvider;
 import com.trashheroesbe.feature.user.domain.type.Role;
@@ -9,9 +10,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -57,12 +61,24 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDistrict> userDistricts = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Partner partner;
+
     public static User createGuestUser() {
         String suffix = String.format("%04d", ThreadLocalRandom.current().nextInt(0, 10000));
         return User.builder()
             .nickname("특공대요원" + suffix)
             .provider(AuthProvider.GUEST)
             .role(Role.GUEST)
+            .build();
+    }
+
+    public static User createPartnerUser(String partnerName, Partner partner) {
+        return User.builder()
+            .nickname(partnerName)
+            .provider(AuthProvider.PARTNER)
+            .role(Role.PARTNER)
+            .partner(partner)
             .build();
     }
 

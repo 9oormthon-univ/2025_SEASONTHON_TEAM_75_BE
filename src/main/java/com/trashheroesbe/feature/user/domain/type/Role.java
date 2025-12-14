@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
+    PARTNER(Set.of("ROLE_PARTNER")),
     GUEST(Set.of("ROLE_GUEST")),
     USER(Set.of("ROLE_USER")),
     ADMIN(Set.of("ROLE_ADMIN", "ROLE_USER"));

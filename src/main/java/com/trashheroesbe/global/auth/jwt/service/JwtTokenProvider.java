@@ -5,6 +5,7 @@ import static com.trashheroesbe.global.auth.jwt.entity.TokenType.GUEST_ACCESS_TO
 import static com.trashheroesbe.global.auth.jwt.entity.TokenType.REFRESH_TOKEN;
 
 import com.trashheroesbe.feature.user.domain.entity.User;
+import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.global.auth.jwt.entity.JwtToken;
 import com.trashheroesbe.global.auth.jwt.entity.TokenDto;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
@@ -70,6 +73,36 @@ public class JwtTokenProvider {
             .accessToken(tokenDto.accessToken())
             .refreshToken(tokenDto.refreshToken())
             .build();
+    }
+
+    public String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        for (Cookie cookie : request.getCookies()) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    public Role extractRoleFromAuthorities(String authorities) {
+        if (authorities == null) {
+            return null;
+        }
+
+        if (authorities.contains("ROLE_ADMIN")) {
+            return Role.ADMIN;
+        } else if (authorities.contains("ROLE_USER")) {
+            return Role.USER;
+        } else if (authorities.contains("ROLE_GUEST")) {
+            return Role.GUEST;
+        } else if (authorities.contains("ROLE_PARTNER")) {
+            return Role.PARTNER;
+        }
+
+        return null;
     }
 
     public boolean validateToken(String token) {
