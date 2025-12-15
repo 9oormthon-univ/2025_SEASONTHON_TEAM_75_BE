@@ -55,6 +55,7 @@ public class AuthController implements AuthControllerApi {
     }
 
     @Override
+    @PostMapping("/partner/login")
     public ApiResponse<Void> partnerLogin(
         HttpServletResponse response,
         @RequestBody @Valid LoginPartnerRequest request
