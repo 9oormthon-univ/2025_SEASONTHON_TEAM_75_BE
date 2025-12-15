@@ -5,6 +5,8 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import java.io.ByteArrayOutputStream;
+import com.trashheroesbe.global.exception.BusinessException;
+import com.trashheroesbe.global.response.type.ErrorCode;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +22,7 @@ public class QrCodeGenerator {
                 return out.toByteArray();
             }
         } catch (Exception e) {
-            throw new IllegalStateException("QR 코드 생성에 실패했습니다.", e);
+            throw new BusinessException(ErrorCode.QR_GENERATION_FAIL);
         }
     }
 }
