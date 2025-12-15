@@ -44,6 +44,9 @@ public class User extends BaseTimeEntity {
     @Column(unique = true)
     private String kakaoId;
 
+    @Column
+    private Long partnerId;
+
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
@@ -55,6 +58,7 @@ public class User extends BaseTimeEntity {
     private List<Trash> trashList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<UserDistrict> userDistricts = new ArrayList<>();
 
     public static User createGuestUser() {
