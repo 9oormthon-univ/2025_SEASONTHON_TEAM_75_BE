@@ -7,15 +7,18 @@ import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 
 @Tag(name = "Coupon", description = "쿠폰 생성/조회 API")
 public interface CouponPartnerControllerApi {
 
     @Operation(summary = "쿠폰 생성", description = "파트너가 쿠폰을 생성합니다.")
     ApiResponse<CouponCreateResponse> createCoupon(
+        @AuthenticationPrincipal CustomerDetails customerDetails,
         @Valid @RequestBody CouponCreateRequest request
     );
 
