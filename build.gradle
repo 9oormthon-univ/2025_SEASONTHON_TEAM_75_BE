@@ -60,8 +60,8 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
     // qr
-    implementation group: 'com.google.zxing', name: 'javase', version: '3.5.0'
-    implementation group: 'com.google.zxing', name: 'core', version: '3.5.0'
+    implementation group: 'com.google.zxing', name: 'javase', version: '3.5.4'
+    implementation group: 'com.google.zxing', name: 'core', version: '3.5.4'
 }
 
 dependencyManagement {
