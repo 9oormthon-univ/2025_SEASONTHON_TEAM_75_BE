@@ -81,13 +81,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .anyMatch(ud -> Boolean.TRUE.equals(ud.getIsDefault()));
         }
 
-//        String redirectUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
-//            .path(hasProfile ? "/home" : "/profile")
-//            .queryParam("success", true)
-//            .build()
-//            .toUriString();
-//
-//        response.sendRedirect(redirectUrl);
+        String redirectUrl = UriComponentsBuilder.fromUriString(frontendRedirectUri)
+            .path(hasProfile ? "/home" : "/profile")
+            .queryParam("success", true)
+            .build()
+            .toUriString();
+
+        response.sendRedirect(redirectUrl);
 
     }
 }
