@@ -46,6 +46,9 @@ public enum ErrorCode {
     ERROR_GPT_CALL(HttpStatus.BAD_GATEWAY, "GPT 호출에 실패했습니다."),
     EMPTY_GPT_RESPONSE(HttpStatus.BAD_GATEWAY, "GPT 응답이 비었습니다."),
     FAIL_PARSING_RESPONSE(HttpStatus.UNPROCESSABLE_ENTITY, "응답 파싱에 실패했습니다"),
+
+    // qr
+    QR_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "QR 코드 생성에 실패했습니다."),
     ;
 
     private final HttpStatus status;
