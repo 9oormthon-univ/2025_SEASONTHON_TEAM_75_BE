@@ -41,6 +41,9 @@ public class UserPointHistory extends BaseTimeEntity {
     @Column(nullable = false, length = 100)
     private PointReason pointReason;
 
+    @Column(nullable = false)
+    private Long relatedEntityId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 }
