@@ -20,5 +20,7 @@ public class PointService {
             .reason(PointReason.TRASH_CREATED)
             .occurredAt(LocalDateTime.now())
             .build();
+
+        publisher.publishEvent(event);
     }
 }
