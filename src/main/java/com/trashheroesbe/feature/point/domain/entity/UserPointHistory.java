@@ -42,6 +42,7 @@ public class UserPointHistory extends BaseTimeEntity {
     @Column(nullable = false)
     private ActionType actionType;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private PointReason pointReason;
 

@@ -10,6 +10,7 @@ import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -41,8 +42,17 @@ public class PointManager {
 
         UserPoint userPoint = userPointRepository.findByUserIdWithLock(userId)
             .orElseGet(() -> {
-                UserPoint newPoint = UserPoint.createInit(user);
-                return userPointRepository.save(newPoint);
+                try {
+                    UserPoint newPoint = UserPoint.createInit(user);
+                    return userPointRepository.save(newPoint);
+                } catch (DataIntegrityViolationException e) {
+
+                    log.info("UserPoint가 다른 트랜잭션에서 생성 중 -> 재시도");
+                    return userPointRepository.findByUserIdWithLock(user.getId())
+                        .orElseThrow(() -> new IllegalStateException(
+                            "UserPoint 생성 실패 - userId: " + user.getId()
+                        ));
+                }
             });
 
         userPoint.earnPoints(randomPoints);

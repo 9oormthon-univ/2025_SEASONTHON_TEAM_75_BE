@@ -2,7 +2,6 @@ package com.trashheroesbe.feature.point.domain.entity;
 
 import static com.trashheroesbe.global.response.type.ErrorCode.POINT_AMOUNT_MUST_BE_POSITIVE;
 
-import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import com.trashheroesbe.global.exception.BusinessException;
@@ -14,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "user_point")
+@Table(
+    name = "user_point",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_user_point_user_id",
+        columnNames = "user_id"
+    )
+)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
