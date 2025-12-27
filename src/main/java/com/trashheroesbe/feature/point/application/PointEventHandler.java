@@ -23,10 +23,10 @@ public class PointEventHandler {
         try {
             Integer randomPoints = pointCalculator.calculateRandomPoints();
 
-            pointManager.processPointEvent(
+            pointManager.processEarnPointEvent(
                 event.getUserId(),
                 randomPoints,
-                event.getReason().getDescription(),
+                event.getReason(),
                 event.getRelatedEntityId()
             );
 

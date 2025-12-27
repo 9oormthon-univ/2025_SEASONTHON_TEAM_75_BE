@@ -4,6 +4,7 @@ import com.trashheroesbe.feature.badge.application.BadgeService;
 import com.trashheroesbe.feature.disposal.domain.Disposal;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.district.domain.entity.District;
+import com.trashheroesbe.feature.point.application.PointService;
 import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.search.domain.LogSource;
 import com.trashheroesbe.feature.trash.domain.entity.*;
@@ -44,8 +45,6 @@ public class TrashService {
     private static final String S3_TRASH_PREFIX = "trash/";
 
     private final TrashRepository trashRepository;
-    private final FileStoragePort fileStoragePort;
-    private final ChatAIClientPort chatGPTClient;
     private final TrashTypeRepository trashTypeRepository;
     private final TrashItemRepository trashItemRepository;
     private final TrashDescriptionRepository trashDescriptionRepository;
@@ -53,9 +52,14 @@ public class TrashService {
     private final UserDistrictRepository userDistrictRepository;
     private final PartRepository partRepository;
     private final TrashPartRepository trashPartRepository;
-    private final SearchLogService searchLogService;
+
     private final PlatformTransactionManager txManager;
+    private final SearchLogService searchLogService;
     private final BadgeService badgeService;
+    private final PointService pointService;
+
+    private final FileStoragePort fileStoragePort;
+    private final ChatAIClientPort chatGPTClientPort;
 
 
     public TrashResultResponse createTrash(CreateTrashRequest request, User user) {
@@ -80,7 +84,7 @@ public class TrashService {
             () -> fileStoragePort.uploadFile(storedKey, contentType, bytes)
         );
         CompletableFuture<ImageAnalysisBundle> bundleFuture = CompletableFuture.supplyAsync(
-            () -> chatGPTClient.analyzeAll(bytes, contentType)
+            () -> chatGPTClientPort.analyzeAll(bytes, contentType)
         );
 
         ImageAnalysisBundle bundle = bundleFuture.join();
@@ -117,12 +121,15 @@ public class TrashService {
                     String key = finalItemName.trim();
                     TrashItem item = trashItemRepository.findByTrashTypeAndName(type, key)
                         .orElseGet(() -> trashItemRepository.save(
-                            TrashItem.builder().trashType(type).name(key).build()
+                            TrashItem.builder()
+                                .trashType(type)
+                                .name(key)
+                                .build()
                         ));
                     trash.applyItem(item);
 
-                    if (item.getItemType() == ItemType.CAUTION
-                        && item.getRedirectTrashType() != null) {
+                    if (item.getItemType() == ItemType.CAUTION &&
+                        item.getRedirectTrashType() != null) {
                         trash.applyAnalysis(item.getRedirectTrashType());
                     }
                 }
@@ -130,6 +137,7 @@ public class TrashService {
                 Trash persisted = trashRepository.save(trash);
                 searchLogService.log(LogSource.IMAGE, type, user);
                 badgeService.onTrashAnalysisCompleted(user.getId(), type.getType());
+                pointService.grantPointsForTrash(user.getId(), trash.getId());
 
                 // 최종 타입 기준으로 재활용 여부 확인
                 Type finalType =
@@ -171,8 +179,8 @@ public class TrashService {
         TransactionTemplate readTx = new TransactionTemplate(txManager);
         readTx.setReadOnly(true);
         return readTx.execute(status -> {
-            Optional<TrashDescription> descOpt = trashDescriptionRepository.findByTrashType(
-                saved.getTrashType());
+            Optional<TrashDescription> descOpt =
+                trashDescriptionRepository.findByTrashType(saved.getTrashType());
             List<String> steps = descOpt.map(TrashDescription::steps).orElse(List.of());
             String caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 

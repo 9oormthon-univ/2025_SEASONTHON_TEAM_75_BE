@@ -4,7 +4,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 public class PointCalculator {
 
@@ -14,7 +13,7 @@ public class PointCalculator {
     public Integer calculateRandomPoints() {
         int points = ThreadLocalRandom.current().nextInt(MIN_POINT, MAX_POINT + 1);
 
-        log.debug("랜덤 포인트 생성: {}", points);
+        // TODO : 추후에 쓰레기 타입별로, 뱃지 획득시 포인트 적립 등 포인트 생성 계산을 이쪽에서 담당
         return points;
     }
 }

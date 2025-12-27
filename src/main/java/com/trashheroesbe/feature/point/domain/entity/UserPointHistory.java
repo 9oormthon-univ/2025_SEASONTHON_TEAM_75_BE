@@ -15,12 +15,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @Table(name = "user_point_history")
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserPointHistory extends BaseTimeEntity {
 
@@ -46,4 +50,22 @@ public class UserPointHistory extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    public static UserPointHistory create(
+        User user,
+        Integer amount,
+        Integer balanceAfter,
+        ActionType actionType,
+        PointReason pointReason,
+        Long relatedEntityId
+    ) {
+        return UserPointHistory.builder()
+            .user(user)
+            .amount(amount)
+            .balanceAfter(balanceAfter)
+            .actionType(actionType)
+            .pointReason(pointReason)
+            .relatedEntityId(relatedEntityId)
+            .build();
+    }
 }

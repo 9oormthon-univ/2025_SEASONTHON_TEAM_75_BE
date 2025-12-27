@@ -49,6 +49,9 @@ public enum ErrorCode {
 
     // qr
     QR_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "QR 코드 생성에 실패했습니다."),
+
+    // point
+    POINT_AMOUNT_MUST_BE_POSITIVE(HttpStatus.BAD_REQUEST, "적립 포인트는 0보다 커야 합니다."),
     ;
 
     private final HttpStatus status;
