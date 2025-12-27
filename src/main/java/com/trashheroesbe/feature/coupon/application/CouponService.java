@@ -5,6 +5,7 @@ import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponQrResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
+import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.qrcode.QrCodeGenerator;
 import com.trashheroesbe.global.util.CouponQrUtil;
@@ -29,7 +30,8 @@ public class CouponService {
     @Value("${qr.coupon-url}")
     private String couponQrBaseUrl;
 
-    public CouponCreateResponse createCoupon(CustomerDetails customerDetails, CouponCreateRequest request) {
+    public CouponCreateResponse createCoupon(CustomerDetails customerDetails,
+        CouponCreateRequest request) {
         Long partnerId = extractPartnerId(customerDetails);
         Coupon saved = couponRepository.save(Coupon.create(request, partnerId));
 
@@ -57,10 +59,11 @@ public class CouponService {
         if (customerDetails == null || customerDetails.getUser() == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
-        Long partnerId = customerDetails.getUser().getPartnerId();
-        if (partnerId == null) {
+        Partner partner = customerDetails.getUser().getPartner();
+        if (partner == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
-        return partnerId;
+
+        return partner.getId();
     }
 }
