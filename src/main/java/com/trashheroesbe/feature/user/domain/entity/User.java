@@ -48,9 +48,6 @@ public class User extends BaseTimeEntity {
     @Column(unique = true)
     private String kakaoId;
 
-    @Column
-    private Long partnerId;
-
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 

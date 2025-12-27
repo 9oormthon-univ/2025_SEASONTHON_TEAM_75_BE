@@ -57,7 +57,7 @@ public class CouponService {
         if (customerDetails == null || customerDetails.getUser() == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
-        Long partnerId = customerDetails.getUser().getPartnerId();
+        Long partnerId = customerDetails.getUser().getPartner().getId();
         if (partnerId == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
