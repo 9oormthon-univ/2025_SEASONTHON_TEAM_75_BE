@@ -16,7 +16,6 @@ import com.trashheroesbe.feature.trash.infrastructure.*;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.entity.UserDistrict;
 import com.trashheroesbe.feature.user.infrastructure.UserDistrictRepository;
-import com.trashheroesbe.global.context.BadgeContextHolder;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
 import com.trashheroesbe.global.util.FileUtils;
@@ -196,14 +195,7 @@ public class TrashService {
                 String did = location.id() != null ? location.id().trim() : null;
                 days = resolveDisposalDays(did, saved.getTrashType().getType());
             }
-
-//            List<UserBadgeResponse> newBadges = BadgeContextHolder.getNewBadges();
-
-            try {
-                return TrashResultResponse.of(saved, steps, caution, days, parts, location);
-            } finally {
-                BadgeContextHolder.clear();
-            }
+            return TrashResultResponse.of(saved, steps, caution, days, parts, location);
         });
     }
 
