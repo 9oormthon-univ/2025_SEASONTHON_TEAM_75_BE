@@ -109,9 +109,9 @@ public class TrashService {
         String finalItemName = itemName;
 
         // DB 쓰기 (트랜잭션) - 기존 로직 유지
-        TrashCreationResult CreationResult;
+        TrashCreationResult creationResult;
         try {
-            CreationResult = writeTx.execute(status -> {
+            creationResult = writeTx.execute(status -> {
                 TrashType type = trashTypeRepository.findByType(analyzedType)
                     .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
@@ -182,12 +182,12 @@ public class TrashService {
         readTx.setReadOnly(true);
         return readTx.execute(status -> {
             Optional<TrashDescription> descOpt =
-                trashDescriptionRepository.findByTrashType(CreationResult.saved().getTrashType());
+                trashDescriptionRepository.findByTrashType(creationResult.saved().getTrashType());
             List<String> steps = descOpt.map(TrashDescription::steps).orElse(List.of());
             String caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
             List<PartCardResponse> parts = trashPartRepository.findPartsByTrashId(
-                    CreationResult.saved().getId())
+                    creationResult.saved().getId())
                 .stream()
                 .map(p -> PartCardResponse.of(p.getName(), p.getTrashType().getType()))
                 .toList();
@@ -195,13 +195,13 @@ public class TrashService {
             DistrictSummaryResponse location = resolveUserDistrictSummary(user.getId());
 
             List<String> days = Collections.emptyList();
-            if (location != null && CreationResult.saved().getTrashType() != null) {
+            if (location != null && creationResult.saved().getTrashType() != null) {
                 String did = location.id() != null ? location.id().trim() : null;
-                days = resolveDisposalDays(did, CreationResult.saved().getTrashType().getType());
+                days = resolveDisposalDays(did, creationResult.saved().getTrashType().getType());
             }
-            PointResponse pointResponse = PointResponse.from(CreationResult.pointResult());
+            PointResponse pointResponse = PointResponse.from(creationResult.pointResult());
             return TrashResultResponse.of(
-                CreationResult.saved(),
+                creationResult.saved(),
                 steps,
                 caution,
                 days,
