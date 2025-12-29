@@ -5,6 +5,8 @@ import com.trashheroesbe.feature.disposal.domain.Disposal;
 import com.trashheroesbe.feature.disposal.infrastructure.DisposalRepository;
 import com.trashheroesbe.feature.district.domain.entity.District;
 import com.trashheroesbe.feature.point.application.PointService;
+import com.trashheroesbe.feature.point.dto.response.PointEarnedResult;
+import com.trashheroesbe.feature.point.dto.response.PointResponse;
 import com.trashheroesbe.feature.search.application.SearchLogService;
 import com.trashheroesbe.feature.search.domain.LogSource;
 import com.trashheroesbe.feature.trash.domain.entity.*;
@@ -107,9 +109,9 @@ public class TrashService {
         String finalItemName = itemName;
 
         // DB 쓰기 (트랜잭션) - 기존 로직 유지
-        Trash saved;
+        TrashCreationResult CreationResult;
         try {
-            saved = writeTx.execute(status -> {
+            CreationResult = writeTx.execute(status -> {
                 TrashType type = trashTypeRepository.findByType(analyzedType)
                     .orElseGet(() -> trashTypeRepository.save(TrashType.of(analyzedType)));
 
@@ -136,7 +138,8 @@ public class TrashService {
                 Trash persisted = trashRepository.save(trash);
                 searchLogService.log(LogSource.IMAGE, type, user);
                 badgeService.onTrashAnalysisCompleted(user.getId(), type.getType());
-                pointService.grantPointsForTrash(user.getId(), trash.getId());
+                PointEarnedResult pointResult =
+                    pointService.grantPointsForTrash(user.getId(), trash.getId());
 
                 // 최종 타입 기준으로 재활용 여부 확인
                 Type finalType =
@@ -164,7 +167,7 @@ public class TrashService {
                     }
                 }
 
-                return persisted;
+                return new TrashCreationResult(persisted, pointResult);
             });
         } catch (RuntimeException ex) {
             try {
@@ -179,11 +182,12 @@ public class TrashService {
         readTx.setReadOnly(true);
         return readTx.execute(status -> {
             Optional<TrashDescription> descOpt =
-                trashDescriptionRepository.findByTrashType(saved.getTrashType());
+                trashDescriptionRepository.findByTrashType(CreationResult.saved().getTrashType());
             List<String> steps = descOpt.map(TrashDescription::steps).orElse(List.of());
             String caution = descOpt.map(TrashDescription::getCautionNote).orElse(null);
 
-            List<PartCardResponse> parts = trashPartRepository.findPartsByTrashId(saved.getId())
+            List<PartCardResponse> parts = trashPartRepository.findPartsByTrashId(
+                    CreationResult.saved().getId())
                 .stream()
                 .map(p -> PartCardResponse.of(p.getName(), p.getTrashType().getType()))
                 .toList();
@@ -191,11 +195,20 @@ public class TrashService {
             DistrictSummaryResponse location = resolveUserDistrictSummary(user.getId());
 
             List<String> days = Collections.emptyList();
-            if (location != null && saved.getTrashType() != null) {
+            if (location != null && CreationResult.saved().getTrashType() != null) {
                 String did = location.id() != null ? location.id().trim() : null;
-                days = resolveDisposalDays(did, saved.getTrashType().getType());
+                days = resolveDisposalDays(did, CreationResult.saved().getTrashType().getType());
             }
-            return TrashResultResponse.of(saved, steps, caution, days, parts, location);
+            PointResponse pointResponse = PointResponse.from(CreationResult.pointResult());
+            return TrashResultResponse.of(
+                CreationResult.saved(),
+                steps,
+                caution,
+                days,
+                parts,
+                location,
+                pointResponse
+            );
         });
     }
 
