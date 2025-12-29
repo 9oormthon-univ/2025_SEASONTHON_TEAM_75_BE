@@ -21,17 +21,15 @@ public class PointEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePointEarned(PointEarnedEvent event) {
         try {
-            Integer randomPoints = pointCalculator.calculateRandomPoints();
-
             pointManager.processEarnPointEvent(
                 event.getUserId(),
-                randomPoints,
+                event.getEarnedPoints(),
                 event.getReason(),
                 event.getRelatedEntityId()
             );
 
             log.info("포인트 지급 성공: userId={}, entityId={}, points={}",
-                event.getUserId(), event.getRelatedEntityId(), randomPoints);
+                event.getUserId(), event.getRelatedEntityId(), event.getEarnedPoints());
 
         } catch (Exception e) {
             // 재시도 처리 해야 함

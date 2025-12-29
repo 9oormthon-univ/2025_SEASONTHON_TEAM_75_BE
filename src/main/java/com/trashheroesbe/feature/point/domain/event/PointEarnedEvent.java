@@ -12,5 +12,6 @@ public class PointEarnedEvent {
     private final Long userId;
     private final Long relatedEntityId;
     private final PointReason reason;
+    private final Integer earnedPoints;
     private final LocalDateTime occurredAt;
 }
