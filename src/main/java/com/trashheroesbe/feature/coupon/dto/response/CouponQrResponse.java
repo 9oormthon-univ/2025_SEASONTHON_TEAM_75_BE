@@ -1,8 +1,9 @@
 package com.trashheroesbe.feature.coupon.dto.response;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
-import com.trashheroesbe.feature.coupon.domain.entity.Coupon.CouponType;
-import com.trashheroesbe.feature.coupon.domain.entity.Coupon.DiscountType;
+import com.trashheroesbe.feature.coupon.domain.type.CouponType;
+import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
+
 
 public record CouponQrResponse(
     Long couponId,
