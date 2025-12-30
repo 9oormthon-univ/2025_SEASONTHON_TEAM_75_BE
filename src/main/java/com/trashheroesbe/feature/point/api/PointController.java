@@ -20,7 +20,7 @@ public class PointController implements PointControllerApi {
 
     @Override
     @GetMapping
-    public ApiResponse<UserPointResponse> createUserDistrict(CustomerDetails customerDetails) {
+    public ApiResponse<UserPointResponse> getMyPoint(CustomerDetails customerDetails) {
         UserPointResponse response = pointService.getMyPoint(customerDetails.getUser());
         return ApiResponse.success(OK, response);
     }

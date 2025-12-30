@@ -39,7 +39,7 @@ public class PointService {
         return new PointEarnedResult(earnedPoints, now);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserPointResponse getMyPoint(User user) {
         UserPoint userPoint = userPointRepository.findByUserIdWithLock(user.getId())
             .orElseGet(() -> {

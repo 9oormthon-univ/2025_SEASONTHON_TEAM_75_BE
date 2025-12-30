@@ -10,6 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Point", description = "포인트 관련 API")
 public interface PointControllerApi {
 
-    @Operation(summary = "내 포인트 조회", description = "유저의 자치구를 추가합니다.")
-    ApiResponse<UserPointResponse> createUserDistrict(CustomerDetails customerDetails);
+    @Operation(summary = "내 포인트 조회", description = "내 포인트 정보를 조회합니다.")
+    ApiResponse<UserPointResponse> getMyPoint(CustomerDetails customerDetails);
 }
