@@ -1,7 +1,9 @@
 package com.trashheroesbe.feature.partner.api;
 
 import com.trashheroesbe.feature.partner.dto.request.RegisterPartnerRequest;
+import com.trashheroesbe.feature.partner.dto.request.UpdatePartnerRequest;
 import com.trashheroesbe.feature.partner.dto.response.RegisterPartnerResponse;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,5 +23,19 @@ public interface PartnerControllerApi {
         @Parameter(description = "업로드할 이미지 파일")
         @RequestPart(value = "image", required = false)
         MultipartFile image
+    );
+
+    @Operation(summary = "파트너 정보 수정", description = "파트너 정보를 수정합니다.")
+    ApiResponse<Void> updatePartner(
+        @RequestPart(value = "metadata")
+        UpdatePartnerRequest request,
+
+        @Parameter(description = "업로드할 이미지 파일")
+        @RequestPart(value = "image", required = false)
+        MultipartFile image,
+
+        @Parameter(hidden = true)
+        CustomerDetails customerDetails
+
     );
 }
