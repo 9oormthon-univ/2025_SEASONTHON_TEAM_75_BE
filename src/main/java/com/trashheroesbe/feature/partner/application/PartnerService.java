@@ -74,14 +74,13 @@ public class PartnerService {
 
     @Transactional
     public void updatePartner(
-        @Valid UpdatePartnerRequest request,
+        UpdatePartnerRequest request,
         MultipartFile image,
         User user
     ) {
-        Partner partner = user.getPartner();
-        if (partner == null) {
-            throw new BusinessException(ENTITY_NOT_FOUND);
-        }
+        Long partnerId = user.getPartner().getId();
+        Partner partner = partnerRepository.findById(partnerId)
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
 
         if (request.partnerName() != null) {
             partner.updatePartnerName(request.partnerName());
