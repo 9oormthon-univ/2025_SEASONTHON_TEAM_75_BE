@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.coupon.infrastructure;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

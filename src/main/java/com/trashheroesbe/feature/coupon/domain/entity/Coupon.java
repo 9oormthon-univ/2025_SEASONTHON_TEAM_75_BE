@@ -1,5 +1,7 @@
-package com.trashheroesbe.feature.coupon.domain;
+package com.trashheroesbe.feature.coupon.domain.entity;
 
+import com.trashheroesbe.feature.coupon.domain.type.CouponType;
+import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -51,14 +53,14 @@ public class Coupon extends BaseTimeEntity {
 
     public static Coupon create(CouponCreateRequest req, Long partnerId) {
         return Coupon.builder()
-                .partnerId(partnerId)
-                .title(req.title())
-                .content(req.content())
-                .type(req.type())
-                .pointCost(req.pointCost())
-                .discountType(req.discountType())
-                .discountValue(req.discountValue())
-                .build();
+            .partnerId(partnerId)
+            .title(req.title())
+            .content(req.content())
+            .type(req.type())
+            .pointCost(req.pointCost())
+            .discountType(req.discountType())
+            .discountValue(req.discountValue())
+            .build();
     }
 
     public void attachQr(String qrToken, String qrImageUrl) {
@@ -71,7 +73,4 @@ public class Coupon extends BaseTimeEntity {
         this.qrToken = qrToken;
         this.qrImageUrl = qrImageUrl;
     }
-
-    public enum CouponType { ONLINE, OFFLINE }
-    public enum DiscountType { AMOUNT, PERCENT }
 }

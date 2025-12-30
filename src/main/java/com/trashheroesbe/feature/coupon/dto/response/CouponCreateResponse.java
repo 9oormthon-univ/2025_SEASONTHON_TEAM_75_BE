@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.coupon.dto.response;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 
 public record CouponCreateResponse(
         Long couponId,

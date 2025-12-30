@@ -1,7 +1,8 @@
 package com.trashheroesbe.feature.coupon.dto.request;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon.DiscountType;
-import com.trashheroesbe.feature.coupon.domain.Coupon.CouponType;
+
+import com.trashheroesbe.feature.coupon.domain.type.CouponType;
+import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;

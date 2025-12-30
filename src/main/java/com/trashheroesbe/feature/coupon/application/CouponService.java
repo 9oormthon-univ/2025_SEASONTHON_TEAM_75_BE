@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.coupon.application;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponQrResponse;
