@@ -38,7 +38,7 @@ public class PartnerController implements PartnerControllerApi {
     }
 
     @Override
-    @PatchMapping()
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> updatePartner(
         @RequestPart(value = "metadata") @Valid UpdatePartnerRequest request,
         @RequestPart(value = "image", required = false) MultipartFile image,

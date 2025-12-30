@@ -8,7 +8,7 @@ public record UpdatePartnerRequest(
     @Schema(description = "파트너 이름", example = "어스어스2")
     String partnerName,
 
-    @Schema(description = "이메일", example = "usus2@gmailc.om")
+    @Schema(description = "이메일", example = "usus2@gmail.com")
     @Email
     String email,
 
