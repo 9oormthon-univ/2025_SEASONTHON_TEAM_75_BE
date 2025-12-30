@@ -10,10 +10,13 @@ import com.trashheroesbe.feature.point.infrastructure.UserPointRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -43,8 +46,16 @@ public class PointService {
     public UserPointResponse getMyPoint(User user) {
         UserPoint userPoint = userPointRepository.findByUserIdWithLock(user.getId())
             .orElseGet(() -> {
-                UserPoint newUserPoint = UserPoint.createInit(user);
-                return userPointRepository.save(newUserPoint);
+                try {
+                    UserPoint newPoint = UserPoint.createInit(user);
+                    return userPointRepository.save(newPoint);
+                } catch (DataIntegrityViolationException e) {
+                    log.info("UserPoint가 다른 트랜잭션에서 생성 중 -> 재시도");
+                    return userPointRepository.findByUserIdWithLock(user.getId())
+                        .orElseThrow(() -> new IllegalStateException(
+                            "UserPoint 생성 실패 - userId: " + user.getId()
+                        ));
+                }
             });
 
         return UserPointResponse.from(userPoint);
