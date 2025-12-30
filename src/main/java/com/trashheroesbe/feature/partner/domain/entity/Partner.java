@@ -38,4 +38,40 @@ public class Partner {
 
     @Column
     private String imageUrl;
+
+    public void updatePartnerName(String partnerName) {
+        if (partnerName != null && !partnerName.isEmpty()) {
+            this.partnerName = partnerName;
+        }
+    }
+
+    public void updateEmail(String email) {
+        if (email != null && !email.isEmpty()) {
+            this.email = email;
+        }
+    }
+
+    public void updatePassword(String encodedPassword) {
+        if (encodedPassword != null && !encodedPassword.isEmpty()) {
+            this.password = encodedPassword;
+        }
+    }
+
+    public void updateAddress(String address) {
+        if (address != null && !address.isEmpty()) {
+            this.address = address;
+        }
+    }
+
+    public void updateDescription(String description) {
+        if (description != null && !description.isEmpty()) {
+            this.description = description;
+        }
+    }
+
+    public void updateImageUrl(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            this.imageUrl = imageUrl;
+        }
+    }
 }
