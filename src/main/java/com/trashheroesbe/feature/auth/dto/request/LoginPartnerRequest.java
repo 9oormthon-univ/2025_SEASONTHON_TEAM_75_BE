@@ -10,7 +10,7 @@ public record LoginPartnerRequest(
     @NotBlank(message = "이메일 입력은 필수입니다.")
     String email,
 
-    @Schema(description = "패스워드", example = "usus123!")
+    @Schema(description = "패스워드", example = "123123qwe!")
     @NotBlank(message = "비밀번호 입력은 필수입니다.")
     String password
 ) {
