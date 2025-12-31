@@ -30,10 +30,12 @@ public class CouponService {
     @Value("${qr.coupon-url}")
     private String couponQrBaseUrl;
 
-    public CouponCreateResponse createCoupon(CustomerDetails customerDetails,
-        CouponCreateRequest request) {
-        Long partnerId = extractPartnerId(customerDetails);
-        Coupon saved = couponRepository.save(Coupon.create(request, partnerId));
+    public CouponCreateResponse createCoupon(
+        CustomerDetails customerDetails,
+        CouponCreateRequest request
+    ) {
+        Partner partner = extractPartner(customerDetails);
+        Coupon saved = couponRepository.save(Coupon.create(request, partner));
 
         String qrToken = UUID.randomUUID().toString();
         String payload = CouponQrUtil.buildPayload(couponQrBaseUrl, saved.getId(), qrToken);
@@ -55,7 +57,7 @@ public class CouponService {
         return CouponQrResponse.from(coupon);
     }
 
-    private Long extractPartnerId(CustomerDetails customerDetails) {
+    private Partner extractPartner(CustomerDetails customerDetails) {
         if (customerDetails == null || customerDetails.getUser() == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
@@ -64,6 +66,6 @@ public class CouponService {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
 
-        return partner.getId();
+        return partner;
     }
 }

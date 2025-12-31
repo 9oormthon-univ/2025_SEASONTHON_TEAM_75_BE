@@ -20,7 +20,7 @@ public record CouponQrResponse(
     public static CouponQrResponse from(Coupon coupon) {
         return new CouponQrResponse(
             coupon.getId(),
-            coupon.getPartnerId(),
+            coupon.getPartner().getId(),
             coupon.getTitle(),
             coupon.getContent(),
             coupon.getType(),

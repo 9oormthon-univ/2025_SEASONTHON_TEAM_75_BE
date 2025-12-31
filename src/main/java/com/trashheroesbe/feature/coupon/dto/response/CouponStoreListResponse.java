@@ -1,8 +1,8 @@
 package com.trashheroesbe.feature.coupon.dto.response;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
+import com.trashheroesbe.feature.partner.dto.response.PartnerStoreResponse;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public record CouponStoreListResponse(
     Long couponId,
@@ -10,7 +10,8 @@ public record CouponStoreListResponse(
     String couponType,
     Integer pointCost,
     LocalDateTime createAt,
-    LocalDateTime updateAt
+    LocalDateTime updateAt,
+    PartnerStoreResponse partnerResponse
 ) {
 
     public static CouponStoreListResponse from(Coupon coupon) {
@@ -20,7 +21,8 @@ public record CouponStoreListResponse(
             coupon.getType().getDescription(),
             coupon.getPointCost(),
             coupon.getCreatedAt(),
-            coupon.getUpdatedAt()
+            coupon.getUpdatedAt(),
+            PartnerStoreResponse.from(coupon.getPartner())
         );
     }
 }

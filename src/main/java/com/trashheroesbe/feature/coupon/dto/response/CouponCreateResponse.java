@@ -12,7 +12,7 @@ public record CouponCreateResponse(
     public static CouponCreateResponse from(Coupon coupon) {
         return new CouponCreateResponse(
                 coupon.getId(),
-                coupon.getPartnerId(),
+                coupon.getPartner().getId(),
                 coupon.getTitle(),
                 coupon.getContent(),
                 coupon.getQrImageUrl()
