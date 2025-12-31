@@ -14,4 +14,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @EntityGraph(attributePaths = {"partner"})
     List<Coupon> findAll();
+
+    @EntityGraph(attributePaths = {"partner"})
+    Optional<Coupon> findById(Long id);
 }
