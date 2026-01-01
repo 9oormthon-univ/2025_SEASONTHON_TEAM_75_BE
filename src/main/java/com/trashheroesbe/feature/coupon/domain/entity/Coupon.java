@@ -1,10 +1,13 @@
 package com.trashheroesbe.feature.coupon.domain.entity;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_OUT_OF_STOCK;
+
 import com.trashheroesbe.feature.coupon.domain.type.CouponType;
 import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
+import com.trashheroesbe.global.exception.BusinessException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -49,9 +52,22 @@ public class Coupon extends BaseTimeEntity {
     @Column(length = 500)
     private String qrImageUrl;
 
+    @Column(nullable = false)
+    private Integer totalStock;
+
+    @Column(nullable = false)
+    private Integer issuedCount;
+
+    @Column(nullable = false)
+    private Boolean isActive;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id", nullable = false)
     private Partner partner;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     public static Coupon create(CouponCreateRequest req, Partner partner) {
         return Coupon.builder()
@@ -62,6 +78,10 @@ public class Coupon extends BaseTimeEntity {
             .pointCost(req.pointCost())
             .discountType(req.discountType())
             .discountValue(req.discountValue())
+            .totalStock(req.totalStock())
+            .issuedCount(0)
+            .isActive(true)
+            .version(0L)
             .build();
     }
 
@@ -74,5 +94,12 @@ public class Coupon extends BaseTimeEntity {
         }
         this.qrToken = qrToken;
         this.qrImageUrl = qrImageUrl;
+    }
+
+    public void issue() {
+        if (this.issuedCount >= this.totalStock) {
+            throw new BusinessException(COUPON_OUT_OF_STOCK);
+        }
+        this.issuedCount++;
     }
 }

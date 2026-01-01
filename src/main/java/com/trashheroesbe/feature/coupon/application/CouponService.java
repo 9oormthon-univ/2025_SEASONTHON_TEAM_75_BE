@@ -1,5 +1,7 @@
 package com.trashheroesbe.feature.coupon.application;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
+
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
@@ -53,7 +55,8 @@ public class CouponService {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
         Coupon coupon = couponRepository.findByIdAndQrToken(couponId, qrToken)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+
         return CouponQrResponse.from(coupon);
     }
 

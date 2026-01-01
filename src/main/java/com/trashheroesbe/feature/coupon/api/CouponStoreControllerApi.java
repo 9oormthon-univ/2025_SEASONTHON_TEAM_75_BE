@@ -1,8 +1,11 @@
 package com.trashheroesbe.feature.coupon.api;
 
 
+import com.trashheroesbe.feature.coupon.dto.request.CouponPurchaseRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponStoreListResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponStoreResponse;
+import com.trashheroesbe.feature.coupon.dto.response.PurchaseUserCouponResponse;
+import com.trashheroesbe.global.auth.security.CustomerDetails;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,4 +21,9 @@ public interface CouponStoreControllerApi {
     @Operation(summary = "상점 아이템 상세조회", description = "상점의 아이템을 상세조회 합니다.")
     ApiResponse<CouponStoreResponse> getCouponStoreById(Long couponId);
 
+    @Operation(summary = "상점 아이템 구매하기", description = "상점의 아이템을 구매합니다.")
+    ApiResponse<PurchaseUserCouponResponse> purchaseCoupon(
+        CouponPurchaseRequest request,
+        CustomerDetails customerDetails
+    );
 }
