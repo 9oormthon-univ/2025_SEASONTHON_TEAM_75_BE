@@ -3,7 +3,6 @@ package com.trashheroesbe.feature.coupon.application;
 import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_NOT_AVAILABLE;
 import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_NOT_FOUND;
 import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_OUT_OF_STOCK;
-import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.domain.entity.UserCoupon;
@@ -46,7 +45,7 @@ public class CouponStoreService {
     }
 
     public CouponStoreResponse getCouponStoreById(Long couponId) {
-        Coupon coupon = couponRepository.findByIdWithPartner(couponId)
+        Coupon coupon = couponRepository.findByIdFetchPartner(couponId)
             .orElseThrow(() -> new BusinessException(COUPON_NOT_FOUND));
         return CouponStoreResponse.from(coupon);
     }
@@ -61,7 +60,7 @@ public class CouponStoreService {
         CouponPurchaseRequest request,
         User user
     ) {
-        Coupon coupon = couponRepository.findByIdWithPartner(request.couponId())
+        Coupon coupon = couponRepository.findByIdFetchPartner(request.couponId())
             .orElseThrow(() -> new BusinessException(COUPON_NOT_FOUND));
 
         if (!coupon.getIsActive()) {
