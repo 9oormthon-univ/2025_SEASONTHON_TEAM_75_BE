@@ -10,7 +10,7 @@ public record CouponStoreResponse(
     String content,
     String couponType,
     Integer pointCost,
-    LocalDateTime crateAt,
+    LocalDateTime createAt,
     LocalDateTime updateAt,
     PartnerStoreResponse partnerResponse
 ) {
@@ -19,7 +19,7 @@ public record CouponStoreResponse(
         return new CouponStoreResponse(
             coupon.getId(),
             coupon.getTitle(),
-            coupon.getTitle(),
+            coupon.getContent(),
             coupon.getType().getDescription(),
             coupon.getPointCost(),
             coupon.getCreatedAt(),

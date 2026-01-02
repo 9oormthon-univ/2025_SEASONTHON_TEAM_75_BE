@@ -14,11 +14,9 @@ import com.trashheroesbe.feature.coupon.dto.response.PurchaseUserCouponResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
 import com.trashheroesbe.feature.coupon.infrastructure.UserCouponRepository;
 import com.trashheroesbe.feature.point.application.PointService;
-import com.trashheroesbe.feature.point.domain.entity.UserPoint;
 import com.trashheroesbe.feature.point.domain.type.PointReason;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
-import com.trashheroesbe.global.response.type.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +38,7 @@ public class CouponStoreService {
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
 
-    public List<CouponStoreListResponse> getCouponStroeList() {
+    public List<CouponStoreListResponse> getCouponStoreList() {
         List<Coupon> coupons = couponRepository.findAll();
         return coupons.stream()
             .map(CouponStoreListResponse::from)
@@ -48,8 +46,8 @@ public class CouponStoreService {
     }
 
     public CouponStoreResponse getCouponStoreById(Long couponId) {
-        Coupon coupon = couponRepository.findById(couponId)
-            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+        Coupon coupon = couponRepository.findByIdWithPartner(couponId)
+            .orElseThrow(() -> new BusinessException(COUPON_NOT_FOUND));
         return CouponStoreResponse.from(coupon);
     }
 
@@ -63,7 +61,7 @@ public class CouponStoreService {
         CouponPurchaseRequest request,
         User user
     ) {
-        Coupon coupon = couponRepository.findById(request.couponId())
+        Coupon coupon = couponRepository.findByIdWithPartner(request.couponId())
             .orElseThrow(() -> new BusinessException(COUPON_NOT_FOUND));
 
         if (!coupon.getIsActive()) {

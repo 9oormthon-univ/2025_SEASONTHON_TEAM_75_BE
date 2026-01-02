@@ -10,11 +10,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
+    @EntityGraph(attributePaths = {"partner"})
     Optional<Coupon> findByIdAndQrToken(Long id, String qrToken);
 
     @EntityGraph(attributePaths = {"partner"})
     List<Coupon> findAll();
 
     @EntityGraph(attributePaths = {"partner"})
-    Optional<Coupon> findById(Long id);
+    Optional<Coupon> findByIdWithPartner(Long id);
 }

@@ -43,6 +43,6 @@ public class UserCouponController implements UserCouponControllerApi {
             userCouponId,
             customerDetails.getUser()
         );
-        return ApiResponse.success(OK, null);
+        return ApiResponse.success(OK, response);
     }
 }

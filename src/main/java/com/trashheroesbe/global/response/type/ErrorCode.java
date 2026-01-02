@@ -19,6 +19,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않는 토큰입니다."),
     NOT_FOUND_ATTRIBUTES(HttpStatus.NOT_FOUND, "요청 attributes(uri)를 찾을 수 없습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "일치하지 않은 비밀번호입니다."),
+    UNAUTHORIZED_PARTNER(HttpStatus.UNAUTHORIZED, "로그인 되어 있는 파트너 정보를 찾을 수 없습니다."),
+
 
     // s3
     S3_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 파일 업로드에 실패했습니다."),

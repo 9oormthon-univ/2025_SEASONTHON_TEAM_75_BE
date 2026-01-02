@@ -11,6 +11,7 @@ import com.trashheroesbe.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +39,7 @@ public class PartnerController implements PartnerControllerApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> updatePartner(
         @RequestPart(value = "metadata") @Valid UpdatePartnerRequest request,

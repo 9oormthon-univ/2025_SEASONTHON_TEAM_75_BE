@@ -30,7 +30,7 @@ public class CouponStoreController implements CouponStoreControllerApi {
     @Override
     @GetMapping()
     public ApiResponse<List<CouponStoreListResponse>> getCouponStoreList() {
-        List<CouponStoreListResponse> responses = couponStoreService.getCouponStroeList();
+        List<CouponStoreListResponse> responses = couponStoreService.getCouponStoreList();
         return ApiResponse.success(OK, responses);
     }
 
