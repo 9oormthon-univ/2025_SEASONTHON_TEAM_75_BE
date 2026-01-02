@@ -1,7 +1,6 @@
 package com.trashheroesbe.feature.point.application;
 
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
-import static com.trashheroesbe.global.response.type.ErrorCode.INSUFFICIENT_POINTS;
 
 import com.trashheroesbe.feature.point.domain.entity.UserPoint;
 import com.trashheroesbe.feature.point.domain.entity.UserPointHistory;
@@ -16,7 +15,6 @@ import com.trashheroesbe.feature.point.infrastructure.UserPointRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
 import com.trashheroesbe.global.exception.BusinessException;
-import com.trashheroesbe.global.response.type.ErrorCode;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
