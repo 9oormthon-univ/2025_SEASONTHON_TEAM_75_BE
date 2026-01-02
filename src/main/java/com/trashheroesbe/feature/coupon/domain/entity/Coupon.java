@@ -102,4 +102,43 @@ public class Coupon extends BaseTimeEntity {
         }
         this.issuedCount++;
     }
+
+    public void applyUpdate(
+        String title,
+        String content,
+        CouponType type,
+        Integer pointCost,
+        DiscountType discountType,
+        Integer discountValue,
+        Integer totalStock,
+        Boolean isActive
+    ) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (content != null && !content.isBlank()) {
+            this.content = content;
+        }
+        if (type != null) {
+            this.type = type;
+        }
+        if (pointCost != null) {
+            this.pointCost = pointCost;
+        }
+        if (discountType != null) {
+            this.discountType = discountType;
+        }
+        if (discountValue != null) {
+            this.discountValue = discountValue;
+        }
+        if (totalStock != null) {
+            if (this.issuedCount > totalStock) {
+                throw new IllegalArgumentException("재고는 이미 발급된 수량보다 작을 수 없습니다.");
+            }
+            this.totalStock = totalStock;
+        }
+        if (isActive != null) {
+            this.isActive = isActive;
+        }
+    }
 }

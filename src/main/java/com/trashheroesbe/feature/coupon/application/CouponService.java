@@ -4,6 +4,7 @@ import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
+import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponQrResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
@@ -49,6 +50,17 @@ public class CouponService {
         return CouponCreateResponse.from(saved);
     }
 
+    @Transactional
+    public void deleteCoupon(CustomerDetails customerDetails, Long couponId) {
+        Partner partner = extractPartner(customerDetails);
+        Coupon coupon = couponRepository.findByIdFetchPartner(couponId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        if (!coupon.getPartner().getId().equals(partner.getId())) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
+        }
+        couponRepository.delete(coupon);
+    }
+
     @Transactional(readOnly = true)
     public CouponQrResponse findByQr(Long couponId, String qrToken) {
         if (couponId == null || qrToken == null || qrToken.isBlank()) {
@@ -57,6 +69,28 @@ public class CouponService {
         Coupon coupon = couponRepository.findByIdAndQrToken(couponId, qrToken)
             .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
 
+        return CouponQrResponse.from(coupon);
+    }
+
+    @Transactional
+    public CouponQrResponse updateCoupon(CustomerDetails customerDetails, Long couponId,
+        CouponUpdateRequest request) {
+        Partner partner = extractPartner(customerDetails);
+        Coupon coupon = couponRepository.findByIdFetchPartner(couponId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        if (!coupon.getPartner().getId().equals(partner.getId())) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
+        }
+        coupon.applyUpdate(
+            request.title(),
+            request.content(),
+            request.type(),
+            request.pointCost(),
+            request.discountType(),
+            request.discountValue(),
+            request.totalStock(),
+            request.isActive()
+        );
         return CouponQrResponse.from(coupon);
     }
 
