@@ -1,10 +1,12 @@
 package com.trashheroesbe.feature.point.domain.entity;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.INSUFFICIENT_POINTS;
 import static com.trashheroesbe.global.response.type.ErrorCode.POINT_AMOUNT_MUST_BE_POSITIVE;
 
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
 import com.trashheroesbe.global.exception.BusinessException;
+import com.trashheroesbe.global.response.type.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -62,5 +64,15 @@ public class UserPoint extends BaseTimeEntity {
             .user(user)
             .version(0L)
             .build();
+    }
+
+    public void usePoints(Integer points) {
+        if (points <= 0) {
+            throw new BusinessException(POINT_AMOUNT_MUST_BE_POSITIVE);
+        }
+        if (this.totalPoint < points) {
+            throw new BusinessException(INSUFFICIENT_POINTS);
+        }
+        this.totalPoint -= points;
     }
 }

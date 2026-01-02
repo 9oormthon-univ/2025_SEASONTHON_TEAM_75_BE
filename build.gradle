@@ -62,6 +62,10 @@ dependencies {
     // qr
     implementation group: 'com.google.zxing', name: 'javase', version: '3.5.4'
     implementation group: 'com.google.zxing', name: 'core', version: '3.5.4'
+
+    // retry
+    implementation "org.springframework.retry:spring-retry"
+    implementation "org.springframework:spring-aspects"
 }
 
 dependencyManagement {

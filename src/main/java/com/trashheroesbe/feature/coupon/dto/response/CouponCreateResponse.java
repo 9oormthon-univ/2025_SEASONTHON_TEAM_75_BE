@@ -1,6 +1,6 @@
 package com.trashheroesbe.feature.coupon.dto.response;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 
 public record CouponCreateResponse(
         Long couponId,
@@ -12,7 +12,7 @@ public record CouponCreateResponse(
     public static CouponCreateResponse from(Coupon coupon) {
         return new CouponCreateResponse(
                 coupon.getId(),
-                coupon.getPartnerId(),
+                coupon.getPartner().getId(),
                 coupon.getTitle(),
                 coupon.getContent(),
                 coupon.getQrImageUrl()

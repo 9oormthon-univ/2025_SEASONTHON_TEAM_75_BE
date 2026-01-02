@@ -8,6 +8,8 @@ import com.trashheroesbe.feature.point.infrastructure.UserPointHistoryRepository
 import com.trashheroesbe.feature.point.infrastructure.UserPointRepository;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.service.UserFinder;
+import com.trashheroesbe.global.exception.BusinessException;
+import com.trashheroesbe.global.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

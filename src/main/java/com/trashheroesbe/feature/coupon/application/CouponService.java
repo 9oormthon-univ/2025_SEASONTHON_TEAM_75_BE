@@ -1,6 +1,8 @@
 package com.trashheroesbe.feature.coupon.application;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
+import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
+
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponQrResponse;
@@ -30,10 +32,12 @@ public class CouponService {
     @Value("${qr.coupon-url}")
     private String couponQrBaseUrl;
 
-    public CouponCreateResponse createCoupon(CustomerDetails customerDetails,
-        CouponCreateRequest request) {
-        Long partnerId = extractPartnerId(customerDetails);
-        Coupon saved = couponRepository.save(Coupon.create(request, partnerId));
+    public CouponCreateResponse createCoupon(
+        CustomerDetails customerDetails,
+        CouponCreateRequest request
+    ) {
+        Partner partner = extractPartner(customerDetails);
+        Coupon saved = couponRepository.save(Coupon.create(request, partner));
 
         String qrToken = UUID.randomUUID().toString();
         String payload = CouponQrUtil.buildPayload(couponQrBaseUrl, saved.getId(), qrToken);
@@ -51,11 +55,12 @@ public class CouponService {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
         Coupon coupon = couponRepository.findByIdAndQrToken(couponId, qrToken)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
+
         return CouponQrResponse.from(coupon);
     }
 
-    private Long extractPartnerId(CustomerDetails customerDetails) {
+    private Partner extractPartner(CustomerDetails customerDetails) {
         if (customerDetails == null || customerDetails.getUser() == null) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
@@ -64,6 +69,6 @@ public class CouponService {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
 
-        return partner.getId();
+        return partner;
     }
 }

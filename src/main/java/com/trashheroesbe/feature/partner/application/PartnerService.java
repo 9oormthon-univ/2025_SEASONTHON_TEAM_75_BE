@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.partner.application;
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 import static com.trashheroesbe.global.response.type.ErrorCode.EXISTS_EMAIL;
 import static com.trashheroesbe.global.response.type.ErrorCode.S3_UPLOAD_FAIL;
+import static com.trashheroesbe.global.response.type.ErrorCode.UNAUTHORIZED_PARTNER;
 
 import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.feature.partner.dto.request.RegisterPartnerRequest;
@@ -74,14 +75,17 @@ public class PartnerService {
 
     @Transactional
     public void updatePartner(
-        @Valid UpdatePartnerRequest request,
+        UpdatePartnerRequest request,
         MultipartFile image,
         User user
     ) {
-        Partner partner = user.getPartner();
-        if (partner == null) {
-            throw new BusinessException(ENTITY_NOT_FOUND);
+        Partner loginedPartner = user.getPartner();
+        if (loginedPartner == null) {
+            throw new BusinessException(UNAUTHORIZED_PARTNER);
         }
+        Long partnerId = user.getPartner().getId();
+        Partner partner = partnerRepository.findById(partnerId)
+            .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
 
         if (request.partnerName() != null) {
             partner.updatePartnerName(request.partnerName());

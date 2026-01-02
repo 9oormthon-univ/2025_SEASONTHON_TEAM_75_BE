@@ -1,8 +1,9 @@
 package com.trashheroesbe.feature.coupon.dto.response;
 
-import com.trashheroesbe.feature.coupon.domain.Coupon;
-import com.trashheroesbe.feature.coupon.domain.Coupon.CouponType;
-import com.trashheroesbe.feature.coupon.domain.Coupon.DiscountType;
+import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
+import com.trashheroesbe.feature.coupon.domain.type.CouponType;
+import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
+
 
 public record CouponQrResponse(
     Long couponId,
@@ -19,7 +20,7 @@ public record CouponQrResponse(
     public static CouponQrResponse from(Coupon coupon) {
         return new CouponQrResponse(
             coupon.getId(),
-            coupon.getPartnerId(),
+            coupon.getPartner().getId(),
             coupon.getTitle(),
             coupon.getContent(),
             coupon.getType(),

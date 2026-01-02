@@ -1,7 +1,13 @@
-package com.trashheroesbe.feature.coupon.domain;
+package com.trashheroesbe.feature.coupon.domain.entity;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_OUT_OF_STOCK;
+
+import com.trashheroesbe.feature.coupon.domain.type.CouponType;
+import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
+import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
+import com.trashheroesbe.global.exception.BusinessException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -17,9 +23,6 @@ public class Coupon extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private Long partnerId;
 
     @Column(nullable = false, length = 100)
     private String title;
@@ -49,16 +52,37 @@ public class Coupon extends BaseTimeEntity {
     @Column(length = 500)
     private String qrImageUrl;
 
-    public static Coupon create(CouponCreateRequest req, Long partnerId) {
+    @Column(nullable = false)
+    private Integer totalStock;
+
+    @Column(nullable = false)
+    private Integer issuedCount;
+
+    @Column(nullable = false)
+    private Boolean isActive;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "partner_id", nullable = false)
+    private Partner partner;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
+    public static Coupon create(CouponCreateRequest req, Partner partner) {
         return Coupon.builder()
-                .partnerId(partnerId)
-                .title(req.title())
-                .content(req.content())
-                .type(req.type())
-                .pointCost(req.pointCost())
-                .discountType(req.discountType())
-                .discountValue(req.discountValue())
-                .build();
+            .partner(partner)
+            .title(req.title())
+            .content(req.content())
+            .type(req.type())
+            .pointCost(req.pointCost())
+            .discountType(req.discountType())
+            .discountValue(req.discountValue())
+            .totalStock(req.totalStock())
+            .issuedCount(0)
+            .isActive(true)
+            .version(0L)
+            .build();
     }
 
     public void attachQr(String qrToken, String qrImageUrl) {
@@ -72,6 +96,10 @@ public class Coupon extends BaseTimeEntity {
         this.qrImageUrl = qrImageUrl;
     }
 
-    public enum CouponType { ONLINE, OFFLINE }
-    public enum DiscountType { AMOUNT, PERCENT }
+    public void issue() {
+        if (this.issuedCount >= this.totalStock) {
+            throw new BusinessException(COUPON_OUT_OF_STOCK);
+        }
+        this.issuedCount++;
+    }
 }
