@@ -30,7 +30,7 @@ public record UserCouponResponse(
             userCoupon.getCoupon().getTitle(),
             userCoupon.getCoupon().getContent(),
             userCoupon.getCoupon().getType(),
-            userCoupon.getCoupon().getQrImageUrl(),
+            userCoupon.getQrImageUrl(),
             userCoupon.getCoupon().getPartner().getPartnerName(),
             userCoupon.getCoupon().getPartner().getImageUrl(),
             userCoupon.getUsedAt()

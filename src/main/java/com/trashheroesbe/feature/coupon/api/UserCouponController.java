@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,6 +44,16 @@ public class UserCouponController implements UserCouponControllerApi {
             userCouponId,
             customerDetails.getUser()
         );
+        return ApiResponse.success(OK, response);
+    }
+
+    @Override
+    @GetMapping("/qr")
+    public ApiResponse<UserCouponResponse> getUserCouponByQr(
+        @RequestParam Long userCouponId,
+        @RequestParam String qrToken
+    ) {
+        UserCouponResponse response = userCouponService.getUserCouponByQr(userCouponId, qrToken);
         return ApiResponse.success(OK, response);
     }
 }
