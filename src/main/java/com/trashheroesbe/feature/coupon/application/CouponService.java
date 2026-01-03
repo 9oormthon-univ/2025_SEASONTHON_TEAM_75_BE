@@ -4,11 +4,13 @@ import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
+import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
 import com.trashheroesbe.feature.partner.domain.entity.Partner;
 import com.trashheroesbe.global.exception.BusinessException;
 import com.trashheroesbe.global.response.type.ErrorCode;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+
+    @Transactional(readOnly = true)
+    public List<PartnerCouponResponse> getPartnerCoupons(CustomerDetails customerDetails) {
+        Partner partner = extractPartner(customerDetails);
+        return couponRepository.findAllByPartnerIdFetch(partner.getId()).stream()
+            .map(PartnerCouponResponse::from)
+            .toList();
+    }
 
     public CouponCreateResponse createCoupon(
         CustomerDetails customerDetails,
