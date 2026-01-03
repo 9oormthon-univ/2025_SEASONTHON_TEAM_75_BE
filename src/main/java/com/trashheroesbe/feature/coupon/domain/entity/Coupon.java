@@ -46,12 +46,6 @@ public class Coupon extends BaseTimeEntity {
     @Min(1)
     private Integer discountValue;
 
-    @Column(length = 200)
-    private String qrToken;
-
-    @Column(length = 500)
-    private String qrImageUrl;
-
     @Column(nullable = false)
     private Integer totalStock;
 
@@ -83,17 +77,6 @@ public class Coupon extends BaseTimeEntity {
             .isActive(true)
             .version(0L)
             .build();
-    }
-
-    public void attachQr(String qrToken, String qrImageUrl) {
-        if (qrToken == null || qrToken.isBlank()) {
-            throw new IllegalArgumentException("QR 토큰은 필수입니다");
-        }
-        if (qrImageUrl == null || qrImageUrl.isBlank()) {
-            throw new IllegalArgumentException("QR 이미지 URL은 필수입니다");
-        }
-        this.qrToken = qrToken;
-        this.qrImageUrl = qrImageUrl;
     }
 
     public void issue() {

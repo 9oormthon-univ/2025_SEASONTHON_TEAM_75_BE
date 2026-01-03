@@ -6,19 +6,16 @@ import com.trashheroesbe.feature.coupon.application.CouponService;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
-import com.trashheroesbe.feature.coupon.dto.response.CouponQrResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -40,7 +37,7 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
 
     @Override
     @PatchMapping("/coupons/{couponId}")
-    public ApiResponse<CouponQrResponse> updateCoupon(
+    public ApiResponse<CouponCreateResponse> updateCoupon(
         @AuthenticationPrincipal CustomerDetails customerDetails,
         @PathVariable Long couponId,
         @Valid @RequestBody CouponUpdateRequest request
@@ -58,12 +55,4 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
         return ApiResponse.success(OK);
     }
 
-    @Override
-    @GetMapping("/coupons/qr")
-    public ApiResponse<CouponQrResponse> getCouponByQr(
-        @RequestParam Long couponId,
-        @RequestParam String qrToken
-    ) {
-        return ApiResponse.success(OK, couponService.findByQr(couponId, qrToken));
-    }
 }

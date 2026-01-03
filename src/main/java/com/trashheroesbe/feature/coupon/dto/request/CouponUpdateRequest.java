@@ -3,7 +3,6 @@ package com.trashheroesbe.feature.coupon.dto.request;
 import com.trashheroesbe.feature.coupon.domain.type.CouponType;
 import com.trashheroesbe.feature.coupon.domain.type.DiscountType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 
