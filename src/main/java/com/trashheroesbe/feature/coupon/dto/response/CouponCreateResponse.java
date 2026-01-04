@@ -6,16 +6,14 @@ public record CouponCreateResponse(
         Long couponId,
         Long partnerId,
         String title,
-        String content,
-        String qrImageUrl
+        String content
 ) {
     public static CouponCreateResponse from(Coupon coupon) {
         return new CouponCreateResponse(
                 coupon.getId(),
                 coupon.getPartner().getId(),
                 coupon.getTitle(),
-                coupon.getContent(),
-                coupon.getQrImageUrl()
+                coupon.getContent()
         );
     }
 }

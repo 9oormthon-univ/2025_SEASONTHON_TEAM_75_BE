@@ -8,7 +8,8 @@ public record PurchaseUserCouponResponse(
     Long couponId,
     String couponTitle,
     Integer pointsUsed,
-    LocalDateTime purchasedAt
+    LocalDateTime purchasedAt,
+    String qrImageUrl
 ) {
 
     public static PurchaseUserCouponResponse from(UserCoupon userCoupon) {
@@ -17,7 +18,8 @@ public record PurchaseUserCouponResponse(
             userCoupon.getCoupon().getId(),
             userCoupon.getCoupon().getTitle(),
             userCoupon.getCoupon().getPointCost(),
-            userCoupon.getCreatedAt()
+            userCoupon.getCreatedAt(),
+            userCoupon.getQrImageUrl()
         );
     }
 }

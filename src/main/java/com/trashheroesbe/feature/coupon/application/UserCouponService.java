@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,13 +30,23 @@ public class UserCouponService {
     }
 
     public UserCouponResponse getUserCouponById(Long userCouponId, User user) {
-        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+        UserCoupon userCoupon = userCouponRepository.findWithDetailsById(userCouponId)
             .orElseThrow(() -> new BusinessException(ENTITY_NOT_FOUND));
 
         if (!userCoupon.getUser().getId().equals(user.getId())) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED_EXCEPTION);
         }
 
+        return UserCouponResponse.from(userCoupon);
+    }
+
+    @Transactional(readOnly = true)
+    public UserCouponResponse getUserCouponByQr(Long userCouponId, String qrToken) {
+        if (userCouponId == null || qrToken == null || qrToken.isBlank()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED);
+        }
+        UserCoupon userCoupon = userCouponRepository.findByIdAndQrTokenFetchAll(userCouponId, qrToken)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
         return UserCouponResponse.from(userCoupon);
     }
 }

@@ -4,6 +4,8 @@ package com.trashheroesbe.feature.coupon.domain.entity;
 import com.trashheroesbe.feature.coupon.domain.type.CouponStatus;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.entity.BaseTimeEntity;
+import com.trashheroesbe.global.exception.BusinessException;
+import com.trashheroesbe.global.response.type.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,6 +51,12 @@ public class UserCoupon extends BaseTimeEntity {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
+    @Column(length = 200)
+    private String qrToken;
+
+    @Column(length = 500)
+    private String qrImageUrl;
+
     public static UserCoupon create(User user, Coupon coupon) {
         return UserCoupon.builder()
             .user(user)
@@ -57,5 +65,14 @@ public class UserCoupon extends BaseTimeEntity {
             .build();
     }
 
-
+    public void attachQr(String qrToken, String qrImageUrl) {
+        if (qrToken == null || qrToken.isBlank()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED);
+        }
+        if (qrImageUrl == null || qrImageUrl.isBlank()) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED);
+        }
+        this.qrToken = qrToken;
+        this.qrImageUrl = qrImageUrl;
+    }
 }

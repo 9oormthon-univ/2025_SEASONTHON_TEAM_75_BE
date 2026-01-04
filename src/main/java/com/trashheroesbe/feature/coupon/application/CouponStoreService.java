@@ -12,10 +12,13 @@ import com.trashheroesbe.feature.coupon.dto.response.CouponStoreResponse;
 import com.trashheroesbe.feature.coupon.dto.response.PurchaseUserCouponResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
 import com.trashheroesbe.feature.coupon.infrastructure.UserCouponRepository;
+import com.trashheroesbe.global.qrcode.QrCodeGenerator;
+import com.trashheroesbe.global.util.UserCouponQrUtil;
 import com.trashheroesbe.feature.point.application.PointService;
 import com.trashheroesbe.feature.point.domain.type.PointReason;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.global.exception.BusinessException;
+import com.trashheroesbe.infrastructure.port.s3.FileStoragePort;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -36,6 +41,11 @@ public class CouponStoreService {
 
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
+    private final QrCodeGenerator qrCodeGenerator;
+    private final FileStoragePort fileStoragePort;
+
+    @Value("${qr.user-coupon-url}")
+    private String userCouponQrBaseUrl;
 
     public List<CouponStoreListResponse> getCouponStoreList() {
         List<Coupon> coupons = couponRepository.findAll();
@@ -83,6 +93,13 @@ public class CouponStoreService {
 
         UserCoupon userCoupon = UserCoupon.create(user, coupon);
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
+
+        String qrToken = UUID.randomUUID().toString();
+        String payload = UserCouponQrUtil.buildPayload(userCouponQrBaseUrl, savedUserCoupon.getId(), qrToken);
+        byte[] qrBytes = qrCodeGenerator.generatePngBytes(payload, 300);
+        String key = UserCouponQrUtil.buildKey(savedUserCoupon.getId());
+        String qrUrl = fileStoragePort.uploadFile(key, "image/png", qrBytes);
+        savedUserCoupon.attachQr(qrToken, qrUrl);
 
         log.info("쿠폰 구매 완료 - userId: {}, couponId: {}, pointsUsed: {}",
             user.getId(), request.couponId(), pointCost);
