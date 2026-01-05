@@ -77,9 +77,7 @@ public class CouponStoreService {
             throw new BusinessException(COUPON_NOT_AVAILABLE);
         }
 
-        if (coupon.getIssuedCount() >= coupon.getTotalStock()) {
-            throw new BusinessException(COUPON_OUT_OF_STOCK);
-        }
+        coupon.issue();
 
         Integer pointCost = coupon.getPointCost();
         pointService.usePoint(
@@ -88,8 +86,6 @@ public class CouponStoreService {
             PointReason.COUPON_PURCHASE,
             request.couponId()
         );
-
-        coupon.issue();
 
         UserCoupon userCoupon = UserCoupon.create(user, coupon);
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
