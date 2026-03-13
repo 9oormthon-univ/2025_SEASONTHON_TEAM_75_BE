@@ -1,4 +1,4 @@
-name: AWS EC2에 Docker로 배포
+name: OCI VM에 Docker로 배포
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - main
 
 env:
-  DOCKER_IMAGE_NAME: ${{ secrets.DEV_DOCKER_IMAGE_NAME }}   # e.g. dockerhub-username/repo
-  EC2_HOST: ${{ secrets.EC2_HOST }}
-  EC2_SSH_USER: ec2-user
-  PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+  DOCKER_IMAGE_NAME: ${{ secrets.DEV_DOCKER_IMAGE_NAME }}
+  OCI_HOST: ${{ secrets.OCI_HOST }}
+  OCI_SSH_USER: ubuntu
+  PRIVATE_KEY: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
   CONTAINER_NAME: ${{ secrets.DEV_CONTAINER_NAME }}
   APP_PORT: "8080"
   TZ_REGION: "Asia/Seoul"
@@ -25,7 +25,7 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v4
 
-      - name: Set up JDK 21 (Amazon Corretto) with Gradle cache
+      - name: Set up JDK 21 with Gradle cache
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
@@ -36,27 +36,22 @@ jobs:
         run: |
           mkdir -p ./src/main/resources
 
-          # application.yml
           cat > ./src/main/resources/application.yml <<'EOF'
           ${{ secrets.APPLICATION_YML }}
           EOF
 
-          # application-local.yml
           cat > ./src/main/resources/application-local.yml <<'EOF'
           ${{ secrets.APPLICATION_LOCAL_YML }}
           EOF
 
-          # application-prod.yml
           cat > ./src/main/resources/application-prod.yml <<'EOF'
           ${{ secrets.APPLICATION_PROD_YML }}
           EOF
 
-          # application-cloud.yml
           cat > ./src/main/resources/application-cloud.yml <<'EOF'
           ${{ secrets.APPLICATION_CLOUD_YML }}
           EOF
 
-          # application-security.yml
           cat > ./src/main/resources/application-security.yml <<'EOF'
           ${{ secrets.APPLICATION_SECURITY_YML }}
           EOF
@@ -92,16 +87,16 @@ jobs:
             ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.latest_tag }}
             ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.sha_tag }}
 
-  deploy-to-ec2:
+  deploy-to-oci:
     needs: build-and-push-docker
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to EC2
+      - name: Deploy to OCI VM
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.EC2_HOST }}
-          username: ${{ env.EC2_SSH_USER }}
+          host: ${{ env.OCI_HOST }}
+          username: ${{ env.OCI_SSH_USER }}
           key: ${{ env.PRIVATE_KEY }}
           script: |
             set -euo pipefail
@@ -111,16 +106,16 @@ jobs:
             PORT="${{ env.APP_PORT }}"
             TZ="${{ env.TZ_REGION }}"
 
-            echo "[1/4] Pull latest image"
+            echo "[1/5] Pull latest image"
             sudo docker pull "$IMAGE"
 
-            echo "[2/4] Stop & remove existing container by name (if exists)"
+            echo "[2/5] Stop & remove existing container by name (if exists)"
             if sudo docker ps -a --format '{{.Names}}' | grep -wq "$NAME"; then
               sudo docker stop "$NAME" || true
               sudo docker rm "$NAME" || true
             fi
 
-            echo "[3/4] Run new container on port ${PORT}"
+            echo "[3/5] Run new container on port ${PORT}"
             sudo docker run -d \
               --name "$NAME" \
               -p ${PORT}:${PORT} \
@@ -129,7 +124,10 @@ jobs:
               --restart unless-stopped \
               "$IMAGE"
 
-            echo "[4/4] Cleanup dangling images"
+            echo "[4/5] Cleanup dangling images"
             sudo docker image prune -f
+
+            echo "[5/5] Check running container"
+            sudo docker ps
 
             echo "Deployment complete: $NAME running on port $PORT"
