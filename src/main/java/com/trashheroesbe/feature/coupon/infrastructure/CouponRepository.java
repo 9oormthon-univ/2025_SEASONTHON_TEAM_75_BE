@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.coupon.infrastructure;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

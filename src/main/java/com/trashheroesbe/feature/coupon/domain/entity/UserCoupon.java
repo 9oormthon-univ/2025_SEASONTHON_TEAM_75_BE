@@ -75,4 +75,9 @@ public class UserCoupon extends BaseTimeEntity {
         this.qrToken = qrToken;
         this.qrImageUrl = qrImageUrl;
     }
+
+    public void useCoupon() {
+        this.usedAt = LocalDateTime.now();
+        this.status = CouponStatus.USED;
+    }
 }
