@@ -3,6 +3,8 @@ package com.trashheroesbe.feature.coupon.application;
 import static com.trashheroesbe.global.response.type.ErrorCode.ENTITY_NOT_FOUND;
 
 import com.trashheroesbe.feature.coupon.domain.entity.UserCoupon;
+import com.trashheroesbe.feature.coupon.domain.type.CouponStatus;
+import com.trashheroesbe.feature.coupon.dto.response.CouponUsabilityStatus;
 import com.trashheroesbe.feature.coupon.dto.response.UserCouponListResponse;
 import com.trashheroesbe.feature.coupon.dto.response.UserCouponResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.UserCouponRepository;
@@ -45,11 +47,22 @@ public class UserCouponService {
         if (userCouponId == null || qrToken == null || qrToken.isBlank()) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
+
         UserCoupon userCoupon = userCouponRepository.findByIdAndQrTokenFetchAll(
-            userCouponId,
-            qrToken
+            userCouponId, qrToken
         ).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
 
-        return UserCouponResponse.from(userCoupon);
+        CouponUsabilityStatus usabilityStatus;
+
+        CouponStatus couponStatus = userCoupon.getStatus();
+        if (couponStatus == CouponStatus.USED) {
+            usabilityStatus = new CouponUsabilityStatus(couponStatus, "이미 사용된 쿠폰입니다.");
+        } else if (couponStatus == CouponStatus.EXPIRED) {
+            usabilityStatus = new CouponUsabilityStatus(couponStatus, "이미 만료되 쿠폰입니다.");
+        } else {
+            usabilityStatus = new CouponUsabilityStatus(couponStatus, "사용 가능한 쿠폰입니다.");
+        }
+
+        return UserCouponResponse.of(userCoupon, usabilityStatus);
     }
 }

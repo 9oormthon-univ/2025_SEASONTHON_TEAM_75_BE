@@ -60,7 +60,6 @@ public enum ErrorCode {
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "쿠폰을 찾을 수 없습니다."),
     COUPON_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "쿠폰이 품절되었습니다."),
     COUPON_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "판매하지 않는 쿠폰입니다."),
-
     ;
 
     private final HttpStatus status;
