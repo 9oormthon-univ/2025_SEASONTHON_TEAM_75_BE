@@ -6,6 +6,7 @@ import com.trashheroesbe.feature.coupon.application.CouponService;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
+import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse;
 import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
@@ -40,8 +41,8 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
     @Override
     @PostMapping("/coupons")
     public ApiResponse<CouponCreateResponse> createCoupon(
-            @AuthenticationPrincipal CustomerDetails customerDetails,
-            @Valid @RequestBody CouponCreateRequest request
+        @AuthenticationPrincipal CustomerDetails customerDetails,
+        @Valid @RequestBody CouponCreateRequest request
     ) {
         return ApiResponse.success(OK, couponService.createCoupon(customerDetails, request));
     }
@@ -53,7 +54,8 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
         @PathVariable Long couponId,
         @Valid @RequestBody CouponUpdateRequest request
     ) {
-        return ApiResponse.success(OK, couponService.updateCoupon(customerDetails, couponId, request));
+        return ApiResponse.success(OK,
+            couponService.updateCoupon(customerDetails, couponId, request));
     }
 
     @Override
@@ -64,6 +66,14 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
     ) {
         couponService.deleteCoupon(customerDetails, couponId);
         return ApiResponse.success(OK);
+    }
+
+    @Override
+    public ApiResponse<CouponUsageStatisticsResponse> getCouponUsageStatics(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        CouponUsageStatisticsResponse response = couponService.getCouponUsage(customerDetails);
+        return ApiResponse.success(OK, response);
     }
 
 }

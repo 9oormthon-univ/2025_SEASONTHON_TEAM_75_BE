@@ -1,6 +1,8 @@
 package com.trashheroesbe.feature.coupon.infrastructure;
 
 import com.trashheroesbe.feature.coupon.domain.entity.UserCoupon;
+import com.trashheroesbe.feature.coupon.domain.type.CouponStatus;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -23,5 +25,20 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
         + "join fetch uc.coupon c "
         + "join fetch c.partner p "
         + "where uc.id = :id and uc.qrToken = :qrToken")
-    Optional<UserCoupon> findByIdAndQrTokenFetchAll(@Param("id") Long id, @Param("qrToken") String qrToken);
+    Optional<UserCoupon> findByIdAndQrTokenFetchAll(@Param("id") Long id,
+        @Param("qrToken") String qrToken);
+
+    @Query("SELECT COUNT(uc) FROM UserCoupon uc " +
+        "WHERE uc.coupon.partner.id = :partnerId " +
+        "AND uc.status = 'USED' " +
+        "AND uc.usedAt >= :from")
+    long countUsedByPartnerIdAndUsedAtAfter(
+        @Param("partnerId") Long partnerId,
+        @Param("from") LocalDateTime from
+    );
+
+    long countByCouponPartnerIdAndStatus(
+        @Param("partnerId") Long partnerId,
+        @Param("status") CouponStatus status
+    );
 }

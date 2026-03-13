@@ -3,6 +3,7 @@ package com.trashheroesbe.feature.coupon.api;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
+import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse;
 import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +17,7 @@ import java.util.List;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 
 @Tag(name = "Coupon", description = "쿠폰 생성/조회 API")
-public interface CouponPartnerControllerApi {
+public interface  CouponPartnerControllerApi {
 
     @Operation(summary = "파트너 쿠폰 전체 조회", description = "파트너가 발급한 쿠폰 목록을 조회합니다.")
     ApiResponse<List<PartnerCouponResponse>> getPartnerCoupons(
@@ -40,6 +41,11 @@ public interface CouponPartnerControllerApi {
     ApiResponse<Void> deleteCoupon(
         @AuthenticationPrincipal CustomerDetails customerDetails,
         @Parameter(description = "쿠폰 ID", required = true) @PathVariable Long couponId
+    );
+
+    @Operation(summary = "파트너 쿠폰 사용 통계 조회", description = "파트너가 발급한 쿠폰의 사용 통계를 조회합니다.")
+    ApiResponse<CouponUsageStatisticsResponse> getCouponUsageStatics(
+        @AuthenticationPrincipal CustomerDetails customerDetails
     );
 
 }
