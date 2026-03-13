@@ -17,7 +17,7 @@ import java.util.List;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 
 @Tag(name = "Coupon", description = "쿠폰 생성/조회 API")
-public interface  CouponPartnerControllerApi {
+public interface CouponPartnerControllerApi {
 
     @Operation(summary = "파트너 쿠폰 전체 조회", description = "파트너가 발급한 쿠폰 목록을 조회합니다.")
     ApiResponse<List<PartnerCouponResponse>> getPartnerCoupons(
@@ -27,7 +27,7 @@ public interface  CouponPartnerControllerApi {
     @Operation(summary = "쿠폰 생성", description = "파트너가 쿠폰을 생성합니다.")
     ApiResponse<CouponCreateResponse> createCoupon(
         @AuthenticationPrincipal CustomerDetails customerDetails,
-            @Valid @RequestBody CouponCreateRequest request
+        @Valid @RequestBody CouponCreateRequest request
     );
 
     @Operation(summary = "쿠폰 수정", description = "파트너가 본인 소유의 쿠폰을 수정합니다.")
@@ -46,6 +46,12 @@ public interface  CouponPartnerControllerApi {
     @Operation(summary = "파트너 쿠폰 사용 통계 조회", description = "파트너가 발급한 쿠폰의 사용 통계를 조회합니다.")
     ApiResponse<CouponUsageStatisticsResponse> getCouponUsageStatics(
         @AuthenticationPrincipal CustomerDetails customerDetails
+    );
+
+    @Operation(summary = "쿠폰 사용", description = "유저가 구매한 쿠폰을 구매상태로 변경합니다. (파트너로 로그인 상태에서만 가능합니다)")
+    ApiResponse<Void> useCoupon(
+        @AuthenticationPrincipal CustomerDetails customerDetails,
+        @Parameter(description = "유저쿠폰 ID", required = true) @PathVariable Long userCouponId
     );
 
 }

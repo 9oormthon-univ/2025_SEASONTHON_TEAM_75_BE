@@ -1,6 +1,7 @@
 package com.trashheroesbe.feature.coupon.application;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
+import com.trashheroesbe.feature.coupon.domain.entity.UserCoupon;
 import com.trashheroesbe.feature.coupon.domain.type.CouponStatus;
 import com.trashheroesbe.feature.coupon.dto.request.CouponCreateRequest;
 import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
@@ -108,6 +109,14 @@ public class CouponService {
             new UsageSummary(weekCount, new PeriodRange(weekStart, now)),
             new UsageSummary(monthCount, new PeriodRange(monthStart, now))
         );
+    }
+
+    public void userCoupon(CustomerDetails customerDetails, Long userCouponId) {
+        Partner partner = extractPartner(customerDetails);
+
+        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        userCoupon.useCoupon();
     }
 
     private Partner extractPartner(CustomerDetails customerDetails) {

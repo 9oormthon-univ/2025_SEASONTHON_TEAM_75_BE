@@ -26,4 +26,6 @@ public interface UserCouponControllerApi {
         @RequestParam Long userCouponId,
         @RequestParam String qrToken
     );
+
+
 }

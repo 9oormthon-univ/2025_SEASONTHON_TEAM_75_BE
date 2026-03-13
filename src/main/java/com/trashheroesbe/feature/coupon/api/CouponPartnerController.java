@@ -76,4 +76,14 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
         return ApiResponse.success(OK, response);
     }
 
+    @Override
+    @PatchMapping("/user-coupons/{userCouponId}")
+    public ApiResponse<Void> useCoupon(
+        @AuthenticationPrincipal CustomerDetails customerDetails,
+        @PathVariable Long userCouponId
+    ) {
+        couponService.userCoupon(customerDetails, userCouponId);
+        return ApiResponse.success(OK);
+    }
+
 }
