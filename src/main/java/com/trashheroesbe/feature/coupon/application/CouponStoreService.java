@@ -2,7 +2,6 @@ package com.trashheroesbe.feature.coupon.application;
 
 import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_NOT_AVAILABLE;
 import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_NOT_FOUND;
-import static com.trashheroesbe.global.response.type.ErrorCode.COUPON_OUT_OF_STOCK;
 
 import com.trashheroesbe.feature.coupon.domain.entity.Coupon;
 import com.trashheroesbe.feature.coupon.domain.entity.UserCoupon;

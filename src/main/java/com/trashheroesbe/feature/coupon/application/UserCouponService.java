@@ -45,8 +45,11 @@ public class UserCouponService {
         if (userCouponId == null || qrToken == null || qrToken.isBlank()) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED);
         }
-        UserCoupon userCoupon = userCouponRepository.findByIdAndQrTokenFetchAll(userCouponId, qrToken)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        UserCoupon userCoupon = userCouponRepository.findByIdAndQrTokenFetchAll(
+            userCouponId,
+            qrToken
+        ).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
         return UserCouponResponse.from(userCoupon);
     }
 }
