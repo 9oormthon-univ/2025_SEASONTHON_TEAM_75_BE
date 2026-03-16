@@ -69,6 +69,7 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
     }
 
     @Override
+    @GetMapping("/coupons/statistics")
     public ApiResponse<CouponUsageStatisticsResponse> getCouponUsageStatics(
         @AuthenticationPrincipal CustomerDetails customerDetails
     ) {
