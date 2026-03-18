@@ -8,6 +8,7 @@ import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse;
 import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
+import com.trashheroesbe.feature.coupon.dto.response.UsedCouponListResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import com.trashheroesbe.global.auth.security.CustomerDetails;
 import jakarta.validation.Valid;
@@ -83,8 +84,17 @@ public class CouponPartnerController implements CouponPartnerControllerApi {
         @AuthenticationPrincipal CustomerDetails customerDetails,
         @PathVariable Long userCouponId
     ) {
-        couponService.userCoupon(customerDetails, userCouponId);
+        couponService.useCoupon(customerDetails, userCouponId);
         return ApiResponse.success(OK);
+    }
+
+    @Override
+    @GetMapping("/coupons/used")
+    public ApiResponse<List<UsedCouponListResponse>> getUsedCoupons(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    ) {
+        List<UsedCouponListResponse> responses = couponService.getUsedCoupons(customerDetails);
+        return ApiResponse.success(OK, responses);
     }
 
 }

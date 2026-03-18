@@ -5,6 +5,7 @@ import com.trashheroesbe.feature.coupon.dto.request.CouponUpdateRequest;
 import com.trashheroesbe.feature.coupon.dto.response.CouponCreateResponse;
 import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse;
 import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
+import com.trashheroesbe.feature.coupon.dto.response.UsedCouponListResponse;
 import com.trashheroesbe.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -54,6 +55,10 @@ public interface CouponPartnerControllerApi {
         @Parameter(description = "유저쿠폰 ID", required = true) @PathVariable Long userCouponId
     );
 
+    @Operation(summary = "사용한 파트너 쿠폰 전체 조회", description = "파트너가 발급한 쿠폰 중 사용된 쿠폰 목록을 조회합니다.")
+    ApiResponse<List<UsedCouponListResponse>> getUsedCoupons(
+        @AuthenticationPrincipal CustomerDetails customerDetails
+    );
 
 
 

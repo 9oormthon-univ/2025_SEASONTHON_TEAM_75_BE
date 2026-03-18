@@ -41,4 +41,12 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
         @Param("partnerId") Long partnerId,
         @Param("status") CouponStatus status
     );
+
+    @Query("SELECT uc FROM UserCoupon uc " +
+        "JOIN FETCH uc.coupon c " +
+        "JOIN FETCH uc.user u " +
+        "WHERE c.partner.id = :partnerId " +
+        "AND uc.status = 'USED' " +
+        "ORDER BY uc.usedAt DESC")
+    List<UserCoupon> findUsedByPartnerId(@Param("partnerId") Long partnerId);
 }

@@ -10,6 +10,8 @@ import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsRespon
 import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse.UsageSummary;
 import com.trashheroesbe.feature.coupon.dto.response.CouponUsageStatisticsResponse.UsageSummary.PeriodRange;
 import com.trashheroesbe.feature.coupon.dto.response.PartnerCouponResponse;
+import com.trashheroesbe.feature.coupon.dto.response.UsedCouponListResponse;
+import com.trashheroesbe.feature.coupon.dto.response.UserCouponResponse;
 import com.trashheroesbe.feature.coupon.infrastructure.CouponRepository;
 import com.trashheroesbe.feature.coupon.infrastructure.UserCouponRepository;
 import com.trashheroesbe.feature.partner.domain.entity.Partner;
@@ -32,6 +34,7 @@ public class CouponService {
 
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
+
 
     @Transactional(readOnly = true)
     public List<PartnerCouponResponse> getPartnerCoupons(CustomerDetails customerDetails) {
@@ -115,12 +118,21 @@ public class CouponService {
         );
     }
 
-    public void userCoupon(CustomerDetails customerDetails, Long userCouponId) {
+    public void useCoupon(CustomerDetails customerDetails, Long userCouponId) {
         Partner partner = extractPartner(customerDetails);
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
             .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
         userCoupon.useCoupon();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsedCouponListResponse> getUsedCoupons(CustomerDetails customerDetails) {
+        Partner partner = extractPartner(customerDetails);
+
+        return userCouponRepository.findUsedByPartnerId(partner.getId()).stream()
+            .map(UsedCouponListResponse::from)
+            .toList();
     }
 
     private Partner extractPartner(CustomerDetails customerDetails) {
