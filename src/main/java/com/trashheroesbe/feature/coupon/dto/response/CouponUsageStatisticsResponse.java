@@ -9,11 +9,14 @@ public record CouponUsageStatisticsResponse(
     @Schema(description = "전체 사용 통계")
     UsageSummary total,
 
+    @Schema(description = "월간 사용 통계")
+    UsageSummary monthly,
+
     @Schema(description = "주간 사용 통계")
     UsageSummary weekly,
 
-    @Schema(description = "월간 사용 통계")
-    UsageSummary monthly
+    @Schema(description = "하루 사용 통계")
+    UsageSummary daily
 ) {
 
     @Schema(description = "사용 통계 요약")

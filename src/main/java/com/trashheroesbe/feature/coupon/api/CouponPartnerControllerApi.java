@@ -54,4 +54,7 @@ public interface CouponPartnerControllerApi {
         @Parameter(description = "유저쿠폰 ID", required = true) @PathVariable Long userCouponId
     );
 
+
+
+
 }

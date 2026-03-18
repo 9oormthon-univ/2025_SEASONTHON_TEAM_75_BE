@@ -94,20 +94,24 @@ public class CouponService {
         LocalDate today = DateTimeUtils.getTodayDate();
         LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime weekStart = DateTimeUtils.getWeekStart(today).atStartOfDay();
         LocalDateTime monthStart = today.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime weekStart = DateTimeUtils.getWeekStart(today).atStartOfDay();
+        LocalDateTime todayStart = today.atStartOfDay();
 
-        long weekCount = userCouponRepository.countUsedByPartnerIdAndUsedAtAfter(
-            partner.getId(), weekStart);
-        long monthCount = userCouponRepository.countUsedByPartnerIdAndUsedAtAfter(
-            partner.getId(), monthStart);
         long totalCount = userCouponRepository.countByCouponPartnerIdAndStatus(
             partner.getId(), CouponStatus.USED);
+        long monthCount = userCouponRepository.countUsedByPartnerIdAndUsedAtAfter(
+            partner.getId(), monthStart);
+        long weekCount = userCouponRepository.countUsedByPartnerIdAndUsedAtAfter(
+            partner.getId(), weekStart);
+        long todayCount = userCouponRepository.countUsedByPartnerIdAndUsedAtAfter(
+            partner.getId(), todayStart);
 
         return new CouponUsageStatisticsResponse(
             new UsageSummary(totalCount, null),
+            new UsageSummary(monthCount, new PeriodRange(monthStart, now)),
             new UsageSummary(weekCount, new PeriodRange(weekStart, now)),
-            new UsageSummary(monthCount, new PeriodRange(monthStart, now))
+            new UsageSummary(todayCount, new PeriodRange(todayStart, now))
         );
     }
 
