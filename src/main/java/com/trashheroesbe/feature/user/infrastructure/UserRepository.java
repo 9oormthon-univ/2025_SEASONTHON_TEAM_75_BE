@@ -32,4 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     );
 
     Optional<User> findByPartner(Partner partner);
+
+    boolean existsByTag(String tag);
 }

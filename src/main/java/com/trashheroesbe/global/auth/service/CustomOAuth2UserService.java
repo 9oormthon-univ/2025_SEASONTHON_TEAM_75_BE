@@ -1,9 +1,12 @@
 package com.trashheroesbe.global.auth.service;
 
+import static com.trashheroesbe.global.response.type.ErrorCode.FAILED_TO_GENERATE_USER_TAG;
+
 import com.trashheroesbe.feature.user.domain.type.AuthProvider;
 import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
+import com.trashheroesbe.global.exception.BusinessException;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private static final String TAG_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int TAG_LENGTH = 4;
+    private static final int MAX_TAG_RETRY = 10;
 
     private final UserRepository userRepository;
 
@@ -69,16 +76,36 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nickname,
         String profileImageUrl
     ) {
-        String suffix = String.format("%04d", ThreadLocalRandom.current().nextInt(0, 10000));
+        String tag = generateUniqueTag();
+
         User newUser = User.builder()
             .kakaoId(kakaoId)
             .nickname(nickname)
             .profileImageUrl(profileImageUrl)
             .provider(AuthProvider.KAKAO)
             .role(Role.USER)
-            .tag("#" + suffix)
+            .tag(tag)
             .build();
 
         return userRepository.save(newUser);
+    }
+
+    private String generateUniqueTag() {
+        for (int i = 0; i < MAX_TAG_RETRY; i++) {
+            String tag = "#" + generateRandomTag();
+            if (!userRepository.existsByTag(tag)) {
+                return tag;
+            }
+        }
+        throw new BusinessException(FAILED_TO_GENERATE_USER_TAG);
+    }
+
+    private String generateRandomTag() {
+        StringBuilder sb = new StringBuilder(TAG_LENGTH);
+        for (int i = 0; i < TAG_LENGTH; i++) {
+            int index = ThreadLocalRandom.current().nextInt(TAG_CHARACTERS.length());
+            sb.append(TAG_CHARACTERS.charAt(index));
+        }
+        return sb.toString();
     }
 }

@@ -31,6 +31,7 @@ public enum ErrorCode {
     MAX_USER_DISTRICTS_EXCEEDED(HttpStatus.BAD_REQUEST, "자치구는 최대 2개만 가질 수 있습니다."),
     NOT_FOUND_USER_DISTRICTS(HttpStatus.NOT_FOUND, "자치구 등록을 하지 않으셨습니다. 등록해주세요."),
     NOT_FOUND_DEFAULT_USER_DISTRICTS(HttpStatus.NOT_FOUND, "대표 유저 자치구를 찾을 수 없습니다."),
+    FAILED_TO_GENERATE_USER_TAG(HttpStatus.CONFLICT, "고유한 사용자 태그를 생성할 수 없습니다."),
 
     //partner
     EXISTS_EMAIL(HttpStatus.NOT_FOUND, "이미 사용중인 이메일 입니다."),
