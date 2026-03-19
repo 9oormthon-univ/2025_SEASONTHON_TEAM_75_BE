@@ -5,6 +5,7 @@ import com.trashheroesbe.feature.user.domain.type.Role;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.infrastructure.UserRepository;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -68,12 +69,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nickname,
         String profileImageUrl
     ) {
+        String suffix = String.format("%04d", ThreadLocalRandom.current().nextInt(0, 10000));
         User newUser = User.builder()
             .kakaoId(kakaoId)
             .nickname(nickname)
             .profileImageUrl(profileImageUrl)
             .provider(AuthProvider.KAKAO)
             .role(Role.USER)
+            .tag("#" + suffix)
             .build();
 
         return userRepository.save(newUser);
