@@ -10,6 +10,8 @@ public record UsedCouponListResponse(
 
     Long userId,
     String userNickName,
+    String userProfileUrl,
+    String userTag,
 
     Long couponId,
     String couponTitle,
@@ -23,6 +25,8 @@ public record UsedCouponListResponse(
             userCoupon.getUsedAt(),
             userCoupon.getUser().getId(),
             userCoupon.getUser().getNickname(),
+            userCoupon.getUser().getProfileImageUrl(),
+            userCoupon.getUser().getTag(),
             userCoupon.getCoupon().getId(),
             userCoupon.getCoupon().getTitle(),
             userCoupon.getCoupon().getType().getDescription()
