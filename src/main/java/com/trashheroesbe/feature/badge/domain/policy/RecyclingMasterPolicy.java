@@ -48,4 +48,10 @@ public class RecyclingMasterPolicy implements BadgePolicy {
     public boolean achieved(BadgeProgress progress) {
         return progress.getUniqueTrashTypeCount() >= targetValue();
     }
+
+    @Override
+    public int rewardPoints() {
+        return 500;
+    }
+
 }

@@ -12,6 +12,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 
 @Component
@@ -22,7 +24,7 @@ public class BadgeEventHandler {
     private final UserFinder userFinder;
 
     @Async("badgeTaskExecutor")
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = REQUIRES_NEW)
     public void handleTrashAnalysisCompleted(TrashAnalysisEvent event) {
         User user = userFinder.findById(event.getUserId());

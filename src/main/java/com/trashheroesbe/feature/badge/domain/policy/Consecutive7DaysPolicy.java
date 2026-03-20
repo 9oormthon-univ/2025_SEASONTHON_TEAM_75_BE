@@ -73,4 +73,10 @@ public class Consecutive7DaysPolicy implements BadgePolicy {
         return true;
     }
 
+    @Override
+    public int rewardPoints() {
+        return 300;
+    }
+
+
 }
