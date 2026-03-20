@@ -91,16 +91,22 @@ public class BadgeManager {
             try {
                 log.info("뱃지 '{}' 수여 {}", badge.getName(), user.getId());
                 UserBadge savedUserbadge = userBadgeRepository.save(userBadge);
-                PointEarnedResult pointResult = pointService.grantPointsForBadge(
-                    user.getId(),
-                    badge.getId(),
-                    policy.rewardPoints()
-                );
+                try {
+                    PointEarnedResult pointResult = pointService.grantPointsForBadge(
+                        user.getId(),
+                        badge.getId(),
+                        policy.rewardPoints()
+                    );
+                } catch (Exception e) {
+                    log.error("포인트 지급 실패 - badgeId: {}", badge.getId(), e);
+                }
                 return UserBadgeResponse.from(savedUserbadge);
             } catch (DataIntegrityViolationException ignore) {
                 log.error("뱃지 중복 수여 block");
                 return null;
             }
+
+
         }
         return null;
     }
