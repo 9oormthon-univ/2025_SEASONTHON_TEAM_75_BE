@@ -45,4 +45,10 @@ public class VinylHunterPolicy implements BadgePolicy {
     public boolean achieved(BadgeProgress progress) {
         return progress.getProgressCount() != null && progress.getProgressCount() >= targetValue();
     }
+
+    @Override
+    public int rewardPoints() {
+        return 100;
+    }
+
 }

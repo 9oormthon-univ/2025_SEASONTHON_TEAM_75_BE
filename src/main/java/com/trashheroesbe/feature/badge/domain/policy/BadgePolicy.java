@@ -18,4 +18,6 @@ public interface BadgePolicy {
     void applyProgress(BadgeProgress progress, TrashAnalysisEvent event, Clock clock);
 
     boolean achieved(BadgeProgress progress);
+
+    int rewardPoints();
 }

@@ -8,6 +8,8 @@ import com.trashheroesbe.feature.badge.domain.event.TrashAnalysisEvent;
 import com.trashheroesbe.feature.badge.domain.policy.BadgePolicy;
 import com.trashheroesbe.feature.badge.infrastructure.BadgeProgressRepository;
 import com.trashheroesbe.feature.badge.infrastructure.BadgeRepository;
+import com.trashheroesbe.feature.point.application.PointService;
+import com.trashheroesbe.feature.point.dto.response.PointEarnedResult;
 import com.trashheroesbe.feature.user.domain.entity.User;
 import com.trashheroesbe.feature.user.domain.entity.UserBadge;
 import com.trashheroesbe.feature.user.dto.response.UserBadgeResponse;
@@ -33,6 +35,8 @@ public class BadgeManager {
     private final BadgeRepository badgeRepository;
     private final BadgeProgressRepository progressRepository;
     private final UserBadgeRepository userBadgeRepository;
+
+    private final PointService pointService;
 
     private final Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
@@ -87,11 +91,22 @@ public class BadgeManager {
             try {
                 log.info("뱃지 '{}' 수여 {}", badge.getName(), user.getId());
                 UserBadge savedUserbadge = userBadgeRepository.save(userBadge);
+                try {
+                    PointEarnedResult pointResult = pointService.grantPointsForBadge(
+                        user.getId(),
+                        badge.getId(),
+                        policy.rewardPoints()
+                    );
+                } catch (Exception e) {
+                    log.error("포인트 지급 실패 - badgeId: {}", badge.getId(), e);
+                }
                 return UserBadgeResponse.from(savedUserbadge);
             } catch (DataIntegrityViolationException ignore) {
                 log.error("뱃지 중복 수여 block");
                 return null;
             }
+
+
         }
         return null;
     }

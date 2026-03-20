@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PointService {
 
@@ -47,6 +48,21 @@ public class PointService {
             .userId(userId)
             .relatedEntityId(trashId)
             .reason(PointReason.TRASH_CREATED)
+            .earnedPoints(earnedPoints)
+            .occurredAt(now)
+            .build();
+
+        publisher.publishEvent(event);
+        return new PointEarnedResult(earnedPoints, now);
+    }
+
+    public PointEarnedResult grantPointsForBadge(Long userId, Long badgeId, int earnedPoints) {
+        LocalDateTime now = LocalDateTime.now();
+
+        PointEarnedEvent event = PointEarnedEvent.builder()
+            .userId(userId)
+            .relatedEntityId(badgeId)
+            .reason(PointReason.BADGE_EARNED)
             .earnedPoints(earnedPoints)
             .occurredAt(now)
             .build();
