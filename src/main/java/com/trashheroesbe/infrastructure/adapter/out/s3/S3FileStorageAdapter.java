@@ -66,28 +66,39 @@ public class S3FileStorageAdapter implements FileStoragePort {
     }
 
     private String extractKeyFromUrl(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            throw new IllegalArgumentException("삭제할 파일 URL이 비어 있습니다.");
+        }
+
+        String normalizedFileUrl = fileUrl.trim();
         String normalizedBaseUrl = trimTrailingSlash(publicBaseUrl);
-        if (fileUrl != null && fileUrl.startsWith(normalizedBaseUrl + "/")) {
-            return fileUrl.substring(normalizedBaseUrl.length() + 1);
+        String allowedUrlPrefix = normalizedBaseUrl + "/";
+        String bucketPrefix = bucketName + "/";
+
+        if (normalizedFileUrl.startsWith(allowedUrlPrefix)) {
+            return normalizedFileUrl.substring(allowedUrlPrefix.length());
+        }
+
+        if (normalizedFileUrl.startsWith(bucketPrefix)) {
+            return normalizedFileUrl.substring(bucketPrefix.length());
         }
 
         try {
-            String path = URI.create(fileUrl).getPath();
+            String path = URI.create(normalizedFileUrl).getPath();
             String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-            String bucketPrefix = bucketName + "/";
-            return normalizedPath.startsWith(bucketPrefix)
-                ? normalizedPath.substring(bucketPrefix.length())
-                : normalizedPath;
+            if (!normalizedPath.startsWith(bucketPrefix)) {
+                throw invalidFileUrl(normalizedFileUrl);
+            }
+            return normalizedPath.substring(bucketPrefix.length());
         } catch (Exception e) {
-            int slash = fileUrl.indexOf('/', fileUrl.indexOf("://") + 3);
-            String fallback = (slash >= 0 && slash + 1 < fileUrl.length())
-                ? fileUrl.substring(slash + 1)
-                : fileUrl;
-            String bucketPrefix = bucketName + "/";
-            return fallback.startsWith(bucketPrefix)
-                ? fallback.substring(bucketPrefix.length())
-                : fallback;
+            throw e instanceof IllegalArgumentException
+                ? (IllegalArgumentException) e
+                : invalidFileUrl(normalizedFileUrl);
         }
+    }
+
+    private IllegalArgumentException invalidFileUrl(String fileUrl) {
+        return new IllegalArgumentException("허용되지 않은 스토리지 파일 URL입니다: " + fileUrl);
     }
 
     private String trimTrailingSlash(String value) {
