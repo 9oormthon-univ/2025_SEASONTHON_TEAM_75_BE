@@ -35,8 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
-!/.idea/
 
 application*.yml
-
 
