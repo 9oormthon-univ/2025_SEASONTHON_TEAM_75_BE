@@ -19,11 +19,11 @@ public class S3FileStorageAdapter implements FileStoragePort {
 
     private final S3Client s3Client;
 
-    @Value("${spring.cloud.aws.s3.bucket}")
+    @Value("${storage.s3.bucket}")
     private String bucketName;
 
-    @Value("${spring.cloud.aws.region.static}")
-    private String region;
+    @Value("${storage.s3.public-base-url}")
+    private String publicBaseUrl;
 
     @Override
     public String uploadFile(String key, String contentType, byte[] fileData) {
@@ -37,7 +37,7 @@ public class S3FileStorageAdapter implements FileStoragePort {
 
         s3Client.putObject(put, RequestBody.fromBytes(fileData));
 
-        String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+        String url = String.format("%s/%s", trimTrailingSlash(publicBaseUrl), key);
         log.info("S3 파일 업로드 완료: {}", url);
         return url;
     }
@@ -66,19 +66,44 @@ public class S3FileStorageAdapter implements FileStoragePort {
     }
 
     private String extractKeyFromUrl(String fileUrl) {
-        try {
-            String path = URI.create(fileUrl).getPath();           // /trash/2025.../abc.jpg
-            return path.startsWith("/") ? path.substring(1) : path; // trash/2025.../abc.jpg
-        } catch (Exception e) {
-            // 도메인이 변형된 경우를 위한 보정
-            final String marker = ".amazonaws.com/";
-            int idx = fileUrl.indexOf(marker);
-            if (idx >= 0) {
-                return fileUrl.substring(idx + marker.length());
-            }
-            int slash = fileUrl.indexOf('/', fileUrl.indexOf("://") + 3);
-            return (slash >= 0 && slash + 1 < fileUrl.length()) ? fileUrl.substring(slash + 1)
-                : fileUrl;
+        if (fileUrl == null || fileUrl.isBlank()) {
+            throw new IllegalArgumentException("삭제할 파일 URL이 비어 있습니다.");
         }
+
+        String normalizedFileUrl = fileUrl.trim();
+        String normalizedBaseUrl = trimTrailingSlash(publicBaseUrl);
+        String allowedUrlPrefix = normalizedBaseUrl + "/";
+        String bucketPrefix = bucketName + "/";
+
+        if (normalizedFileUrl.startsWith(allowedUrlPrefix)) {
+            return normalizedFileUrl.substring(allowedUrlPrefix.length());
+        }
+
+        if (normalizedFileUrl.startsWith(bucketPrefix)) {
+            return normalizedFileUrl.substring(bucketPrefix.length());
+        }
+
+        try {
+            String path = URI.create(normalizedFileUrl).getPath();
+            String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+            if (!normalizedPath.startsWith(bucketPrefix)) {
+                throw invalidFileUrl(normalizedFileUrl);
+            }
+            return normalizedPath.substring(bucketPrefix.length());
+        } catch (Exception e) {
+            throw e instanceof IllegalArgumentException
+                ? (IllegalArgumentException) e
+                : invalidFileUrl(normalizedFileUrl);
+        }
+    }
+
+    private IllegalArgumentException invalidFileUrl(String fileUrl) {
+        return new IllegalArgumentException("허용되지 않은 스토리지 파일 URL입니다: " + fileUrl);
+    }
+
+    private String trimTrailingSlash(String value) {
+        return value != null && value.endsWith("/")
+            ? value.substring(0, value.length() - 1)
+            : value;
     }
 }
