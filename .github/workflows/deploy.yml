@@ -10,9 +10,15 @@ env:
   OCI_HOST: ${{ secrets.OCI_HOST }}
   OCI_SSH_USER: ubuntu
   PRIVATE_KEY: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
-  CONTAINER_NAME: ${{ secrets.DEV_CONTAINER_NAME }}
-  APP_PORT: "8080"
   TZ_REGION: "Asia/Seoul"
+  BLUE_PORT: "8081"
+  GREEN_PORT: "8082"
+  UPSTREAM_CONF: "/etc/nginx/conf.d/trash-heroes-upstream.conf"
+  HEALTH_PATH: "/favicon.ico"
+  HEALTH_TIMEOUT: "240"
+  JVM_OPTS: "-Xmx240m"
+  MEM_LIMIT: "520m"
+  MEM_SWAP: "1g"
 
 jobs:
   build-and-push-docker:
@@ -92,42 +98,80 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to OCI VM
+      - name: Blue-Green Deploy to OCI VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.OCI_HOST }}
           username: ${{ env.OCI_SSH_USER }}
           key: ${{ env.PRIVATE_KEY }}
+          command_timeout: 10m
           script: |
             set -euo pipefail
 
             IMAGE="${{ env.DOCKER_IMAGE_NAME }}:latest"
-            NAME="${{ env.CONTAINER_NAME }}"
-            PORT="${{ env.APP_PORT }}"
+            UPSTREAM_CONF="${{ env.UPSTREAM_CONF }}"
+            HEALTH_PATH="${{ env.HEALTH_PATH }}"
+            HEALTH_TIMEOUT="${{ env.HEALTH_TIMEOUT }}"
             TZ="${{ env.TZ_REGION }}"
+            JVM_OPTS="${{ env.JVM_OPTS }}"
+            MEM_LIMIT="${{ env.MEM_LIMIT }}"
+            MEM_SWAP="${{ env.MEM_SWAP }}"
 
-            echo "[1/5] Pull latest image"
+            # 현재 활성 포트를 nginx upstream 파일에서 읽어 반대편을 선택
+            CURRENT_PORT="$(grep -oE '127\.0\.0\.1:[0-9]+' "$UPSTREAM_CONF" | cut -d: -f2)"
+            if [ "$CURRENT_PORT" = "${{ env.BLUE_PORT }}" ]; then
+              NEW_PORT="${{ env.GREEN_PORT }}"; NEW_NAME=trash-heroes-green; OLD_NAME=trash-heroes-blue
+            else
+              NEW_PORT="${{ env.BLUE_PORT }}";  NEW_NAME=trash-heroes-blue;  OLD_NAME=trash-heroes-green
+            fi
+            echo "[blue-green] 활성=${CURRENT_PORT} -> 신규=${NEW_PORT} (${NEW_NAME})"
+
+            echo "[1/5] 이미지 pull"
             sudo docker pull "$IMAGE"
 
-            echo "[2/5] Stop & remove existing container by name (if exists)"
-            if sudo docker ps -a --format '{{.Names}}' | grep -wq "$NAME"; then
-              sudo docker stop "$NAME" || true
-              sudo docker rm "$NAME" || true
-            fi
-
-            echo "[3/5] Run new container on port ${PORT}"
-            sudo docker run -d \
-              --name "$NAME" \
-              -p ${PORT}:${PORT} \
+            echo "[2/5] 신규 컨테이너 기동 (${NEW_PORT})"
+            sudo docker rm -f "$NEW_NAME" >/dev/null 2>&1 || true
+            sudo docker run -d --name "$NEW_NAME" \
+              -p 127.0.0.1:${NEW_PORT}:8080 \
               -e TZ="$TZ" \
               -e SPRING_PROFILES_ACTIVE=prod \
+              -e JAVA_TOOL_OPTIONS="$JVM_OPTS" \
+              --memory="$MEM_LIMIT" --memory-swap="$MEM_SWAP" \
               --restart unless-stopped \
-              "$IMAGE"
+              "$IMAGE" >/dev/null
 
-            echo "[4/5] Cleanup dangling images"
-            sudo docker image prune -f
+            echo "[3/5] 헬스체크 (최대 ${HEALTH_TIMEOUT}초)"
+            HEALTHY=0; ELAPSED=0
+            while [ "$ELAPSED" -lt "$HEALTH_TIMEOUT" ]; do
+              CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://127.0.0.1:${NEW_PORT}${HEALTH_PATH}" 2>/dev/null || true)"
+              if [ -n "$CODE" ] && [ "$CODE" != "000" ] && [ "$CODE" -lt 500 ]; then
+                echo "  -> HTTP $CODE (${ELAPSED}초) 기동 완료"; HEALTHY=1; break
+              fi
+              sleep 5; ELAPSED=$((ELAPSED+5))
+            done
 
-            echo "[5/5] Check running container"
-            sudo docker ps
+            # 헬스체크 실패 시 트래픽은 그대로 두고 신규만 제거 -> 무중단 유지
+            if [ "$HEALTHY" != "1" ]; then
+              echo "  [실패] 헬스체크 미통과 - 트래픽 유지(${CURRENT_PORT})"
+              sudo docker logs --tail 50 "$NEW_NAME" 2>&1 || true
+              sudo docker rm -f "$NEW_NAME" >/dev/null 2>&1 || true
+              exit 1
+            fi
 
-            echo "Deployment complete: $NAME running on port $PORT"
+            echo "[4/5] nginx 트래픽 전환 -> ${NEW_PORT}"
+            sudo cp "$UPSTREAM_CONF" "${UPSTREAM_CONF}.prev"
+            printf 'upstream trash_heroes_backend {\n    server 127.0.0.1:%s;\n}\n' "$NEW_PORT" | sudo tee "$UPSTREAM_CONF" >/dev/null
+            if ! sudo nginx -t >/dev/null 2>&1; then
+              echo "  [실패] nginx 검증 실패 - upstream 롤백"
+              sudo cp "${UPSTREAM_CONF}.prev" "$UPSTREAM_CONF"
+              sudo docker rm -f "$NEW_NAME" >/dev/null 2>&1 || true
+              exit 1
+            fi
+            sudo nginx -s reload
+            sleep 3
+
+            echo "[5/5] 구 컨테이너 정리 (${OLD_NAME})"
+            sudo docker rm -f "$OLD_NAME" >/dev/null 2>&1 || true
+            sudo docker image prune -f >/dev/null
+
+            echo "[blue-green] 완료 - 활성 ${NEW_PORT} (${NEW_NAME})"
